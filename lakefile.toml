@@ -1,0 +1,36 @@
+name = "CountingSetsWithSmallSumset"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["CountingSetsWithSmallSumset", "Challenge", "Solution"]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+maxSynthPendingDepth = 3
+
+# Source of the affine dimension of a finite set and of the Freiman dimension.
+[[require]]
+name = "SumOfSetsInSeveralDimensions"
+git = "https://github.com/gdahia/SumOfSetsInSeveralDimensions"
+rev = "14ba023a601c3fc8a9e64d56c9212dddf585fb44"
+
+# Last, so that its pins of the shared dependencies take precedence on `lake update`.
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.35.0-rc4"
+
+# The proof development; `Solution.lean` imports it.
+[[lean_lib]]
+name = "CountingSetsWithSmallSumset"
+
+# The statement-only surface a reader audits.
+[[lean_lib]]
+name = "Challenge"
+roots = ["Challenge"]
+
+# Proves the declarations stated in `Challenge.lean`; Comparator checks the two agree.
+[[lean_lib]]
+name = "Solution"
+roots = ["Solution"]

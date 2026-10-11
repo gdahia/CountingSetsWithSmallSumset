@@ -1,0 +1,12 @@
+{
+  "challenge_module": "Challenge",
+  "solution_module": "Solution",
+  "theorem_names": [
+    "CountingSetsWithSmallSumset.ncard_setOf_card_eq_freimanDim_le_le",
+    "CountingSetsWithSmallSumset.exists_forall_exists_isAddFreimanIso_card_le",
+    "CountingSetsWithSmallSumset.ncard_setOf_card_eq_freimanDim_le_card_add_le_le"
+  ],
+  "definition_names": [],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": true
+}
