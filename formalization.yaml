@@ -39,7 +39,7 @@ sources:
       arXiv version, where theorems, propositions, lemmas and corollaries share one counter;
       the numbers were not compared with those of the published version. The Lean
       proofs were compared with the paper at the level of the statements and of the
-      parameters recorded in fidelity.divergences, and not line by line.
+      parameters described in the README, and not line by line.
     license: "unknown"
     author_endorsement: "not-contacted"
   - title: "Dense sets without large sumsets"
@@ -149,14 +149,6 @@ fidelity:
     have small restricted sumset, and two of them may be isomorphic. The library form has
     the irreducible constant smallSumsetClassCountThreshold in place of 2^9000.
 
-    Proof of Proposition 18. The paper takes the class of order 6 of the core A_0, the
-    class of order 3 of A_1 and the class of order 2 of A, and Lemma 16 bounds the number of
-    classes of the extensions of a set of l elements by t elements by l^(3 t^4). The Lean
-    proof takes the orders 8, 4 and 2 and the bound (1 + l^4)^((d + 1)^4) for extensions by
-    d elements. In Proposition 15 a sum with at least Q representations has at least
-    floor(Q / 2) disjoint ones in the Lean proof, where the paper uses Q / 3, and the
-    expectation is a finite sum over the functions from A to Bool.
-
     Sets of bounded Freiman dimension. The paper does not state the bound n^(r+1) t^(4t) for
     the number of sets X in {1, ..., n} with t elements and Freiman dimension at most r. It
     is the combination of Lemma 11 with s = 2 and of Lemma 13 (i) made in the proof of the
@@ -171,17 +163,14 @@ fidelity:
     and |X + X| <= s, for t >= 2^9000 and s <= t^(31/30) / 2, and gives
     n^(r+1) (2 e s / t)^t exp(t^(31/32)). The Freiman dimension is a parameter, the bound s
     is on the sumset X + X and not on the restricted sumset, and the reduction from Z/NZ is
-    not formalized. The Lean proof applies the bound for the number of classes with
-    m = 2s, as the paper does for the lifts; this is the source of the factor 2.
+    not formalized.
 
     Freiman dimension. The paper defines the Freiman dimension of A as dim Hom_2(A, F) - 1,
     where Hom_2(A, F) is the space of the Freiman homomorphisms of order 2 from A to F, and
     Corollary 14 states that it is the largest d such that A is isomorphic to a subset of
     F^d not contained in a proper affine subspace. In Lean, freimanDim X is the largest
     d <= |X| such that X is Freiman isomorphic of order 2 to a subset of Q^d whose image in
-    R^d has affine dimension d. Corollary 14 is not formalized. The library proves that the
-    dimension of the model of X built from its relations is at most freimanDim X, which is
-    the inequality the counts use.
+    R^d has affine dimension d. Corollary 14 is not formalized.
 
 review:
   status: "not reviewed"

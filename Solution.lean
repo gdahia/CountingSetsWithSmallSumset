@@ -5,7 +5,9 @@ Authors: Gabriel Dahia
 -/
 module
 
-public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ClassCountBounds
+public import SumOfSetsInSeveralDimensions.FreimanDimension
+public import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ClassCountBounds
 
 /-!
 # Counting sets with small sumset: proofs
@@ -46,13 +48,12 @@ sets such that every set `A` of `t` natural numbers whose restricted sumset has 
 elements is Freiman isomorphic of order `2` to a member of the family. The paper takes `t`
 sufficiently large and subsets of `F^t` for a field `F`. -/
 theorem exists_forall_exists_isAddFreimanIso_card_le {t m : ℕ} (ht : 2 ^ 9000 ≤ t)
-    (hm : (m : ℝ) ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) :
+    (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) :
     ∃ representatives : Finset (Finset ℕ),
       (∀ A : Finset ℕ, #A = t →
-        #(((A ×ˢ A).filter fun p ↦ p.1 ≠ p.2).image fun p ↦ p.1 + p.2) ≤ m →
+        #(((A ×ˢ A).filter fun (a, b) ↦ a ≠ b).image fun (a, b) ↦ a + b) ≤ m →
           ∃ B ∈ representatives, ∃ f : ℕ → ℕ, IsAddFreimanIso 2 (A : Set ℕ) (B : Set ℕ) f) ∧
-      (#representatives : ℝ) ≤
-        (Real.exp 1 * m / t) ^ t * Real.exp ((t : ℝ) ^ ((31 : ℝ) / 32)) := by
+      #representatives ≤ (Real.exp 1 * m / t) ^ t * Real.exp (t ^ ((31 : ℝ) / 32)) := by
   rw [← smallSumsetClassCountThreshold_def] at ht
   obtain ⟨representatives, hcover, hcard⟩ := exists_smallRestrictedSumsetFreimanClassCover ht hm
   exact ⟨representatives, fun A hA hAA ↦ hcover A ⟨hA, hAA⟩, hcard⟩
@@ -66,9 +67,9 @@ sumset has `m` elements. Its proof counts the subsets of `{1, …, N}` with `t` 
 restricted sumset has at most `2 * m` elements. Here the Freiman dimension is a parameter and
 the bound `s` is on the sumset `X + X`, which contains the restricted sumset. -/
 theorem ncard_setOf_card_eq_freimanDim_le_card_add_le_le (n r s t : ℕ) (ht : 2 ^ 9000 ≤ t)
-    (hs : (s : ℝ) ≤ (t : ℝ) ^ ((31 : ℝ) / 30) / 2) :
-    ({X : Finset ℕ | X ⊆ Icc 1 n ∧ #X = t ∧ freimanDim X ≤ r ∧ #(X + X) ≤ s}.ncard : ℝ) ≤
-      (n : ℝ) ^ (r + 1) * (2 * Real.exp 1 * s / t) ^ t * Real.exp ((t : ℝ) ^ ((31 : ℝ) / 32)) := by
+    (hs : s ≤ (t : ℝ) ^ ((31 : ℝ) / 30) / 2) :
+    {X : Finset ℕ | X ⊆ Icc 1 n ∧ #X = t ∧ freimanDim X ≤ r ∧ #(X + X) ≤ s}.ncard ≤
+      n ^ (r + 1) * (2 * Real.exp 1 * s / t) ^ t * Real.exp (t ^ ((31 : ℝ) / 32)) := by
   rw [← smallSumsetClassCountThreshold_def] at ht
   exact smallSumsetFreimanDimSets_ncard_le_of_class_cover n r s t ht hs
 

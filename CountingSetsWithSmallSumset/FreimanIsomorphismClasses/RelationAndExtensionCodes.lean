@@ -102,7 +102,8 @@ private lemma freimanRelation_iff_mem_space {s t : ℕ} (a : Fin t → ℕ)
     (p : FreimanRelationIndex s t) :
     freimanRelationHolds a p ↔
       freimanRelationVector p ∈ freimanRelationSpace (s := s) a := by
-  refine ⟨fun hp ↦ Submodule.subset_span ⟨p, hp, rfl⟩, fun hp ↦ ?_⟩
+  refine ⟨fun hp ↦ Submodule.subset_span ⟨p, hp, rfl⟩, ?_⟩
+  intro hp
   rw [← freimanRelationVector_mem_ker_iff]
   refine Submodule.span_le.mpr ?_ hp
   rintro _ ⟨q, hq, rfl⟩
@@ -135,7 +136,7 @@ private lemma exists_freimanRelationCode {s t : ℕ} (ht : 0 < t) (a : Fin t →
 
 private def freimanRelationCodes {s t : ℕ} (a : Fin t → ℕ) :
     Finset (Fin t → FreimanRelationIndex s t) :=
-  Finset.univ.filter fun code ↦
+  univ.filter fun code ↦
     Submodule.span ℚ (freimanRelationVector '' Set.range code) =
       freimanRelationSpace (s := s) a
 
@@ -164,8 +165,8 @@ lemma freimanRelationCode_eq_of_relations_iff {s t : ℕ} (ht : 0 < t)
       freimanRelationHolds a p ↔ freimanRelationHolds b p) :
     freimanRelationCode (s := s) ht a = freimanRelationCode ht b := by
   have hspace : freimanRelationSpace (s := s) a = freimanRelationSpace (s := s) b := by
-    simp only [freimanRelationSpace, hrelations]
-  simp only [freimanRelationCode, freimanRelationCodes, hspace]
+    simp [freimanRelationSpace, hrelations]
+  simp [freimanRelationCode, freimanRelationCodes, hspace]
 
 /-- Two tuples with the same relation code satisfy the same relations. -/
 lemma freimanRelations_iff_of_code_eq {s t : ℕ} (ht : 0 < t)
@@ -186,20 +187,21 @@ lemma card_freimanRelationCodes (s t : ℕ) :
 
 /-- The restricted sumset, in which the two summands must be distinct. -/
 def restrictedSumset {G : Type*} [DecidableEq G] [Add G] (A : Finset G) : Finset G :=
-  ((A ×ˢ A).filter fun p ↦ p.1 ≠ p.2).image fun p ↦ p.1 + p.2
+  ((A ×ˢ A).filter fun (a, b) ↦ a ≠ b).image fun (a, b) ↦ a + b
 
 private lemma restrictedSumset_eq_image_offDiag {G : Type*} [DecidableEq G] [Add G]
     (A : Finset G) :
-    restrictedSumset A = A.offDiag.image fun p ↦ p.1 + p.2 := by
+    restrictedSumset A = A.offDiag.image fun (a, b) ↦ a + b := by
   ext x
-  simp only [restrictedSumset, mem_image, mem_filter, mem_product, mem_offDiag, and_assoc]
+  simp [restrictedSumset, and_assoc]
 
 lemma restrictedSumset_subset_add {G : Type*} [DecidableEq G] [Add G] (A : Finset G) :
     restrictedSumset A ⊆ A + A := by
   rw [restrictedSumset, image_subset_iff]
-  intro p hp
+  rintro ⟨a, b⟩ hp
   rw [mem_filter, mem_product] at hp
-  exact add_mem_add hp.1.1 hp.1.2
+  obtain ⟨⟨ha, hb⟩, -⟩ := hp
+  exact add_mem_add ha hb
 
 lemma card_restrictedSumset_le_card_add {G : Type*} [DecidableEq G] [Add G]
     (A : Finset G) :
@@ -220,29 +222,25 @@ lemma card_sub_one_le_card_restrictedSumset {G : Type*} [DecidableEq G]
 /-- The ordered representations of `x` as a sum of two distinct elements of `A`. -/
 private def restrictedRepresentationPairs {G : Type*} [DecidableEq G] [Add G]
     (A : Finset G) (x : G) : Finset (G × G) :=
-  A.offDiag.filter fun p ↦ p.1 + p.2 = x
+  A.offDiag.filter fun (a, b) ↦ a + b = x
 
 private lemma mem_restrictedRepresentationPairs {G : Type*} [DecidableEq G] [Add G]
-    {A : Finset G} {x : G} {p : G × G} :
-    p ∈ restrictedRepresentationPairs A x ↔
-      p.1 ∈ A ∧ p.2 ∈ A ∧ p.1 ≠ p.2 ∧ p.1 + p.2 = x := by
-  simp only [restrictedRepresentationPairs, mem_filter, mem_offDiag, and_assoc]
+    {A : Finset G} {x a b : G} :
+    (a, b) ∈ restrictedRepresentationPairs A x ↔ a ∈ A ∧ b ∈ A ∧ a ≠ b ∧ a + b = x := by
+  simp [restrictedRepresentationPairs, and_assoc]
 
 private lemma mem_restrictedSumset_iff_representationPairs_nonempty
     {G : Type*} [DecidableEq G] [Add G] {A : Finset G} {x : G} :
     x ∈ restrictedSumset A ↔ (restrictedRepresentationPairs A x).Nonempty := by
-  simp only [restrictedSumset_eq_image_offDiag, mem_image, Finset.Nonempty,
-    restrictedRepresentationPairs, mem_filter]
+  simp [restrictedSumset_eq_image_offDiag, Finset.Nonempty, restrictedRepresentationPairs]
 
 /-- The representations `x = b + c` with `b < c` and `b, c ∈ A`. -/
 private def increasingRestrictedRepresentationPairs (A : Finset ℕ) (x : ℕ) :
     Finset (ℕ × ℕ) :=
-  (restrictedRepresentationPairs A x).filter fun p ↦ p.1 < p.2
+  (restrictedRepresentationPairs A x).filter fun (b, c) ↦ b < c
 
-private lemma mem_increasingRestrictedRepresentationPairs
-    {A : Finset ℕ} {x : ℕ} {p : ℕ × ℕ} :
-    p ∈ increasingRestrictedRepresentationPairs A x ↔
-      p.1 ∈ A ∧ p.2 ∈ A ∧ p.1 < p.2 ∧ p.1 + p.2 = x := by
+private lemma mem_increasingRestrictedRepresentationPairs {A : Finset ℕ} {x b c : ℕ} :
+    (b, c) ∈ increasingRestrictedRepresentationPairs A x ↔ b ∈ A ∧ c ∈ A ∧ b < c ∧ b + c = x := by
   rw [increasingRestrictedRepresentationPairs, mem_filter, mem_restrictedRepresentationPairs]
   grind
 
@@ -251,13 +249,14 @@ private lemma card_restrictedRepresentationPairs_le (A : Finset ℕ) (x : ℕ) :
       2 * #(increasingRestrictedRepresentationPairs A x) := by
   have hsub : restrictedRepresentationPairs A x ⊆ increasingRestrictedRepresentationPairs A x ∪
       (increasingRestrictedRepresentationPairs A x).image Prod.swap := by
-    intro p hp
-    rw [mem_restrictedRepresentationPairs] at hp
+    rintro ⟨b, c⟩ hp
+    obtain ⟨hb, hc, hbc, hx⟩ := mem_restrictedRepresentationPairs.mp hp
     rw [mem_union, mem_image]
-    obtain h | h := lt_or_gt_of_ne hp.2.2.1
-    · exact .inl (mem_increasingRestrictedRepresentationPairs.mpr ⟨hp.1, hp.2.1, h, hp.2.2.2⟩)
-    · exact .inr ⟨p.swap, mem_increasingRestrictedRepresentationPairs.mpr
-        ⟨hp.2.1, hp.1, h, (add_comm _ _).trans hp.2.2.2⟩, p.swap_swap⟩
+    obtain h | h := lt_or_gt_of_ne hbc
+    · left
+      exact mem_increasingRestrictedRepresentationPairs.mpr ⟨hb, hc, h, hx⟩
+    · right
+      exact ⟨(c, b), mem_increasingRestrictedRepresentationPairs.mpr ⟨hc, hb, h, by grind⟩, rfl⟩
   refine (card_le_card hsub).trans ((card_union_le _ _).trans ?_)
   rw [two_mul]
   exact Nat.add_le_add_left card_image_le _
@@ -270,13 +269,11 @@ private lemma half_le_card_increasing_of_popular {A : Finset ℕ} {x Q : ℕ}
 private lemma mem_restrictedSumset_iff_increasing_nonempty {A : Finset ℕ} {x : ℕ} :
     x ∈ restrictedSumset A ↔ (increasingRestrictedRepresentationPairs A x).Nonempty := by
   rw [mem_restrictedSumset_iff_representationPairs_nonempty, ← card_pos, ← card_pos]
-  have hle := card_restrictedRepresentationPairs_le A x
-  have hge : #(increasingRestrictedRepresentationPairs A x) ≤
-      #(restrictedRepresentationPairs A x) := card_le_card (filter_subset _ _)
-  grind
+  grind [card_restrictedRepresentationPairs_le A x, increasingRestrictedRepresentationPairs,
+    card_filter_le]
 
 private def unpopularOrderedPairs (A : Finset ℕ) (Q : ℕ) : Finset (ℕ × ℕ) :=
-  A.offDiag.filter fun p ↦ #(restrictedRepresentationPairs A (p.1 + p.2)) < Q
+  A.offDiag.filter fun (a, b) ↦ #(restrictedRepresentationPairs A (a + b)) < Q
 
 private def unpopularNeighbors (A : Finset ℕ) (Q : ℕ) (a : ℕ) : Finset ℕ :=
   (A.erase a).filter fun b ↦ #(restrictedRepresentationPairs A (a + b)) < Q
@@ -284,10 +281,10 @@ private def unpopularNeighbors (A : Finset ℕ) (Q : ℕ) (a : ℕ) : Finset ℕ
 private lemma card_unpopularOrderedPairs_le (A : Finset ℕ) (Q : ℕ) :
     #(unpopularOrderedPairs A Q) ≤ Q * #(restrictedSumset A) := by
   rw [restrictedSumset_eq_image_offDiag]
-  refine (card_le_mul_card_image (f := fun p : ℕ × ℕ ↦ p.1 + p.2) _ Q ?_).trans
+  refine (card_le_mul_card_image (f := fun ((a, b) : ℕ × ℕ) ↦ a + b) _ Q ?_).trans
     (Nat.mul_le_mul_left Q (card_le_card (image_subset_image (filter_subset _ _))))
   intro x hx
-  obtain ⟨p, hp, rfl⟩ := mem_image.mp hx
+  obtain ⟨⟨a, b⟩, hp, rfl⟩ := mem_image.mp hx
   exact (card_le_card (filter_subset_filter _ (filter_subset _ _))).trans (mem_filter.mp hp).2.le
 
 private lemma sum_card_unpopularNeighbors_eq (A : Finset ℕ) (Q : ℕ) :
@@ -443,11 +440,11 @@ private lemma mem_selectedElements {A : Finset ℕ} {ω : A → Bool} {a : ℕ} 
   simp [selectedElements, selectedIndices]
 
 private lemma mem_increasing_selectedElements_iff {A : Finset ℕ} {x : ℕ} {ω : A → Bool}
-    {p : ℕ × ℕ} :
-    p ∈ increasingRestrictedRepresentationPairs (selectedElements A ω) x ↔
-      ∃ h : p ∈ increasingRestrictedRepresentationPairs A x,
-        ω (increasingRepresentationEndpoint A x (⟨p, h⟩, 0)) ∧
-          ω (increasingRepresentationEndpoint A x (⟨p, h⟩, 1)) := by
+    {b c : ℕ} :
+    (b, c) ∈ increasingRestrictedRepresentationPairs (selectedElements A ω) x ↔
+      ∃ h : (b, c) ∈ increasingRestrictedRepresentationPairs A x,
+        ω (increasingRepresentationEndpoint A x (⟨(b, c), h⟩, 0)) ∧
+          ω (increasingRepresentationEndpoint A x (⟨(b, c), h⟩, 1)) := by
   simp only [mem_increasingRestrictedRepresentationPairs, mem_selectedElements,
     increasingRepresentationEndpoint]
   grind
@@ -474,29 +471,25 @@ private lemma sum_assignmentWeight_missedTranslateCard (A : Finset ℕ)
   simp_rw [← representationAvoidanceIndicator_eq_boole,
     sum_assignmentWeight_representationAvoidanceIndicator]
 
-private lemma pow_card_increasing_le (A : Finset ℕ) {a b : ℕ} (hb : b ∈ A) (Q : ℕ) {q : ℝ}
+private lemma pow_card_increasing_le {A : Finset ℕ} {a b : ℕ} (hb : b ∈ A) (Q : ℕ) {q : ℝ}
     (hq0 : 0 ≤ q) (hq1 : q ≤ 1) :
     (1 - q ^ 2) ^ #(increasingRestrictedRepresentationPairs A (a + b)) ≤
       (if b = a then 1 else 0) + (if b ∈ unpopularNeighbors A Q a then 1 else 0) +
         (1 - q ^ 2) ^ (Q / 2) := by
   have hbase0 : 0 ≤ 1 - q ^ 2 := by nlinarith
   have hbase1 : 1 - q ^ 2 ≤ 1 := by nlinarith
-  have hpow := pow_nonneg hbase0 (Q / 2)
   by_cases hpopular : Q ≤ #(restrictedRepresentationPairs A (a + b))
-  · have hle := pow_le_pow_of_le_one hbase0 hbase1 (half_le_card_increasing_of_popular hpopular)
-    grind
-  · have hle := pow_le_one₀ (n := #(increasingRestrictedRepresentationPairs A (a + b)))
-      hbase0 hbase1
-    have hmem : b = a ∨ b ∈ unpopularNeighbors A Q a := by
-      grind [unpopularNeighbors]
-    grind
+  · grind [pow_le_pow_of_le_one hbase0 hbase1 (half_le_card_increasing_of_popular hpopular),
+      pow_nonneg hbase0 (Q / 2)]
+  · grind [pow_le_one₀ (n := #(increasingRestrictedRepresentationPairs A (a + b))) hbase0 hbase1,
+      pow_nonneg hbase0 (Q / 2), unpopularNeighbors]
 
-private lemma sum_representationAvoidance_le (A : Finset ℕ) {a : ℕ}
+private lemma sum_representationAvoidance_le {A : Finset ℕ} {a : ℕ}
     (ha : a ∈ A) (Q : ℕ) {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q ≤ 1) :
     ∑ b ∈ A, (1 - q ^ 2) ^ #(increasingRestrictedRepresentationPairs A (a + b)) ≤
       1 + #(unpopularNeighbors A Q a) + #A * (1 - q ^ 2) ^ (Q / 2) := by
   have hsub : unpopularNeighbors A Q a ⊆ A := (filter_subset _ _).trans (erase_subset _ _)
-  refine (sum_le_sum fun b hb ↦ pow_card_increasing_le A hb Q hq0 hq1).trans_eq ?_
+  refine (sum_le_sum fun b hb ↦ pow_card_increasing_le hb Q hq0 hq1).trans_eq ?_
   simp [sum_add_distrib, ha, inter_eq_right.mpr hsub]
 
 private lemma assignmentWeight_pos {ι : Type*} [Fintype ι]
@@ -515,7 +508,7 @@ private lemma exists_le_of_weighted_sum_le {ι : Type*} [Fintype ι]
   obtain ⟨ω, -, hω⟩ := exists_le_of_sum_le univ_nonempty hsum
   exact ⟨ω, le_of_mul_le_mul_left hω (assignmentWeight_pos hq0 hq1 ω)⟩
 
-private lemma exists_sample_with_bounded_cost (A : Finset ℕ) {a : ℕ} (ha : a ∈ A)
+private lemma exists_sample_with_bounded_cost {A : Finset ℕ} {a : ℕ} (ha : a ∈ A)
     (Q : ℕ) {q R : ℝ} (hq0 : 0 < q) (hq1 : q < 1) (hR : 0 ≤ R) :
     ∃ ω : A → Bool,
       (#(selectedElements A ω) : ℝ) + R * #(missedTranslateElements A a ω) ≤
@@ -525,7 +518,7 @@ private lemma exists_sample_with_bounded_cost (A : Finset ℕ) {a : ℕ} (ha : a
     card_selectedElements, sum_assignmentWeight_selectedCard,
     sum_assignmentWeight_missedTranslateCard, Fintype.card_coe]
   gcongr
-  exact sum_representationAvoidance_le A ha Q hq0.le hq1.le
+  exact sum_representationAvoidance_le ha Q hq0.le hq1.le
 
 private lemma missedTranslateElements_compl_image_subset (A : Finset ℕ) (a : ℕ)
     (ω : A → Bool) :
@@ -541,22 +534,19 @@ let `0 < q < 1` and `R ≥ 0`. There are `a ∈ A` and `A₀, Z ⊆ A` such that
 contained in the restricted sumset of `A₀` and
 `|A₀| + R |Z| ≤ q t + R (1 + Q m / t + t (1 - q ^ 2) ^ (Q / 2))`. This is the combinatorial part of
 Green's Proposition 15, before its numerical parameters are fixed. -/
-theorem exists_core_decomposition (A : Finset ℕ) {t m : ℕ} (hA : #A = t)
+lemma exists_core_decomposition {A : Finset ℕ} {t m : ℕ} (hA : #A = t)
     (hA0 : A.Nonempty) (hm : #(restrictedSumset A) ≤ m) (Q : ℕ)
     {q R : ℝ} (hq0 : 0 < q) (hq1 : q < 1) (hR : 0 ≤ R) :
     ∃ a A₀ Z, a ∈ A ∧ A₀ ⊆ A ∧ Z ⊆ A ∧
       (A \ Z).image (a + ·) ⊆ restrictedSumset A₀ ∧
-      (#A₀ : ℝ) + R * #Z ≤
-        q * t + R * (1 + (Q : ℝ) * m / t +
-          t * (1 - q ^ 2) ^ (Q / 2)) := by
+      #A₀ + R * #Z ≤ q * t + R * (1 + Q * m / t + t * (1 - q ^ 2) ^ (Q / 2)) := by
   obtain ⟨a, ha, hdegree⟩ := exists_low_unpopular_degree hA hA0 hm (Q := Q)
-  obtain ⟨ω, hω⟩ := exists_sample_with_bounded_cost A ha Q hq0 hq1 hR
+  obtain ⟨ω, hω⟩ := exists_sample_with_bounded_cost ha Q hq0 hq1 hR
   refine ⟨a, selectedElements A ω, missedTranslateElements A a ω, ha,
     selectedElements_subset A ω, filter_subset _ _,
     missedTranslateElements_compl_image_subset A a ω, hω.trans ?_⟩
-  have ht0 : (0 : ℝ) < t := mod_cast hA0.card_pos.trans_eq hA
   have hunpopular : (#(unpopularNeighbors A Q a) : ℝ) ≤ Q * m / t := by
-    rw [le_div_iff₀' ht0]
+    rw [le_div_iff₀' (mod_cast hA0.card_pos.trans_eq hA)]
     exact_mod_cast hdegree
   rw [hA]
   gcongr
@@ -623,7 +613,7 @@ private noncomputable instance extensionWitnessLinearOrder (l : ℕ) :
 private noncomputable def extensionWitnesses {l d : ℕ} (a : Fin (l + d) → ℕ)
     (shape : ExtensionShape d) : Finset (FreimanRelationIndex 2 l) := by
   classical
-  exact Finset.univ.filter fun witness ↦
+  exact univ.filter fun witness ↦
     freimanRelationHolds a (extensionRelation shape witness)
 
 /-- For each shape, the least relation on the first `l` indices whose extension by the shape is
@@ -710,18 +700,19 @@ private lemma freimanRelationHolds_of_extensionCode_eq {l d : ℕ} (i₀ : Fin l
   obtain ⟨witness, hwitness⟩ := exists_extensionCode_eq_some i₀ hp
   have hqa := freimanRelationHolds_of_extensionCode_eq_some hwitness
   have hqb := freimanRelationHolds_of_extensionCode_eq_some (hcode ▸ hwitness)
-  have hshape := (extensionShape_extensionRelation (extensionShape p) witness).symm
   have hcomparison :=
     hbase (extensionComparison i₀ p (extensionRelation (extensionShape p) witness))
-  rw [freimanRelationHolds_extensionComparison_iff i₀ a hshape,
-    freimanRelationHolds_extensionComparison_iff i₀ b hshape] at hcomparison
+  rw [freimanRelationHolds_extensionComparison_iff i₀ a
+      (extensionShape_extensionRelation _ witness).symm,
+    freimanRelationHolds_extensionComparison_iff i₀ b
+      (extensionShape_extensionRelation _ witness).symm] at hcomparison
   simp only [freimanRelationHolds, Fin.sum_univ_two] at hp hqa hqb ⊢
   grind
 
 /-- Two tuples of length `l + d` with the same extension code, whose first `l` coordinates
 satisfy the same relations with four summands, satisfy the same relations with two summands. -/
 lemma freimanRelations_iff_of_extensionCode_eq {l d : ℕ} (i₀ : Fin l)
-    (a b : Fin (l + d) → ℕ) (hcode : extensionCode a = extensionCode b)
+    {a b : Fin (l + d) → ℕ} (hcode : extensionCode a = extensionCode b)
     (hbase : ∀ p : FreimanRelationIndex 4 l,
       freimanRelationHolds (extensionBaseTuple a) p ↔
         freimanRelationHolds (extensionBaseTuple b) p)
@@ -765,8 +756,7 @@ private lemma pairSumTuple_relation_iff {l u : ℕ} (a : Fin l → ℕ)
   rw [freimanRelationHolds, freimanRelationHolds,
     ← (finSumFinEquiv (m := 4) (n := 4)).sum_comp,
     ← (finSumFinEquiv (m := 4) (n := 4)).sum_comp]
-  simp only [pairSumTuple, pairSumRelation, sum_add_distrib, Equiv.symm_apply_apply,
-    Fintype.sum_sum_type]
+  simp [pairSumTuple, pairSumRelation, sum_add_distrib, Fintype.sum_sum_type]
 
 lemma pairSumTuple_relations_iff {l u : ℕ} {a b : Fin l → ℕ}
     (hcore : ∀ p : FreimanRelationIndex 8 l,
@@ -801,27 +791,27 @@ enumerations of `A` and `B`. -/
       ⟨p.2, (mem_restrictedRepresentationPairs.mp
         (chosenRestrictedRepresentation_mem A (hBA ((B.orderIsoOfFin hB i).2)))).2.1⟩)
 
-lemma restrictedSumRepresentation_ne {l u : ℕ}
-    (A B : Finset ℕ) (hA : #A = l) (hB : #B = u)
+lemma restrictedSumRepresentation_ne {l u : ℕ} {A B : Finset ℕ} (hA : #A = l) (hB : #B = u)
     (hBA : B ⊆ restrictedSumset A) (i : Fin u) :
     (restrictedSumRepresentation A B hA hB hBA i).1 ≠
       (restrictedSumRepresentation A B hA hB hBA i).2 := by
+  obtain ⟨-, -, hne, -⟩ := mem_restrictedRepresentationPairs.mp
+    (chosenRestrictedRepresentation_mem A (hBA (B.orderIsoOfFin hB i).2))
   intro heq
-  have hvalues := congrArg (fun j : Fin l ↦ (A.orderIsoOfFin hA j).1) heq
+  have hvalues := congrArg (fun j ↦ (A.orderIsoOfFin hA j).1) heq
   simp only [restrictedSumRepresentation, OrderIso.apply_symm_apply] at hvalues
-  exact (mem_restrictedRepresentationPairs.mp
-    (chosenRestrictedRepresentation_mem A (hBA (B.orderIsoOfFin hB i).2))).2.2.1 hvalues
+  exact hne hvalues
 
-lemma pairSumTuple_restrictedSumRepresentation {l u : ℕ}
-    (A B : Finset ℕ) (hA : #A = l) (hB : #B = u)
-    (hBA : B ⊆ restrictedSumset A) :
+lemma pairSumTuple_restrictedSumRepresentation {l u : ℕ} {A B : Finset ℕ} (hA : #A = l)
+    (hB : #B = u) (hBA : B ⊆ restrictedSumset A) :
     pairSumTuple (fun i ↦ (A.orderIsoOfFin hA i).1)
         (restrictedSumRepresentation A B hA hB hBA) =
       fun i ↦ (B.orderIsoOfFin hB i).1 := by
   funext i
+  obtain ⟨-, -, -, hsum⟩ := mem_restrictedRepresentationPairs.mp
+    (chosenRestrictedRepresentation_mem A (hBA (B.orderIsoOfFin hB i).2))
   simp only [pairSumTuple, restrictedSumRepresentation, OrderIso.apply_symm_apply]
-  exact (mem_restrictedRepresentationPairs.mp
-    (chosenRestrictedRepresentation_mem A (hBA (B.orderIsoOfFin hB i).2))).2.2.2
+  exact hsum
 
 lemma injective_of_four_relations_iff {u : ℕ} {a b : Fin u → ℕ}
     (ha : Function.Injective a)
@@ -837,12 +827,12 @@ lemma injective_of_four_relations_iff {u : ℕ} {a b : Fin u → ℕ}
 /-- The set of coordinates of `pairSumTuple b representation`. -/
 def pairSumRange {l u : ℕ} (b : Fin l → ℕ)
     (representation : Fin u → Fin l × Fin l) : Finset ℕ :=
-  Finset.univ.image (pairSumTuple b representation)
+  univ.image (pairSumTuple b representation)
 
-lemma pairSumRange_subset_restrictedSumset {l u : ℕ} (b : Fin l → ℕ)
-    (hb : Function.Injective b) (representation : Fin u → Fin l × Fin l)
+lemma pairSumRange_subset_restrictedSumset {l u : ℕ} {b : Fin l → ℕ}
+    (hb : Function.Injective b) {representation : Fin u → Fin l × Fin l}
     (hne : ∀ i, (representation i).1 ≠ (representation i).2) :
-    pairSumRange b representation ⊆ restrictedSumset (Finset.univ.image b) := by
+    pairSumRange b representation ⊆ restrictedSumset (univ.image b) := by
   rw [pairSumRange, image_subset_iff, restrictedSumset_eq_image_offDiag]
   intro i _
   exact mem_image.mpr

@@ -7,8 +7,10 @@ module
 
 public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationAndExtensionCodes
 public import SumOfSetsInSeveralDimensions.FreimanDimension
-public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.Data.Fintype.Perm
+public import Mathlib.LinearAlgebra.Quotient.Defs
+public import Mathlib.Tactic.Continuity
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
 
 /-!
@@ -58,21 +60,21 @@ of canonical codes in two families of sets.
 
 namespace CountingSetsWithSmallSumset
 
-open SumOfSetsInSeveralDimensions
+open Finset SumOfSetsInSeveralDimensions
 open scoped Pointwise
 
 noncomputable section
 
 /-! ### The relations of a tuple -/
 
-/-- The coefficient vector of the relation `aᵢ + aⱼ = aₖ + aₗ`, where `p = (i, j, k, l)`. -/
-def relationVector {t : ℕ} (p : RelationIndex t) : Fin t →₀ ℚ :=
-  Finsupp.single p.1 1 + Finsupp.single p.2.1 1 -
-    Finsupp.single p.2.2.1 1 - Finsupp.single p.2.2.2 1
+/-- The coefficient vector of the relation `aᵢ + aⱼ = aₖ + aₗ`. -/
+def relationVector {t : ℕ} : RelationIndex t → Fin t →₀ ℚ
+  | (i, j, k, l) =>
+    Finsupp.single i 1 + Finsupp.single j 1 - Finsupp.single k 1 - Finsupp.single l 1
 
-/-- The tuple `a` satisfies the relation `aᵢ + aⱼ = aₖ + aₗ`, where `p = (i, j, k, l)`. -/
-def relationHolds {t : ℕ} (a : Fin t → ℕ) (p : RelationIndex t) : Prop :=
-  a p.1 + a p.2.1 = a p.2.2.1 + a p.2.2.2
+/-- The tuple `a` satisfies the relation `aᵢ + aⱼ = aₖ + aₗ`. -/
+def relationHolds {t : ℕ} (a : Fin t → ℕ) : RelationIndex t → Prop
+  | (i, j, k, l) => a i + a j = a k + a l
 
 private def tupleEval {t : ℕ} (a : Fin t → ℕ) : (Fin t →₀ ℚ) →ₗ[ℚ] ℚ :=
   Finsupp.linearCombination ℚ fun i ↦ (a i : ℚ)
@@ -87,12 +89,14 @@ def zeroSumSpace (t : ℕ) : Submodule ℚ (Fin t →₀ ℚ) :=
 
 private lemma relationVector_mem_ker_iff {t : ℕ} (a : Fin t → ℕ) (p : RelationIndex t) :
     relationVector p ∈ LinearMap.ker (tupleEval a) ↔ relationHolds a p := by
+  obtain ⟨i, j, k, l⟩ := p
   simp only [LinearMap.mem_ker, tupleEval, relationVector, map_sub, map_add,
     Finsupp.linearCombination_single, one_smul, relationHolds, ← @Nat.cast_inj ℚ, Nat.cast_add]
   grind
 
 private lemma coefficientSum_relationVector {t : ℕ} (p : RelationIndex t) :
     coefficientSum t (relationVector p) = 0 := by
+  obtain ⟨i, j, k, l⟩ := p
   simp [coefficientSum, relationVector]
 
 /-- The rational span of the coefficient vectors of the relations that `a` satisfies. -/
@@ -148,7 +152,8 @@ private lemma relationModelDim_add_relationRank {t : ℕ} (ht : 0 < t) (a : Fin 
 private lemma relation_iff_mem_relationSpace {t : ℕ} (a : Fin t → ℕ)
     (p : RelationIndex t) :
     relationHolds a p ↔ relationVector p ∈ relationSpace a := by
-  refine ⟨fun hp ↦ Submodule.subset_span ⟨p, hp, rfl⟩, fun hp ↦ ?_⟩
+  refine ⟨fun hp ↦ Submodule.subset_span ⟨p, hp, rfl⟩, ?_⟩
+  intro hp
   rw [← relationVector_mem_ker_iff]
   exact relationSpace_le_ker_tupleEval (fun _ hq ↦ hq) hp
 
@@ -209,19 +214,16 @@ private noncomputable def relationModel {t : ℕ} (a : Fin t → ℕ) (i₀ i : 
     Fin (relationModelDim a) → ℚ :=
   relationModelEquiv a ((relationSpaceInZeroSum a).mkQ (baseDifference i₀ i))
 
-private lemma relationVector_eq_baseDifferences {t : ℕ} (i₀ : Fin t)
-    (p : RelationIndex t) :
-    relationVector p =
-      (baseDifference i₀ p.1 : Fin t →₀ ℚ) + baseDifference i₀ p.2.1 -
-        baseDifference i₀ p.2.2.1 - baseDifference i₀ p.2.2.2 := by
+private lemma relationVector_eq_baseDifferences {t : ℕ} (i₀ i j k l : Fin t) :
+    relationVector (i, j, k, l) =
+      (baseDifference i₀ i : Fin t →₀ ℚ) + baseDifference i₀ j - baseDifference i₀ k -
+        baseDifference i₀ l := by
   simp only [relationVector, baseDifference]
   abel
 
-private lemma relationModel_add_eq_add_iff {t : ℕ} (a : Fin t → ℕ) (i₀ : Fin t)
-    (p : RelationIndex t) :
-    relationModel a i₀ p.1 + relationModel a i₀ p.2.1 =
-        relationModel a i₀ p.2.2.1 + relationModel a i₀ p.2.2.2 ↔
-      relationHolds a p := by
+private lemma relationModel_add_eq_add_iff {t : ℕ} (a : Fin t → ℕ) (i₀ i j k l : Fin t) :
+    relationModel a i₀ i + relationModel a i₀ j = relationModel a i₀ k + relationModel a i₀ l ↔
+      relationHolds a (i, j, k, l) := by
   simp only [relationModel, ← map_add]
   rw [(relationModelEquiv a).injective.eq_iff, ← sub_eq_zero, ← map_sub, Submodule.mkQ_apply,
     Submodule.Quotient.mk_eq_zero, relation_iff_mem_relationSpace,
@@ -230,7 +232,8 @@ private lemma relationModel_add_eq_add_iff {t : ℕ} (a : Fin t → ℕ) (i₀ :
 
 private lemma span_baseDifferences {t : ℕ} (i₀ : Fin t) :
     Submodule.span ℚ (Set.range (baseDifference i₀)) = ⊤ := by
-  refine top_unique fun x _ ↦ ?_
+  refine top_unique ?_
+  intro x _
   have hsum : ∑ i, x.1 i = 0 := by
     simpa [zeroSumSpace, coefficientSum, Finsupp.linearCombination_apply, Finsupp.sum_fintype]
       using x.2
@@ -283,9 +286,9 @@ private lemma relationModel_zero {t : ℕ} (a : Fin t → ℕ) (i₀ : Fin t) :
   rw [relationModel, hbase, map_zero, map_zero]
 
 private lemma relationModel_affineDim {t : ℕ} (a : Fin t → ℕ) (i₀ : Fin t) :
-    finsetAffineDim (((Finset.univ.image (relationModel a i₀)).image
-      rationalVectorToReal)) = relationModelDim a := by
-  have hset : (((Finset.univ.image (relationModel a i₀)).image rationalVectorToReal :
+    finsetAffineDim ((univ.image (relationModel a i₀)).image rationalVectorToReal) =
+      relationModelDim a := by
+  have hset : (((univ.image (relationModel a i₀)).image rationalVectorToReal :
       Finset (Fin (relationModelDim a) → ℝ)) : Set (Fin (relationModelDim a) → ℝ)) =
       Set.range (rationalVectorToReal ∘ relationModel a i₀) := by
     simp [Set.range_comp]
@@ -306,15 +309,15 @@ private lemma relationModel_affineDim {t : ℕ} (a : Fin t → ℕ) (i₀ : Fin 
 def finsetTuple {t : ℕ} (X : Finset ℕ) (hX : X.card = t) : Fin t → ℕ :=
   fun i ↦ X.orderIsoOfFin hX i
 
-lemma finsetTuple_injective {t : ℕ} (X : Finset ℕ) (hX : X.card = t) :
+lemma finsetTuple_injective {t : ℕ} {X : Finset ℕ} (hX : #X = t) :
     Function.Injective (finsetTuple X hX) :=
   (X.orderEmbOfFin hX).injective
 
-lemma range_finsetTuple {t : ℕ} (X : Finset ℕ) (hX : X.card = t) :
+lemma range_finsetTuple {t : ℕ} {X : Finset ℕ} (hX : #X = t) :
     Set.range (finsetTuple X hX) = X :=
   X.range_orderEmbOfFin hX
 
-private lemma finsetTuple_mem {t : ℕ} (X : Finset ℕ) (hX : X.card = t) (i : Fin t) :
+private lemma finsetTuple_mem {t : ℕ} {X : Finset ℕ} (hX : #X = t) (i : Fin t) :
     finsetTuple X hX i ∈ X :=
   (X.orderIsoOfFin hX i).2
 
@@ -330,38 +333,43 @@ def permutedFinsetTuple {t : ℕ} (X : SizedNatFinset t)
 
 lemma permutedFinsetTuple_injective {t : ℕ} (X : SizedNatFinset t)
     (e : Equiv.Perm (Fin t)) : Function.Injective (permutedFinsetTuple X e) :=
-  (finsetTuple_injective X.1 X.2).comp e.injective
+  (finsetTuple_injective X.2).comp e.injective
 
 lemma range_permutedFinsetTuple {t : ℕ} (X : SizedNatFinset t)
     (e : Equiv.Perm (Fin t)) : Set.range (permutedFinsetTuple X e) = X.1 := by
   rw [permutedFinsetTuple, Set.range_comp, e.surjective.range_eq, Set.image_univ,
-    range_finsetTuple X.1 X.2]
+    range_finsetTuple X.2]
+
+private lemma image_permutedFinsetTuple {t : ℕ} (X : SizedNatFinset t) (e : Equiv.Perm (Fin t)) :
+    univ.image (permutedFinsetTuple X e) = X.1 := by
+  apply coe_injective
+  simpa using range_permutedFinsetTuple X e
 
 private lemma permutedFinsetTuple_mem {t : ℕ} (X : SizedNatFinset t) (e : Equiv.Perm (Fin t))
     (i : Fin t) : permutedFinsetTuple X e i ∈ X.1 :=
-  finsetTuple_mem X.1 X.2 (e i)
+  finsetTuple_mem X.2 (e i)
 
 private def tupleRange {t : ℕ} (a : Fin t → ℕ) : Finset ℕ :=
-  Finset.univ.image a
+  univ.image a
 
-private lemma card_tupleRange {t : ℕ} (a : Fin t → ℕ) (ha : Function.Injective a) :
-    (tupleRange a).card = t := by
-  simp [tupleRange, Finset.card_image_of_injective _ ha]
+private lemma card_tupleRange {t : ℕ} {a : Fin t → ℕ} (ha : Function.Injective a) :
+    #(tupleRange a) = t := by
+  simp [tupleRange, card_image_of_injective _ ha]
 
 private def tupleRangeSized {t : ℕ} (a : Fin t → ℕ) (ha : Function.Injective a) :
     SizedNatFinset t :=
-  ⟨tupleRange a, card_tupleRange a ha⟩
+  ⟨tupleRange a, card_tupleRange ha⟩
 
 private lemma tupleRangeSized_eq {t : ℕ} {a : Fin t → ℕ} (ha : Function.Injective a)
     {X : SizedNatFinset t} (h : Set.range a = X.1) : tupleRangeSized a ha = X := by
   apply Subtype.ext
-  apply Finset.coe_injective
+  apply coe_injective
   simpa [tupleRangeSized, tupleRange] using h
 
 private noncomputable def tupleRangePermutation {t : ℕ} (a : Fin t → ℕ)
     (ha : Function.Injective a) : Equiv.Perm (Fin t) :=
   Equiv.ofBijective
-    (fun i ↦ ((tupleRange a).orderIsoOfFin (card_tupleRange a ha)).symm
+    (fun i ↦ ((tupleRange a).orderIsoOfFin (card_tupleRange ha)).symm
       ⟨a i, by simp [tupleRange]⟩)
     (Finite.injective_iff_bijective.mp fun _ _ hij ↦
       ha (Subtype.mk.inj ((OrderIso.injective _) hij)))
@@ -402,10 +410,11 @@ def FreimanRelationEquivalent {s t : ℕ} (X Y : SizedNatFinset t) : Prop :=
       freimanRelationHolds (finsetTuple X.1 X.2) p ↔
         freimanRelationHolds (permutedFinsetTuple Y e) p
 
-private lemma FreimanRelationEquivalent.symm {s t : ℕ} {X Y : SizedNatFinset t}
+lemma FreimanRelationEquivalent.symm {s t : ℕ} {X Y : SizedNatFinset t}
     (h : FreimanRelationEquivalent (s := s) X Y) : FreimanRelationEquivalent (s := s) Y X := by
   obtain ⟨e, he⟩ := h
-  refine ⟨e.symm, fun p ↦ ?_⟩
+  refine ⟨e.symm, ?_⟩
+  intro p
   simpa [permutedFinsetTuple, freimanRelationHolds, permuteFreimanRelation] using
     (he (permuteFreimanRelation e.symm p)).symm
 
@@ -414,26 +423,27 @@ private lemma freimanRelationEquivalent_tupleRange {s t : ℕ} {a b : Fin t → 
     (hrelations : ∀ p : FreimanRelationIndex s t,
       freimanRelationHolds a p ↔ freimanRelationHolds b p) :
     FreimanRelationEquivalent (s := s) (tupleRangeSized a ha) (tupleRangeSized b hb) := by
-  refine ⟨(tupleRangePermutation a ha).symm.trans (tupleRangePermutation b hb), fun p ↦ ?_⟩
+  refine ⟨(tupleRangePermutation a ha).symm.trans (tupleRangePermutation b hb), ?_⟩
+  intro p
   rw [finsetTuple_tupleRangeSized, permutedFinsetTuple_trans_tupleRangePermutation]
   exact hrelations (permuteFreimanRelation _ p)
 
 /-- The relation codes of all the enumerations of `X`. -/
 def finsetFreimanRelationCodes {s t : ℕ} (ht : 0 < t)
     (X : SizedNatFinset t) : Finset (Fin t → FreimanRelationIndex s t) :=
-  Finset.univ.image fun e : Equiv.Perm (Fin t) ↦
+  univ.image fun e : Equiv.Perm (Fin t) ↦
     freimanRelationCode (s := s) ht (permutedFinsetTuple X e)
 
 lemma finsetFreimanRelationCodes_nonempty {s t : ℕ} (ht : 0 < t)
     (X : SizedNatFinset t) : (finsetFreimanRelationCodes (s := s) ht X).Nonempty :=
-  Finset.univ_nonempty.image _
+  univ_nonempty.image _
 
 private lemma finsetFreimanRelationCodes_subset_of_equivalent {s t : ℕ} (ht : 0 < t)
     {X Y : SizedNatFinset t} (hXY : FreimanRelationEquivalent (s := s) X Y) :
     finsetFreimanRelationCodes (s := s) ht X ⊆ finsetFreimanRelationCodes (s := s) ht Y := by
   obtain ⟨e, he⟩ := hXY
   intro code hcode
-  simp only [finsetFreimanRelationCodes, Finset.mem_image, Finset.mem_univ, true_and] at hcode ⊢
+  simp only [finsetFreimanRelationCodes, mem_image, mem_univ, true_and] at hcode ⊢
   obtain ⟨f, rfl⟩ := hcode
   exact ⟨f.trans e, freimanRelationCode_eq_of_relations_iff ht fun p ↦
     (he (permuteFreimanRelation f p)).symm⟩
@@ -449,13 +459,13 @@ lemma canonicalFreimanRelationCode_mem {s t : ℕ} (ht : 0 < t)
     (X : SizedNatFinset t) :
     canonicalFreimanRelationCode (s := s) ht X ∈
       finsetFreimanRelationCodes (s := s) ht X :=
-  Finset.min'_mem _ _
+  min'_mem _ _
 
 lemma canonicalFreimanRelationCode_eq_of_equivalent {s t : ℕ} (ht : 0 < t)
     {X Y : SizedNatFinset t} (hXY : FreimanRelationEquivalent (s := s) X Y) :
     canonicalFreimanRelationCode (s := s) ht X =
       canonicalFreimanRelationCode (s := s) ht Y := by
-  simp only [canonicalFreimanRelationCode,
+  simp [canonicalFreimanRelationCode,
     (finsetFreimanRelationCodes_subset_of_equivalent ht hXY).antisymm
       (finsetFreimanRelationCodes_subset_of_equivalent ht hXY.symm)]
 
@@ -464,22 +474,22 @@ first `l` entries satisfy the same relations with four terms on each side. Then 
 have at most `(1 + l ^ 4) ^ ((d + 1) ^ 4)` canonical codes of relations with two terms on each
 side. -/
 lemma card_canonicalFreimanRelationCode_image_of_fixed_extensionBase
-    {α : Type*} {l d : ℕ} (hl : 0 < l) (S : Finset α)
-    (full : α → SizedNatFinset (l + d)) (label : α → Fin (l + d) → ℕ)
+    {α : Type*} {l d : ℕ} (hl : 0 < l) {S : Finset α}
+    {full : α → SizedNatFinset (l + d)} {label : α → Fin (l + d) → ℕ}
     (hlabelInjective : ∀ x ∈ S, Function.Injective (label x))
     (hlabelRange : ∀ x ∈ S, Set.range (label x) = (full x).1)
     (hbase : ∀ x ∈ S, ∀ y ∈ S, ∀ p : FreimanRelationIndex 4 l,
       freimanRelationHolds (extensionBaseTuple (label x)) p ↔
         freimanRelationHolds (extensionBaseTuple (label y)) p) :
-    (S.image fun x ↦ canonicalFreimanRelationCode (s := 2) (Nat.add_pos_left hl d)
-      (full x)).card ≤ (1 + l ^ 4) ^ ((d + 1) ^ 4) := by
+    #(S.image fun x ↦ canonicalFreimanRelationCode (s := 2) (Nat.add_pos_left hl d) (full x)) ≤
+      (1 + l ^ 4) ^ ((d + 1) ^ 4) := by
   rw [← card_extensionCodeType]
   apply card_image_le_fintype_of_eq_imp_eq S _ fun x ↦ extensionCode (label x)
   intro x hx y hy hcode
   rw [← tupleRangeSized_eq (hlabelInjective x hx) (hlabelRange x hx),
     ← tupleRangeSized_eq (hlabelInjective y hy) (hlabelRange y hy)]
   exact canonicalFreimanRelationCode_eq_of_equivalent _ (freimanRelationEquivalent_tupleRange _ _
-    (freimanRelations_iff_of_extensionCode_eq ⟨0, hl⟩ _ _ hcode (hbase x hx y hy)))
+    (freimanRelations_iff_of_extensionCode_eq ⟨0, hl⟩ hcode (hbase x hx y hy)))
 
 lemma exists_canonicalLabeling {s t : ℕ} (ht : 0 < t)
     (X : SizedNatFinset t) :
@@ -522,53 +532,50 @@ private lemma pairSumTuple_permutedRestrictedSumRepresentation {l u : ℕ} (A : 
     (B : SizedNatFinset u) (hBA : B.1 ⊆ restrictedSumset A.1) (e : Equiv.Perm (Fin l)) :
     pairSumTuple (permutedFinsetTuple A e) (permutedRestrictedSumRepresentation A B hBA e) =
       finsetTuple B.1 B.2 := by
-  refine Eq.trans ?_ (pairSumTuple_restrictedSumRepresentation A.1 B.1 A.2 B.2 hBA)
+  refine Eq.trans ?_ (pairSumTuple_restrictedSumRepresentation A.2 B.2 hBA)
   funext i
   simp [pairSumTuple, permutedFinsetTuple, permutedRestrictedSumRepresentation, finsetTuple]
 
-private lemma permutedRestrictedSumRepresentation_ne {l u : ℕ} (A : SizedNatFinset l)
-    (B : SizedNatFinset u) (hBA : B.1 ⊆ restrictedSumset A.1) (e : Equiv.Perm (Fin l))
+private lemma permutedRestrictedSumRepresentation_ne {l u : ℕ} {A : SizedNatFinset l}
+    {B : SizedNatFinset u} (hBA : B.1 ⊆ restrictedSumset A.1) (e : Equiv.Perm (Fin l))
     (i : Fin u) :
     (permutedRestrictedSumRepresentation A B hBA e i).1 ≠
       (permutedRestrictedSumRepresentation A B hBA e i).2 :=
-  e.symm.injective.ne (restrictedSumRepresentation_ne A.1 B.1 A.2 B.2 hBA i)
+  e.symm.injective.ne (restrictedSumRepresentation_ne A.2 B.2 hBA i)
 
 /-- The enumeration of `A` that lists `A₁` in the order given by `e` and then `A \ A₁` in
 increasing order. -/
 def extensionFinsetTuple {u d : ℕ} (A A₁ : Finset ℕ)
-    (hA₁ : A₁.card = u) (hZ : (A \ A₁).card = d) (e : Equiv.Perm (Fin u)) :
+    (hA₁ : #A₁ = u) (hZ : #(A \ A₁) = d) (e : Equiv.Perm (Fin u)) :
     Fin (u + d) → ℕ :=
   fun i ↦ match finSumFinEquiv.symm i with
   | Sum.inl j => permutedFinsetTuple ⟨A₁, hA₁⟩ e j
   | Sum.inr j => finsetTuple (A \ A₁) hZ j
 
-private lemma extensionFinsetTuple_left {u d : ℕ} (A A₁ : Finset ℕ)
-    (hA₁ : A₁.card = u) (hZ : (A \ A₁).card = d) (e : Equiv.Perm (Fin u))
-    (i : Fin u) :
+private lemma extensionFinsetTuple_left {u d : ℕ} {A A₁ : Finset ℕ}
+    (hA₁ : #A₁ = u) (hZ : #(A \ A₁) = d) (e : Equiv.Perm (Fin u)) (i : Fin u) :
     extensionFinsetTuple A A₁ hA₁ hZ e (finSumFinEquiv (Sum.inl i)) =
       permutedFinsetTuple ⟨A₁, hA₁⟩ e i := by
   simp [extensionFinsetTuple]
 
-private lemma extensionFinsetTuple_right {u d : ℕ} (A A₁ : Finset ℕ)
-    (hA₁ : A₁.card = u) (hZ : (A \ A₁).card = d) (e : Equiv.Perm (Fin u))
-    (i : Fin d) :
+private lemma extensionFinsetTuple_right {u d : ℕ} {A A₁ : Finset ℕ}
+    (hA₁ : #A₁ = u) (hZ : #(A \ A₁) = d) (e : Equiv.Perm (Fin u)) (i : Fin d) :
     extensionFinsetTuple A A₁ hA₁ hZ e (finSumFinEquiv (Sum.inr i)) =
       finsetTuple (A \ A₁) hZ i := by
   simp [extensionFinsetTuple]
 
-lemma extensionBaseTuple_extensionFinsetTuple {u d : ℕ} (A A₁ : Finset ℕ)
-    (hA₁ : A₁.card = u) (hZ : (A \ A₁).card = d) (e : Equiv.Perm (Fin u)) :
+lemma extensionBaseTuple_extensionFinsetTuple {u d : ℕ} {A A₁ : Finset ℕ}
+    (hA₁ : #A₁ = u) (hZ : #(A \ A₁) = d) (e : Equiv.Perm (Fin u)) :
     extensionBaseTuple (extensionFinsetTuple A A₁ hA₁ hZ e) =
       permutedFinsetTuple ⟨A₁, hA₁⟩ e :=
-  funext (extensionFinsetTuple_left A A₁ hA₁ hZ e)
+  funext (extensionFinsetTuple_left hA₁ hZ e)
 
 lemma extensionFinsetTuple_injective {u d : ℕ} {A A₁ : Finset ℕ}
-    (hA₁ : A₁.card = u) (hZ : (A \ A₁).card = d)
-    (e : Equiv.Perm (Fin u)) :
+    (hA₁ : #A₁ = u) (hZ : #(A \ A₁) = d) (e : Equiv.Perm (Fin u)) :
     Function.Injective (extensionFinsetTuple A A₁ hA₁ hZ e) := by
   have hne (i : Fin u) (j : Fin d) :
       permutedFinsetTuple ⟨A₁, hA₁⟩ e i ≠ finsetTuple (A \ A₁) hZ j := fun h ↦
-    (Finset.mem_sdiff.mp (finsetTuple_mem _ hZ j)).2 (h ▸ permutedFinsetTuple_mem ⟨A₁, hA₁⟩ e i)
+    (mem_sdiff.mp (finsetTuple_mem hZ j)).2 (h ▸ permutedFinsetTuple_mem ⟨A₁, hA₁⟩ e i)
   intro i j hij
   obtain ⟨i | i, rfl⟩ := finSumFinEquiv.surjective i <;>
     obtain ⟨j | j, rfl⟩ := finSumFinEquiv.surjective j <;>
@@ -576,11 +583,10 @@ lemma extensionFinsetTuple_injective {u d : ℕ} {A A₁ : Finset ℕ}
   · rw [permutedFinsetTuple_injective _ e hij]
   · exact (hne i j hij).elim
   · exact (hne j i hij.symm).elim
-  · rw [finsetTuple_injective _ hZ hij]
+  · rw [finsetTuple_injective hZ hij]
 
 lemma range_extensionFinsetTuple {u d : ℕ} {A A₁ : Finset ℕ}
-    (hA₁A : A₁ ⊆ A) (hA₁ : A₁.card = u) (hZ : (A \ A₁).card = d)
-    (e : Equiv.Perm (Fin u)) :
+    (hA₁A : A₁ ⊆ A) (hA₁ : #A₁ = u) (hZ : #(A \ A₁) = d) (e : Equiv.Perm (Fin u)) :
     Set.range (extensionFinsetTuple A A₁ hA₁ hZ e) = A := by
   ext x
   constructor
@@ -589,16 +595,16 @@ lemma range_extensionFinsetTuple {u d : ℕ} {A A₁ : Finset ℕ}
     · rw [extensionFinsetTuple_left]
       exact hA₁A (permutedFinsetTuple_mem ⟨A₁, hA₁⟩ e i)
     · rw [extensionFinsetTuple_right]
-      exact (Finset.mem_sdiff.mp (finsetTuple_mem _ hZ i)).1
+      exact (mem_sdiff.mp (finsetTuple_mem hZ i)).1
   · intro hx
     by_cases hxA₁ : x ∈ A₁
     · obtain ⟨i, rfl⟩ : x ∈ Set.range (permutedFinsetTuple ⟨A₁, hA₁⟩ e) := by
         rwa [range_permutedFinsetTuple]
-      exact ⟨finSumFinEquiv (Sum.inl i), extensionFinsetTuple_left A A₁ hA₁ hZ e i⟩
+      exact ⟨finSumFinEquiv (Sum.inl i), extensionFinsetTuple_left hA₁ hZ e i⟩
     · obtain ⟨i, rfl⟩ : x ∈ Set.range (finsetTuple (A \ A₁) hZ) := by
         rw [range_finsetTuple]
-        exact Finset.mem_sdiff.mpr ⟨hx, hxA₁⟩
-      exact ⟨finSumFinEquiv (Sum.inr i), extensionFinsetTuple_right A A₁ hA₁ hZ e i⟩
+        exact mem_sdiff.mpr ⟨hx, hxA₁⟩
+      exact ⟨finSumFinEquiv (Sum.inr i), extensionFinsetTuple_right hA₁ hZ e i⟩
 
 /-- Lemma 17 of Green, in the form used to count classes. Let `A` and `C` be sets of `l` natural
 numbers with the same canonical code of relations with eight terms on each side. For every set
@@ -606,7 +612,7 @@ numbers with the same canonical code of relations with eight terms on each side.
 restricted sumset of `C` with the same canonical code of relations with four terms on each side
 as `B`. -/
 lemma exists_restrictedSumset_subset_equivalent {l u : ℕ}
-    (hl : 0 < l) (hu : 0 < u) (A C : SizedNatFinset l) (B : SizedNatFinset u)
+    (hl : 0 < l) (hu : 0 < u) {A C : SizedNatFinset l} {B : SizedNatFinset u}
     (hBA : B.1 ⊆ restrictedSumset A.1)
     (hcoreCode : canonicalFreimanRelationCode (s := 8) hl A =
       canonicalFreimanRelationCode (s := 8) hl C) :
@@ -623,26 +629,22 @@ lemma exists_restrictedSumset_subset_equivalent {l u : ℕ}
     exact pairSumTuple_relations_iff (canonicalLabelings_relations_iff hl A C hcoreCode)
       representation p
   have hinjective : Function.Injective (pairSumTuple c representation) :=
-    injective_of_four_relations_iff (finsetTuple_injective B.1 B.2) hrelations
+    injective_of_four_relations_iff (finsetTuple_injective B.2) hrelations
   refine ⟨tupleRangeSized _ hinjective, ?_, ?_⟩
-  · have hsubset := pairSumRange_subset_restrictedSumset c
-      (permutedFinsetTuple_injective C _) representation
-      (permutedRestrictedSumRepresentation_ne A B hBA eA)
-    have hrange : Finset.univ.image c = C.1 := by
-      apply Finset.coe_injective
-      simpa using range_permutedFinsetTuple C (canonicalLabeling (s := 8) hl C)
-    rwa [hrange] at hsubset
+  · rw [← image_permutedFinsetTuple C (canonicalLabeling (s := 8) hl C)]
+    exact pairSumRange_subset_restrictedSumset (permutedFinsetTuple_injective C _)
+      (permutedRestrictedSumRepresentation_ne hBA eA)
   · have hcode := canonicalFreimanRelationCode_eq_of_equivalent hu
-      (freimanRelationEquivalent_tupleRange (finsetTuple_injective B.1 B.2) hinjective hrelations)
-    rwa [tupleRangeSized_eq _ (range_finsetTuple B.1 B.2)] at hcode
+      (freimanRelationEquivalent_tupleRange (finsetTuple_injective B.2) hinjective hrelations)
+    rwa [tupleRangeSized_eq _ (range_finsetTuple B.2)] at hcode
 
 /-- Let `C` be a set of `l` natural numbers, and let every member `B` of `family` lie in the
 restricted sumset of a set with the same canonical code of relations with eight terms on each
 side as `C`. Then the members of `family` have at most `(|C ∔ C| choose u)` canonical codes of
 relations with four terms on each side, where `C ∔ C` is the restricted sumset of `C`. -/
 lemma ncard_restrictedSumset_subset_class_image_le {l u : ℕ}
-    (hl : 0 < l) (hu : 0 < u) (C : SizedNatFinset l)
-    (family : Set (SizedNatFinset u))
+    (hl : 0 < l) (hu : 0 < u) {C : SizedNatFinset l}
+    {family : Set (SizedNatFinset u)}
     (hfamily : ∀ B ∈ family, ∃ A : SizedNatFinset l,
       B.1 ⊆ restrictedSumset A.1 ∧
         canonicalFreimanRelationCode (s := 8) hl A =
@@ -650,22 +652,22 @@ lemma ncard_restrictedSumset_subset_class_image_le {l u : ℕ}
     (canonicalFreimanRelationCode (s := 4) hu '' family).ncard ≤
       (restrictedSumset C.1).card.choose u := by
   let encode : ↑((restrictedSumset C.1).powersetCard u) → (Fin u → FreimanRelationIndex 4 u) :=
-    fun D ↦ canonicalFreimanRelationCode (s := 4) hu ⟨D.1, (Finset.mem_powersetCard.mp D.2).2⟩
+    fun D ↦ canonicalFreimanRelationCode (s := 4) hu ⟨D.1, (mem_powersetCard.mp D.2).2⟩
   have hsubset : canonicalFreimanRelationCode (s := 4) hu '' family ⊆ Set.range encode := by
     rintro _ ⟨B, hB, rfl⟩
     obtain ⟨A, hBA, hcode⟩ := hfamily B hB
-    obtain ⟨D, hDC, hBD⟩ := exists_restrictedSumset_subset_equivalent hl hu A C B hBA hcode
-    exact ⟨⟨D.1, Finset.mem_powersetCard.mpr ⟨hDC, D.2⟩⟩, hBD.symm⟩
+    obtain ⟨D, hDC, hBD⟩ := exists_restrictedSumset_subset_equivalent hl hu hBA hcode
+    exact ⟨⟨D.1, mem_powersetCard.mpr ⟨hDC, D.2⟩⟩, hBD.symm⟩
   apply (Set.ncard_le_ncard hsubset (Set.toFinite _)).trans
   rw [← Set.image_univ]
   apply (Set.ncard_image_le (s := Set.univ)).trans_eq
-  rw [Set.ncard_univ, Nat.card_eq_fintype_card, Fintype.card_coe, Finset.card_powersetCard]
+  rw [Set.ncard_univ, Nat.card_eq_fintype_card, Fintype.card_coe, card_powersetCard]
 
 /-! ### The relation model is a Freiman model -/
 
 /-- Two injective tuples that satisfy the same relations `xᵢ + xⱼ = xₖ + xₗ` have Freiman
 isomorphic ranges. -/
-lemma tuple_freimanIso {t : ℕ} {G H : Type*} [AddCommMonoid G] [AddCommMonoid H]
+lemma exists_isAddFreimanIso_two_range {t : ℕ} {G H : Type*} [AddCommMonoid G] [AddCommMonoid H]
     {a : Fin t → G} {b : Fin t → H} (ht : 0 < t)
     (ha : Function.Injective a) (hb : Function.Injective b)
     (hrelations : ∀ i j k l, a i + a j = a k + a l ↔ b i + b j = b k + b l) :
@@ -689,28 +691,27 @@ private lemma relationModel_injective {t : ℕ} (a : Fin t → ℕ)
     (ha : Function.Injective a) (i₀ : Fin t) :
     Function.Injective (relationModel a i₀) := by
   intro i j hij
-  exact ha (Nat.add_right_cancel ((relationModel_add_eq_add_iff a i₀ (i, i₀, j, i₀)).mp
+  exact ha (Nat.add_right_cancel ((relationModel_add_eq_add_iff a i₀ i i₀ j i₀).mp
     (congrArg (· + relationModel a i₀ i₀) hij)))
 
 private lemma freimanModelDim_relationModel {t : ℕ} (ht : 0 < t) (X : SizedNatFinset t) :
     freimanModelDim X.1 (relationModelDim (finsetTuple X.1 X.2)) := by
-  obtain ⟨f, hf⟩ := tuple_freimanIso ht (finsetTuple_injective X.1 X.2)
-    (relationModel_injective _ (finsetTuple_injective X.1 X.2) ⟨0, ht⟩)
-    fun i j k l ↦ (relationModel_add_eq_add_iff _ ⟨0, ht⟩ (i, j, k, l)).symm
+  obtain ⟨f, hf⟩ := exists_isAddFreimanIso_two_range ht (finsetTuple_injective X.2)
+    (relationModel_injective _ (finsetTuple_injective X.2) ⟨0, ht⟩)
+    fun i j k l ↦ (relationModel_add_eq_add_iff _ ⟨0, ht⟩ i j k l).symm
   rw [range_finsetTuple] at hf
-  have himage : X.1.image f =
-      Finset.univ.image (relationModel (finsetTuple X.1 X.2) ⟨0, ht⟩) := by
-    apply Finset.coe_injective
-    rw [Finset.coe_image, hf.bijOn.image_eq, Finset.coe_image, Finset.coe_univ, Set.image_univ]
+  have himage : X.1.image f = univ.image (relationModel (finsetTuple X.1 X.2) ⟨0, ht⟩) := by
+    apply coe_injective
+    rw [coe_image, hf.bijOn.image_eq, coe_image, coe_univ, Set.image_univ]
   refine ⟨f, ?_, ?_⟩
-  · rwa [himage, Finset.coe_image, Finset.coe_univ, Set.image_univ]
+  · rwa [himage, coe_image, coe_univ, Set.image_univ]
   · rw [himage]
     exact relationModel_affineDim _ _
 
 /-- The relation model of a set shows that its Freiman dimension is at least
 `relationModelDim`. -/
 lemma relationModelDim_le_freimanDim {t : ℕ} (ht : 0 < t)
-    (X : {X : Finset ℕ // X.card = t}) :
+    (X : {X : Finset ℕ // #X = t}) :
     relationModelDim (finsetTuple X X.2) ≤ freimanDim X.1 := by
   classical
   unfold freimanDim
@@ -744,7 +745,7 @@ private lemma span_coordinateClass {t : ℕ} (a : Fin t → ℕ) :
 
 /-- If `relationModelDim a ≤ r`, then the classes of some `r + 1` coordinate vectors span the
 quotient of `ℚ^t` by the relations of `a`. -/
-lemma exists_determiningCoordinates {t r : ℕ} (ht : 0 < t) (a : Fin t → ℕ)
+lemma exists_determiningCoordinates {t r : ℕ} (ht : 0 < t) {a : Fin t → ℕ}
     (hdr : relationModelDim a ≤ r) :
     ∃ anchor : Fin (r + 1) → Fin t,
       Submodule.span ℚ (Set.range (coordinateClass a ∘ anchor)) = ⊤ := by
@@ -763,7 +764,7 @@ lemma exists_determiningCoordinates {t r : ℕ} (ht : 0 < t) (a : Fin t → ℕ)
 /-- Two tuples that satisfy the same relations as `a` and agree at coordinates whose classes span
 the quotient by the relations of `a` are equal. -/
 lemma tuple_eq_of_relations_of_determiningCoordinates {t r : ℕ}
-    (a b c : Fin t → ℕ) (anchor : Fin (r + 1) → Fin t)
+    {a b c : Fin t → ℕ} {anchor : Fin (r + 1) → Fin t}
     (hspan : Submodule.span ℚ (Set.range (coordinateClass a ∘ anchor)) = ⊤)
     (hb : ∀ p, relationHolds a p ↔ relationHolds b p)
     (hc : ∀ p, relationHolds a p ↔ relationHolds c p)
@@ -781,28 +782,21 @@ lemma tuple_eq_of_relations_of_determiningCoordinates {t r : ℕ}
 
 /-- The sets `X ⊆ [n]` with `t` elements and Freiman dimension at most `r`. -/
 def boundedFreimanDimSets (n r t : ℕ) : Set (Finset ℕ) :=
-  {X : Finset ℕ | X ⊆ Finset.Icc 1 n ∧ X.card = t ∧ freimanDim X ≤ r}
+  {X : Finset ℕ | X ⊆ Icc 1 n ∧ #X = t ∧ freimanDim X ≤ r}
 
 /-- The sets `X` of `boundedFreimanDimSets n r t` with `|X + X| ≤ s`. -/
 def smallSumsetFreimanDimSets (n r s t : ℕ) : Set (Finset ℕ) :=
-  {X : Finset ℕ |
-    X ⊆ Finset.Icc 1 n ∧ X.card = t ∧ freimanDim X ≤ r ∧ (X + X).card ≤ s}
+  {X : Finset ℕ | X ⊆ Icc 1 n ∧ #X = t ∧ freimanDim X ≤ r ∧ #(X + X) ≤ s}
 
 private abbrev BoundedFreimanDimMember (n r t : ℕ) :=
   {X : Finset ℕ // X ∈ boundedFreimanDimSets n r t}
 
-private def memberTuple {n r t : ℕ} (X : BoundedFreimanDimMember n r t) : Fin t → ℕ :=
-  finsetTuple X.1 X.2.2.1
-
-private lemma relationModelDim_memberTuple_le {n r t : ℕ} (ht : 0 < t)
-    (X : BoundedFreimanDimMember n r t) : relationModelDim (memberTuple X) ≤ r :=
-  (relationModelDim_le_freimanDim ht ⟨X.1, X.2.2.1⟩).trans X.2.2.2
-
-/-- The pair `p` consists of a tuple with relation code `code` and of `r + 1` coordinates whose
-classes span the quotient by the relations of that tuple. -/
-private def IsClassRepresentative {r t : ℕ} (ht : 0 < t) (code : Fin t → RelationIndex t)
-    (p : (Fin t → ℕ) × (Fin (r + 1) → Fin t)) : Prop :=
-  relationCode ht p.1 = code ∧ Submodule.span ℚ (Set.range (coordinateClass p.1 ∘ p.2)) = ⊤
+/-- The tuple `a` has relation code `code`, and the classes of its coordinates at `anchor`
+span the quotient by the relations of `a`. -/
+private def IsClassRepresentative {r t : ℕ} (ht : 0 < t) (code : Fin t → RelationIndex t) :
+    (Fin t → ℕ) × (Fin (r + 1) → Fin t) → Prop
+  | (a, anchor) =>
+    relationCode ht a = code ∧ Submodule.span ℚ (Set.range (coordinateClass a ∘ anchor)) = ⊤
 
 private noncomputable def classRepresentative (r : ℕ) {t : ℕ} (ht : 0 < t)
     (code : Fin t → RelationIndex t) : (Fin t → ℕ) × (Fin (r + 1) → Fin t) :=
@@ -812,41 +806,38 @@ private lemma isClassRepresentative_classRepresentative {r t : ℕ} (ht : 0 < t)
     (ha : relationModelDim a ≤ r) :
     IsClassRepresentative ht (relationCode ht a)
       (classRepresentative r ht (relationCode ht a)) := by
-  obtain ⟨anchor, hanchor⟩ := exists_determiningCoordinates ht a ha
-  exact Classical.epsilon_spec ⟨(a, anchor), rfl, hanchor⟩
+  obtain ⟨anchor, hanchor⟩ := exists_determiningCoordinates ht ha
+  exact Classical.epsilon_spec (p := IsClassRepresentative ht _) ⟨(a, anchor), rfl, hanchor⟩
 
 /-- A member `X` is encoded by the relation code of its increasing enumeration and by the values
 of that enumeration at the `r + 1` coordinates attached to the code. -/
-private noncomputable def freimanClassEncoding (n r t : ℕ) (ht : 0 < t)
-    (X : BoundedFreimanDimMember n r t) :
-    (Fin t → RelationIndex t) × (Fin (r + 1) → ↑(Finset.Icc 1 n)) :=
-  (relationCode ht (memberTuple X), fun i ↦
-    ⟨memberTuple X ((classRepresentative r ht (relationCode ht (memberTuple X))).2 i),
-      X.2.1 (finsetTuple_mem X.1 X.2.2.1 _)⟩)
+private noncomputable def freimanClassEncoding (n r t : ℕ) (ht : 0 < t) :
+    BoundedFreimanDimMember n r t → (Fin t → RelationIndex t) × (Fin (r + 1) → Icc 1 n)
+  | ⟨X, hXn, hX, _⟩ =>
+    (relationCode ht (finsetTuple X hX), fun i ↦
+      ⟨finsetTuple X hX ((classRepresentative r ht (relationCode ht (finsetTuple X hX))).2 i),
+        hXn (finsetTuple_mem hX _)⟩)
 
 private lemma freimanClassEncoding_injective (n r t : ℕ) (ht : 0 < t) :
     Function.Injective (freimanClassEncoding n r t ht) := by
-  intro X Y hXY
-  have hcode : relationCode ht (memberTuple X) = relationCode ht (memberTuple Y) :=
-    congrArg Prod.fst hXY
-  have hvalues (i : Fin (r + 1)) := congrArg Subtype.val (congrFun (congrArg Prod.snd hXY) i)
-  dsimp only [freimanClassEncoding] at hvalues
+  rintro ⟨X, hXn, hX, hXr⟩ ⟨Y, hYn, hY, hYr⟩ hXY
+  obtain ⟨hcode, hvalues⟩ := Prod.mk.inj hXY
+  simp only [funext_iff, Subtype.mk.injEq] at hvalues
   rw [← hcode] at hvalues
-  obtain ⟨hrep, hspan⟩ :=
-    isClassRepresentative_classRepresentative ht (relationModelDim_memberTuple_le ht X)
-  have htuple : memberTuple X = memberTuple Y :=
-    tuple_eq_of_relations_of_determiningCoordinates _ _ _ _ hspan
+  obtain ⟨hrep, hspan⟩ := isClassRepresentative_classRepresentative ht
+    ((relationModelDim_le_freimanDim ht ⟨X, hX⟩).trans hXr)
+  have htuple : finsetTuple X hX = finsetTuple Y hY :=
+    tuple_eq_of_relations_of_determiningCoordinates hspan
       (relations_iff_of_relationCode_eq ht hrep)
       (relations_iff_of_relationCode_eq ht (hrep.trans hcode)) hvalues
   apply Subtype.ext
-  apply Finset.coe_injective
-  rw [← range_finsetTuple X.1 X.2.2.1, ← range_finsetTuple Y.1 Y.2.2.1]
-  exact congrArg Set.range htuple
+  apply coe_injective
+  rw [← range_finsetTuple hX, ← range_finsetTuple hY, htuple]
 
 private lemma ncard_boundedFreimanDimSets_le (n r t : ℕ) (ht : 0 < t) :
     (boundedFreimanDimSets n r t).ncard ≤ n ^ (r + 1) * t ^ (4 * t) := by
   have hfinite : (boundedFreimanDimSets n r t).Finite :=
-    (Finset.Icc 1 n).powerset.finite_toSet.subset fun X hX ↦ Finset.mem_powerset.mpr hX.1
+    (Icc 1 n).powerset.finite_toSet.subset fun X hX ↦ mem_powerset.mpr hX.1
   let : Fintype (BoundedFreimanDimMember n r t) := hfinite.fintype
   have hcard := Fintype.card_le_of_injective _ (freimanClassEncoding_injective n r t ht)
   rw [Set.fintypeCard_eq_ncard, Fintype.card_prod, card_relation_codes, Fintype.card_fun,
@@ -856,8 +847,7 @@ private lemma ncard_boundedFreimanDimSets_le (n r t : ℕ) (ht : 0 < t) :
 /-- There are at most `n ^ (r + 1) * t ^ (4 * t)` sets `X ⊆ [n]` with `t` elements and Freiman
 dimension at most `r`. -/
 theorem card_boundedFreimanDimSets (n r t : ℕ) (ht : 0 < t) :
-    ((boundedFreimanDimSets n r t).ncard : ℝ) ≤
-      (n : ℝ) ^ (r + 1) * (t : ℝ) ^ (4 * t) :=
+    ((boundedFreimanDimSets n r t).ncard : ℝ) ≤ n ^ (r + 1) * t ^ (4 * t) :=
   mod_cast ncard_boundedFreimanDimSets_le n r t ht
 
 end
