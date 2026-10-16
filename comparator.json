@@ -2,9 +2,18 @@
   "challenge_module": "Challenge",
   "solution_module": "Solution",
   "theorem_names": [
-    "CountingSetsWithSmallSumset.ncard_setOf_card_eq_freimanDim_le_le",
-    "CountingSetsWithSmallSumset.exists_forall_exists_isAddFreimanIso_card_le",
-    "CountingSetsWithSmallSumset.ncard_setOf_card_eq_freimanDim_le_card_add_le_le"
+    "CountingSetsWithSmallSumset.card_cliqueNum_cayleySumGraph_gt_le'",
+    "CountingSetsWithSmallSumset.exists_cliqueNum_le_and_indepNum_le'",
+    "CountingSetsWithSmallSumset.card_cliqueNum_addCayley_lt_or_gt_le'",
+    "CountingSetsWithSmallSumset.tendsto_card_le_cliqueNum_addCayley_le'",
+    "CountingSetsWithSmallSumset.isGreatest_freimanDimOver'",
+    "CountingSetsWithSmallSumset.freimanDimOver_rat_eq_freimanDim_int'",
+    "CountingSetsWithSmallSumset.exists_coversFreimanIsoClasses_card_restrictedSumset_le'",
+    "CountingSetsWithSmallSumset.exists_subset_card_le_and_le_card_restrictedSumset'",
+    "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_zmod_le_of_le_rpow'",
+    "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_zmod_le'",
+    "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow'",
+    "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_pi_zmod_two_le'"
   ],
   "definition_names": [],
   "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],

@@ -1,175 +1,186 @@
 # Counting sets with small sumset
 
-Lean 4 proof of the results of Sections 3 and 4 of Ben Green,
+Lean 4 proof of the results of Ben Green,
 [*Counting sets with small sumset, and the clique number of random Cayley graphs*](https://arxiv.org/abs/math/0304183),
-Combinatorica 25 (2005), 307–326, for finite sets of natural numbers: a bound for the number of
-Freiman isomorphism classes of sets with small restricted sumset, and bounds for the number of
-subsets of $\lbrace 1, \dots, n \rbrace$ of given size and Freiman dimension. The statements have
-the form used to count pairs of sets with a sumset of moderate size in Gabriel Dahia, João Pedro
-Marciano and Victor Souza,
-[*Dense sets without large sumsets*](https://arxiv.org/abs/2607.15269).
+Combinatorica 25 (2005), 307–326. The paper bounds the number of sets of given size and given
+size of restricted sumset in $\mathbb{Z}/N\mathbb{Z}$ and in $\mathbb{F}_2^n$. With these bounds
+it shows that a random Cayley sum graph on $\mathbb{Z}/N\mathbb{Z}$ almost surely has clique
+number $O(\log N)$, and that a random Cayley graph on $\mathbb{F}_2^n$, where $N = 2^n$, almost
+surely has clique number of order $\log N \log \log N$.
 
-The proofs come from
-[DenseSetsWithoutLargeSumsets](https://github.com/gdahia/DenseSetsWithoutLargeSumsets). The
-affine dimension of a finite set and the definition of the Freiman dimension are those of
+The affine dimension of a finite set, Freiman's definition of the Freiman dimension and Freiman's
+lemma come from
 [SumOfSetsInSeveralDimensions](https://github.com/gdahia/SumOfSetsInSeveralDimensions), the proof
 of Ruzsa's lower bound for sumsets in several dimensions.
 
 ## Results
 
-The statements of Green's paper are numbered as in version 2 of the arXiv preprint, where
-theorems, propositions, lemmas and corollaries share one counter.
+The statements of the paper are numbered as in version 2 of the arXiv preprint, where theorems,
+propositions, lemmas and corollaries share one counter. Statements for sufficiently large
+parameters are proved above explicit thresholds, and statements about almost all sets are proved
+as bounds for the number of exceptional sets.
 
-Two sets are Freiman isomorphic of order $s$ if there is a bijection between them that preserves
-the equalities $a_1 + \dots + a_s = b_1 + \dots + b_s$ in both directions (`IsAddFreimanIso s` in
-Mathlib). The restricted sumset of $A$ is the set of the sums $a + b$ with $a, b \in A$ and
-$a \ne b$. The Freiman dimension `freimanDim X` (`SumOfSetsInSeveralDimensions.freimanDim`) of a
-finite set $X$ is the largest $d \le |X|$ such that $X$ is Freiman isomorphic of order $2$ to a
-subset of $\mathbb{Q}^d$ that is not contained in a proper affine subspace. The last condition is
-stated with the affine dimension `finsetAffineDim` of the subset in $\mathbb{R}^d$, the dimension
-of the direction of its affine span.
+The restricted sumset of a finite set $A$ is $A \hat{+} A = \lbrace a + b : a, b \in A,\ a \ne b \rbrace$
+(`restrictedSumset A`). For a finite abelian group $\Gamma$, $S_k^m(\Gamma)$ is the family of the
+sets $X \subseteq \Gamma$ with $|X| = k$ and $|X \hat{+} X| = m$ (`restrictedSumsetCardSets Γ k m`,
+Definition 3). The Cayley sum graph $G_A$ of $A \subseteq \Gamma$ has an edge between distinct $x$
+and $y$ when $x + y \in A$ (`cayleySumGraph A`). In $\mathbb{F}_2^n$, where $x + y = y - x$, it is
+Mathlib's Cayley graph `SimpleGraph.addCayley A`, and the statements for $\mathbb{F}_2^n$ use that
+graph. We write $\omega(G)$ for the clique number (`SimpleGraph.cliqueNum`).
 
-**Sets of bounded Freiman dimension**
-(`CountingSetsWithSmallSumset.ncard_setOf_card_eq_freimanDim_le_le`). Let $t > 0$. There are at
-most $n^{r + 1} t^{4t}$ sets $X \subseteq \lbrace 1, \dots, n \rbrace$ with $t$ elements and
-Freiman dimension at most $r$.
+Two sets are Freiman isomorphic of order $2$ if there is a bijection between them that preserves
+the equalities $a + b = c + d$ in both directions (`IsAddFreimanIso 2` in Mathlib). For a finite
+set $A$ in an abelian group and a field $F$, $\mathrm{Hom}_2(A, F)$ is the space of the maps
+$\varphi : A \to F$ with $\varphi(a) + \varphi(b) = \varphi(c) + \varphi(d)$ whenever
+$a + b = c + d$ (`freimanHomSpace F F A`). Green defines the Freiman dimension of $A$ as
+$r_F(A) = \dim \mathrm{Hom}_2(A, F) - 1$ (`freimanDimOver F A`). Freiman's dimension
+(`SumOfSetsInSeveralDimensions.freimanDim`) is the largest $d \le |A|$ such that $A$ is Freiman
+isomorphic of order $2$ to a subset of $\mathbb{Q}^d$ whose affine span in $\mathbb{R}^d$ is the
+whole space.
 
-**Isomorphism classes of sets with small restricted sumset**
-(`CountingSetsWithSmallSumset.exists_forall_exists_isAddFreimanIso_card_le`). Let
-$t \ge 2^{9000}$ and $m \le t^{31/30}$. There is a family of at most
-$(em/t)^t \exp(t^{31/32})$ finite sets such that every set of $t$ natural numbers whose
-restricted sumset has at most $m$ elements is Freiman isomorphic of order $2$ to a member of the
-family.
+**Theorem 7** (`card_cliqueNum_cayleySumGraph_gt_le'`). If $\log_2 N \ge 2^{9000}$, then
 
-**Sets with small sumset**
-(`CountingSetsWithSmallSumset.ncard_setOf_card_eq_freimanDim_le_card_add_le_le`). Let
-$t \ge 2^{9000}$ and $s \le t^{31/30}/2$. There are at most
-$n^{r + 1} (2es/t)^t \exp(t^{31/32})$ sets $X \subseteq \lbrace 1, \dots, n \rbrace$ with $t$
-elements, Freiman dimension at most $r$ and $|X + X| \le s$.
+$$\left|\lbrace A \subseteq \mathbb{Z}/N\mathbb{Z} : \omega(G_A) > 160 \log_2 N \rbrace\right| \le \frac{2^N}{N}.$$
 
-[Solution.lean](Solution.lean) proves the three. [Challenge.lean](Challenge.lean) contains the
-same statements, with the definitions of `finsetAffineDim`, `rationalVectorToReal`,
-`freimanModelDim` and `freimanDim`, in terms of Mathlib and with `sorry` placeholders. The
-library and the solution contain no `sorry`, and the theorems depend on no axioms other than
-`propext`, `Classical.choice` and `Quot.sound`.
+**Theorem 8** (`exists_cliqueNum_le_and_indepNum_le'`). If $\log_2 N \ge 2^{9000}$, there is a
+set $A \subseteq \mathbb{Z}/N\mathbb{Z}$ such that the clique number and the independence number
+of $G_A$ are at most $160 \log_2 N$.
 
-| Statement | Library form | Green's paper |
-| --- | --- | --- |
-| `ncard_setOf_card_eq_freimanDim_le_le` | `card_boundedFreimanDimSets` | Not stated. Lemma 11 with $s = 2$ and Lemma 13 (i), combined as in the proof of the second bound of Proposition 23 |
-| `exists_forall_exists_isAddFreimanIso_card_le` | `exists_smallRestrictedSumsetFreimanClassCover` | Proposition 18 |
-| `ncard_setOf_card_eq_freimanDim_le_card_add_le_le` | `smallSumsetFreimanDimSets_ncard_le_of_class_cover` | Not stated. The count in the proof of the first bound of Proposition 23 |
+**Theorem 9** (`card_cliqueNum_addCayley_lt_or_gt_le'` and
+`tendsto_card_le_cliqueNum_addCayley_le'`). Let $N = 2^n$. If $n \ge 2^{9000}$, then
 
-The library forms are written with the definitions `boundedFreimanDimSets`,
-`smallSumsetFreimanDimSets`, `smallRestrictedSumsetSets`, `restrictedSumset`,
-`CoversFreimanClasses`, `FreimanEquivalent` and `smallSumsetClassCountThreshold`, which the
-statements above unfold.
+$$\left|\lbrace A \subseteq \mathbb{F}_2^n : \omega(G_A) < \tfrac{1}{4} n \log_2 n \text{ or } \omega(G_A) > 308\, n \log_2 n \rbrace\right| \le \frac{2^N}{n} + \frac{2^N}{N}.$$
 
-The statements differ from the paper as follows.
+Hence the proportion of the sets $A \subseteq \mathbb{F}_2^n$ with
+$\frac{1}{4} n \log_2 n \le \omega(G_A) \le 308\, n \log_2 n$ tends to $1$. Since $\log_2 N = n$,
+these are the constants $C_1 = 1/4$ and $C_2 = 308$ of the paper.
 
-- Proposition 18 is for subsets of $F^k$ with $k$ elements, where $F$ is a field and $k$ is
-  sufficiently large. Here the sets are sets of natural numbers and the threshold is
-  $2^{9000}$. The number of classes is bounded through a family of sets that contains a member
-  of each class. The members of the family need not have small restricted sumset, and two of
-  them may be isomorphic.
-- Proposition 23 bounds the number of subsets of $\mathbb{Z}/N\mathbb{Z}$ with $k$ elements
-  whose restricted sumset has $m$ elements by $N^{1 + 4m/k} (2em/k)^k \exp(k^{31/32})$ if
-  $m \le k^{31/30}/2$, and by $N^{1 + 4m/k} k^{4k}$ for every $m$. Its proof lifts such a set to
-  a subset of $\lbrace 1, \dots, N \rbrace$ whose restricted sumset has at most $2m$ elements,
-  counts the isomorphism classes of the lifts, and bounds their Freiman dimension by $4m/k$ with
-  a lemma of Freiman (Lemmas 21 and 22). The statements here count subsets of
-  $\lbrace 1, \dots, n \rbrace$, with the Freiman dimension as a parameter $r$. The reduction
-  from $\mathbb{Z}/N\mathbb{Z}$ and Lemmas 21 and 22 are not formalized.
-- The third statement bounds the sumset $X + X$, which contains the restricted sumset. Its proof
-  applies the bound for the number of classes with $m = 2s$, as the paper does for the lifts.
-  This is the source of the factor $2$.
-- The paper defines the Freiman dimension of $X$ as $\dim \mathrm{Hom}_2(X, \mathbb{Q}) - 1$,
-  where $\mathrm{Hom}_2(X, \mathbb{Q})$ is the space of the Freiman homomorphisms of order $2$
-  from $X$ to $\mathbb{Q}$. Its Corollary 14 states that this is the largest $d$ in the
-  definition above. The corollary is not formalized. The library proves that the dimension of
-  the model of $X$ built from its relations is at most `freimanDim X`
-  (`relationModelDim_le_freimanDim`), which is what the counts use.
+**Corollary 14** (`isGreatest_freimanDimOver'` and `freimanDimOver_rat_eq_freimanDim_int'`). Let
+$A$ be a nonempty finite subset of a vector space over a field $F$. Then $r_F(A)$ is the largest
+$d$ such that $A$ is Freiman isomorphic of order $2$ to a subset of $F^d$ of affine dimension $d$.
+For a finite set $X$ of integers, $r_{\mathbb{Q}}(X)$ is Freiman's dimension of $X$.
 
-## Proof and files
+**Proposition 18** (`exists_coversFreimanIsoClasses_card_restrictedSumset_le'`). Let $W$ be a
+vector space over a field $F$, $t \ge 2^{9000}$ and $m \le t^{31/30}$. There is a family of at
+most $(em/t)^t \exp(t^{31/32})$ finite subsets of $W$ such that every $A \subseteq W$ with
+$|A| = t$ and $|A \hat{+} A| \le m$ is Freiman isomorphic of order $2$ to a member of the family.
 
-A tuple $a = (a_1, \dots, a_t)$ of natural numbers satisfies a relation of order $s$ when two
-sums of $s$ of its coordinates are equal. The coefficient vectors of the relations that $a$
-satisfies span a subspace of $\mathbb{Q}^t$, and $a$ satisfies exactly the relations whose
-vectors lie in it. This subspace is spanned by $t$ of these vectors, so it is determined by a
-code of $t$ relations, and there are $t^{2st}$ codes (Lemma 11). Two injective tuples with the
-same code have ranges that are Freiman isomorphic of order $s$ (Lemma 10). A set receives the
-least code of its enumerations.
+**Proposition 19** (`exists_subset_card_le_and_le_card_restrictedSumset'`). Let
+$0 < \varepsilon \le 1/2$ and let $A$ be a finite subset of an abelian group with
+$|A| \ge 16/\varepsilon^2$. There is a set $B \subseteq A$ with
 
-For relations of order $2$, the quotient of the space of vectors of $\mathbb{Q}^t$ with zero
-coefficient sum by the relations of $a$ contains a Freiman isomorphic copy of the range of $a$
-that spans it. Its dimension `relationModelDim a` is therefore at most the Freiman dimension of
-the range. The quotient of $\mathbb{Q}^t$ by the relations has dimension one more than
-`relationModelDim a` and is spanned by the classes of that many coordinate vectors, so a tuple
-with the same relations as $a$ is determined by its values at these coordinates (Lemmas 12 and
-13). Hence a Freiman isomorphism class of dimension at most $r$ has at most $n^{r + 1}$ members in
-$\lbrace 1, \dots, n \rbrace$, and the first statement follows from the bound $t^{4t}$ for the
-number of codes.
+$$|B| \le \frac{3 \log_2(1/\varepsilon)}{\varepsilon} \sqrt{|A|} \quad \text{and} \quad |B \hat{+} B| \ge (1 - \varepsilon)|A|.$$
 
-Let $A$ be a set of $t \ge 2^{9000}$ natural numbers whose restricted sumset has at most $m$
-elements. Proposition 15 gives $a \in A$, a core $A_0 \subseteq A$ with at most
-$4 t^{-1/15} m$ elements, and $A_1 \subseteq A$ missing at most $4 t^{-4/5} m$ elements of
-$A$, such that $a + A_1$ is contained in the restricted sumset of $A_0$. The element $a$ is
-chosen so that few sums $a + b$ have fewer than $\lfloor t^{1/5} \rfloor$ representations, and
-$A_0$ is a random subset of $A$ of density $t^{-1/15}$. A sum with at least $Q$ representations
-has at least $\lfloor Q/2 \rfloor$ disjoint ones, where the paper uses $Q/3$. The expectation is
-a finite sum over the functions from $A$ to `Bool` with product weights.
+**Proposition 23** (`card_restrictedSumsetCardSets_zmod_le_of_le_rpow'` and
+`card_restrictedSumsetCardSets_zmod_le'`). If $k \ge 2^{9000}$ and $m \le k^{31/30}/2$, then
 
-The class of order $8$ of $A_0$ is one of at most $l^{16l}$, where $l = |A_0|$. Given this
-class, the class of order $4$ of $a + A_1$ is one of at most $\binom{m}{|A_1|}$, since a subset
-of the restricted sumset of $A_0$ is isomorphic of order $4$ to a subset of the restricted
-sumset of any set in the class of $A_0$ (Lemma 17). Given the class of order $4$ of $A_1$, the
-class of order $2$ of $A$ is one of at most $(1 + |A_1|^4)^{(d + 1)^4}$, where
-$d = |A \setminus A_1|$ (Lemma 16). The sum of the products of these three numbers over $l$ and
-$d$ is `freimanClassCountBound t m`, and it is at most $(em/t)^t \exp(t^{31/32})$ when
-$m \le t^{31/30}$. The paper uses the orders $6$, $3$ and $2$ and the bound $l^{3t^4}$ in
-Lemma 16.
+$$|S_k^m(\mathbb{Z}/N\mathbb{Z})| \le N^{1 + 4m/k} \left(\frac{2em}{k}\right)^k \exp(k^{31/32}),$$
+
+and for every $k \ge 1$ and every $m$, $|S_k^m(\mathbb{Z}/N\mathbb{Z})| \le N^{1 + 4m/k} k^{4k}$.
+
+**Proposition 26** (`card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow'` and
+`card_restrictedSumsetCardSets_pi_zmod_two_le'`). Let $N = 2^n$. If $k \ge 2^{9000}$ and
+$m \le k^{31/30}$, then
+
+$$|S_k^m(\mathbb{F}_2^n)| \le N^{4m \log_2 k / k} \left(\frac{em}{k}\right)^k \exp(k^{31/32}),$$
+
+and for every $k \ge 2$ and every $m$, $|S_k^m(\mathbb{F}_2^n)| \le N^{4m \log_2 k / k} k^{4k}$.
+
+[Solution.lean](Solution.lean) proves these twelve statements. [Challenge.lean](Challenge.lean)
+contains them with `sorry` placeholders, together with the definitions they use, restated in
+terms of Mathlib: `finsetAffineDim`, `rationalVectorToReal`, `freimanModelDim` and `freimanDim` of
+SumOfSetsInSeveralDimensions, and `restrictedSumset`, `cayleySumGraph`,
+`restrictedSumsetCardSets`, `freimanHomSpace` and `freimanDimOver` of this library. The library and
+the solution contain no `sorry`, and the theorems depend on no axioms other than `propext`,
+`Classical.choice` and `Quot.sound`. The statements of the challenge carry a prime; the library
+proves them under the same names without it.
+
+The other results of the paper are proved in the library. Theorems 4, 5 and 6, which the paper
+cites, and Proposition 29, which it states without proof, are not formalized.
+
+| Declaration | Statement |
+| --- | --- |
+| `exists_isAddFreimanIso_range_of_freimanRelationSpace_eq` | Lemma 10: two injective tuples in vector spaces over $F$ whose relations of order $s$ span the same subspace have ranges that are Freiman isomorphic of order $s$ |
+| `exists_coversFreimanIsoClasses_card_le_pow` | Lemma 11: a family of at most $k^{2sk}$ sets meets every Freiman isomorphism class of order $s$ of $k$-element subsets of a vector space |
+| `exists_interpolation_points` | Lemma 12: a $d$-dimensional space of functions on a finite set has $d$ points at which its members take any values, each exactly once |
+| `exists_freimanBasis_of_module` | Lemma 13: $A$ has $r_F(A) + 1$ points at which the members of $\mathrm{Hom}_2(A, M)$ take any values, and, for $A$ in a vector space over $F$, a homomorphism with linearly independent values at these points satisfies no relations $\varphi(a) + \varphi(b) = \varphi(c) + \varphi(d)$ other than those of $A$ |
+| `finrank_freimanHomSpace`, `card_freimanHomSpace` | $\dim \mathrm{Hom}_2(A, M) = (r_F(A) + 1) \dim M$ and $\lvert\mathrm{Hom}_2(A, M)\rvert = \lvert M\rvert^{r_F(A) + 1}$ |
+| `ncard_isAddFreimanIso_le` | At most $\lvert F\rvert^{n(r_F(A) + 1)}$ subsets of $F^n$ are Freiman isomorphic to $A$ |
+| `isGreatest_freimanDimOver_of_isAddFreimanIso`, `freimanDimOver_rat_eq_freimanDim_nat` | Corollary 14 for a set with a Freiman isomorphism into a vector space, and for a set of natural numbers |
+| `exists_image_add_subset_restrictedSumset` | Proposition 15, for $t \ge 2^{9000}$ and any $m \ge t$ with $\lvert A \hat{+} A\rvert \le m$ |
+| `exists_coversFreimanIsoClasses_extensionsOfFreimanClass_card_le` | Lemma 16, with order $4$ in place of $3$ |
+| `exists_subset_restrictedSumset_freimanIsomorphic` | Lemma 17, with orders $8$ and $4$ in place of $6$ and $3$ |
+| `exists_coversFreimanIsoClasses_card_restrictedSumset_le_of_injective` | Proposition 18 for sets with an injective additive map into a vector space, such as sets of natural numbers |
+| `exists_subset_seven_mul_card_le_card_restrictedSumset` | Corollary 20: if $\lvert A\rvert \ge 46656$, some $C \subseteq A$ has $\lvert A\rvert \le 8\lvert C\rvert$ and $\lvert C \hat{+} C\rvert \ge 7\lvert C\rvert$ |
+| `freimanDim_mul_le_card_restrictedSumset` | Lemma 21 (Freiman): $\lvert S \hat{+} S\rvert \ge r(\lvert S\rvert - (r + 1)/2)$ for $r$ Freiman's dimension of $S$ |
+| `freimanDim_zmodLift_le` | Lemma 22: the lift of $A \subseteq \mathbb{Z}/N\mathbb{Z}$ to $\lbrace 1, \dots, N \rbrace$ has Freiman dimension at most $4\lvert A \hat{+} A\rvert / \lvert A\rvert$ |
+| `Finset.pluennecke_ruzsa_inequality_nsmul_add` | Theorem 24, the Plünnecke–Ruzsa inequality, from Mathlib |
+| `freimanDimOver_add_one_le_of_card_restrictedSumset_le` | Lemma 25: if $\lvert A\rvert = k \ge 2$ and $\lvert A \hat{+} A\rvert \le m$ in a vector space over $\mathbb{F}_2$, then $r_{\mathbb{F}_2}(A) + 1 \le 4m \log_2 k / k$ |
+| `sum_card_restrictedSumsetCardSets_zmod_div_two_pow_le`, `sum_card_restrictedSumsetCardSets_pi_zmod_two_div_two_pow_le` | The sums of $\lvert S_j^m\rvert 2^{-m}$ over $7j \le m \le N$ in Section 7 are at most $N^{-2}$ |
+| `card_lt_cliqueNum_cayleySumGraph_le` | The first step of the proofs of Theorems 7 and 9 |
+| `card_cliqueNum_addCayley_gt_le` | The upper bound of Theorem 9: at most $2^N/N$ sets $A \subseteq \mathbb{F}_2^n$ have $\omega(G_A) > 308\, n \log_2 n$ |
+| `card_cliqueNum_addCayley_lt_le`, `tendsto_card_le_cliqueNum_addCayley` | Proposition 27, for $n \ge 2^{16}$: at most $2^N/n$ sets $A \subseteq \mathbb{F}_2^n$ have $\omega(G_A) < \frac{1}{4} n \log_2 n$ |
+| `card_finrank_inf_eq_le` | Lemma 28: at most $2^{n(2k - l)}$ pairs of $k$-dimensional subspaces of $\mathbb{F}_2^n$ meet in an $l$-dimensional subspace |
+| `cayleySumGraph_eq_addCayley` | In a group of exponent $2$, the Cayley sum graph is Mathlib's Cayley graph |
+| `card_boundedFreimanDimSets` | Not in the paper: at most $n^{r + 1} t^{4t}$ sets $X \subseteq \lbrace 1, \dots, n \rbrace$ have $t > 0$ elements and Freiman dimension at most $r$ |
+| `smallSumsetFreimanDimSets_ncard_le_of_class_cover` | Not in the paper: if $t \ge 2^{9000}$ and $s \le t^{31/30}/2$, at most $n^{r + 1} (2es/t)^t \exp(t^{31/32})$ sets $X \subseteq \lbrace 1, \dots, n \rbrace$ have $t$ elements, Freiman dimension at most $r$ and $\lvert X + X\rvert \le s$ |
+
+## Files
 
 | Files in `CountingSetsWithSmallSumset/` | Contents |
 | --- | --- |
-| `FreimanIsomorphismClasses/RelationAndExtensionCodes.lean` | Relations of a tuple and their codes, the restricted sumset, the random choice of the core, the codes behind Lemmas 16 and 17 |
-| `FreimanIsomorphismClasses/DimensionAndCounting.lean` | The model of a set built from its relations, coordinates that determine a tuple, canonical codes of sets, `card_boundedFreimanDimSets` |
-| `SmallSumsetIsomorphismClasses/CoreAndCovers.lean` | Proposition 15 with explicit parameters, the classes of Lemmas 16 and 17, the sum `freimanClassCountBound` |
-| `SmallSumsetIsomorphismClasses/ClassCountBounds.lean` | The estimate of the sum, Proposition 18, the members of a class in $\lbrace 1, \dots, n \rbrace$, the count of sets with small sumset |
+| `RestrictedSumset.lean` | The restricted sumset |
+| `RestrictedSumsetCardSets.lean` | Definition 3 |
+| `CayleySumGraph.lean` | Cayley sum graphs, their cliques, and the Cayley graph in exponent $2$ |
+| `RpowBounds.lean` | Inequalities for real powers of large numbers |
+| `FreimanIsomorphismClasses/Covers.lean` | Freiman isomorphic sets and covers of a family by isomorphism classes |
+| `FreimanIsomorphismClasses/Relations.lean` | Additive relations of tuples |
+| `FreimanIsomorphismClasses/RelationCodes.lean` | Relation vectors over a field, Lemmas 10 and 11 |
+| `FreimanIsomorphismClasses/ExtensionCodes.lean` | The extension codes behind Lemma 16 |
+| `FreimanIsomorphismClasses/BoundedFreimanDimSets.lean` | Sets of natural numbers of bounded Freiman dimension |
+| `FreimanDimension/HomSpace.lean` | $\mathrm{Hom}_2(A, M)$ and $r_F(A)$ |
+| `FreimanDimension/Interpolation.lean` | Lemma 12 |
+| `FreimanDimension/Basis.lean` | Lemma 13 |
+| `FreimanDimension/IsomorphicCopies.lean` | The number of Freiman isomorphic copies of a set |
+| `FreimanDimension/AffineModel.lean` | Corollary 14 |
+| `FreimanDimension/RationalVectors.lean` | Rational vectors as real vectors |
+| `FreimanDimension/Integers.lean` | Corollary 14 for sets of integers and of natural numbers |
+| `SmallSumsetIsomorphismClasses/CoreDecomposition.lean` | The random choice of the core in Proposition 15 |
+| `SmallSumsetIsomorphismClasses/CoreParameters.lean` | Proposition 15 |
+| `SmallSumsetIsomorphismClasses/ExtensionAndRemainderCovers.lean` | Lemmas 16 and 17 |
+| `SmallSumsetIsomorphismClasses/CoreAndCovers.lean` | The cover of the sets with small restricted sumset by classes |
+| `SmallSumsetIsomorphismClasses/ClassCountBounds.lean` | Proposition 18 and the counts of sets of natural numbers |
+| `LargeRestrictedSumset/SummingQuadruples.lean` | Summing quadruples and the Cauchy–Schwarz bound |
+| `LargeRestrictedSumset/SubsetAveraging.lean` | Subsets with few non-degenerate summing quadruples |
+| `LargeRestrictedSumset/SmallSubset.lean` | Proposition 19 |
+| `LargeRestrictedSumset/LargeSubset.lean` | Corollary 20 |
+| `FreimanLemma/RestrictedSumset.lean` | Lemma 21 |
+| `CyclicGroups/Unfolding.lean` | Lemma 22 |
+| `CyclicGroups/RestrictedSumsetCardBounds.lean` | Proposition 23 |
+| `CyclicGroups/LargeRestrictedSumsetSum.lean` | The sum of Section 7 for $\mathbb{Z}/N\mathbb{Z}$ |
+| `CyclicGroups/CliqueNumber.lean` | Theorem 7 |
+| `CyclicGroups/RamseyGraph.lean` | Theorem 8 |
+| `CliqueCount.lean` | Cayley sum graphs with a large clique |
+| `BinaryGroups/Sumsets.lean` | Sumsets and restricted sumsets in characteristic $2$ |
+| `BinaryGroups/IteratedSumsets.lean` | Sums of distinct elements of an affinely independent set |
+| `BinaryGroups/FreimanDimension.lean` | Lemma 25 |
+| `BinaryGroups/RestrictedSumsetCardBounds.lean` | Proposition 26 |
+| `BinaryGroups/LargeRestrictedSumsetSum.lean` | The sum of Section 7 for $\mathbb{F}_2^n$ |
+| `BinaryGroups/CliqueNumber.lean` | The upper bound of Theorem 9, and Theorem 9 |
+| `BinaryLowerBound/SecondMoment.lean` | The second moment method for a uniformly random set |
+| `BinaryLowerBound/SubspaceCount.lean` | The number of subspaces of $\mathbb{F}_2^n$ of a given dimension |
+| `BinaryLowerBound/SubspacePairs.lean` | Lemma 28 |
+| `BinaryLowerBound/Covariance.lean` | The covariance terms for subspaces |
+| `BinaryLowerBound/SubspaceDimension.lean` | The dimension of the subspaces in Proposition 27 |
+| `BinaryLowerBound/CliqueNumber.lean` | Proposition 27 |
 
-The four files come from DenseSetsWithoutLargeSumsets. They were written there up to commit
-`5f4b915` and rewritten on 11 October 2026 with the same definitions and main statements. Here
-they are in the namespace `CountingSetsWithSmallSumset`, and they use `Finset.Icc 1 n` where that
-repository uses its definition `interval n`.
-
-The library imports one module of SumOfSetsInSeveralDimensions,
-`SumOfSetsInSeveralDimensions.FreimanDimension`, for the definitions `rationalVectorToReal`,
-`freimanModelDim` and `freimanDim`. That module imports
-`SumOfSetsInSeveralDimensions.AffineDim`, which defines `finsetAffineDim`.
-
-[formalization.yaml](formalization.yaml) records the sources, the differences from them, the
-scope, and the automation used.
-
-## Verification
-
-`Challenge.lean` states the three results above as
-`CountingSetsWithSmallSumset.ncard_setOf_card_eq_freimanDim_le_le`,
-`CountingSetsWithSmallSumset.exists_forall_exists_isAddFreimanIso_card_le` and
-`CountingSetsWithSmallSumset.ncard_setOf_card_eq_freimanDim_le_card_add_le_le`. It restates the
-definitions `finsetAffineDim`, `rationalVectorToReal`, `freimanModelDim` and `freimanDim` under
-their names in the namespace `SumOfSetsInSeveralDimensions`, imports Mathlib alone and leaves the
-three proofs as `sorry`; the restricted sumset is written out as the image of
-$(a, b) \mapsto a + b$ on the pairs of distinct elements of $A$. `Solution.lean` proves the same
-declarations from the library, with the definitions taken from SumOfSetsInSeveralDimensions.
-
-`comparator.json` sets up the comparison of the two modules: it names the three theorems and
-permits only the axioms `propext`, `Quot.sound` and `Classical.choice`. A comparator checks that
-each of these theorems has the same statement in `Solution` as in `Challenge`, with the same
-definitions behind it, and that its proof uses no other axioms.
+[formalization.yaml](formalization.yaml) records the differences from the paper, the scope, and
+the use of AI coding agents.
 
 ## Build
 
 The Lean and Mathlib versions and the commit of SumOfSetsInSeveralDimensions are pinned in
-`lean-toolchain`, `lakefile.toml` and `lake-manifest.json`. SumOfSetsInSeveralDimensions is a
-private repository for now, so Lake cannot fetch it over HTTPS without credentials.
+`lean-toolchain`, `lakefile.toml` and `lake-manifest.json`.
 
 ```sh
 lake exe cache get

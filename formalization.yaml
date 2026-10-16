@@ -4,24 +4,28 @@ version: "v0.4"
 project:
   name: "Counting sets with small sumset"
   description: >-
-    Formalization of Sections 3 and 4 of Green's paper Counting sets with small sumset, and
-    the clique number of random Cayley graphs, for finite sets of natural numbers. For
-    t >= 2^9000 and m <= t^(31/30), the sets of t natural numbers whose restricted sumset has
-    at most m elements lie in at most (e m / t)^t exp(t^(31/32)) Freiman isomorphism classes
-    of order 2. There are at most n^(r+1) t^(4t) sets X in {1, ..., n} with t elements and
-    Freiman dimension at most r, and at most n^(r+1) (2 e s / t)^t exp(t^(31/32)) of them
-    have |X + X| <= s, for t >= 2^9000 and s <= t^(31/30) / 2.
+    Lean 4 formalization of Green's paper Counting sets with small sumset, and the clique
+    number of random Cayley graphs. For a finite abelian group Γ, let S_k^m(Γ) be the family
+    of the sets X in Γ with |X| = k whose restricted sumset X ∔ X = {x + y : x, y in X,
+    x ≠ y} has m elements. The paper bounds |S_k^m(Γ)| for Γ = Z/NZ and Γ = F_2^n, through
+    a bound for the number of Freiman isomorphism classes of sets with small restricted
+    sumset in a vector space. It deduces that the Cayley sum graph of a random subset of
+    Z/NZ almost surely has clique number at most 160 log_2 N, and that the Cayley graph of a
+    random subset of F_2^n almost surely has clique number between C_1 n log_2 n and
+    C_2 n log_2 n. The formalization proves these results with explicit thresholds and
+    C_1 = 1/4, C_2 = 308, and proves Corollary 14: Green's Freiman dimension
+    dim Hom_2(A, F) - 1 is the largest dimension of a Freiman isomorphic copy of A in F^d
+    that is not contained in a proper affine subspace, and for sets of integers it equals
+    Freiman's definition.
   authors:
-    - name: "Gabriel Dahia"
-      github: "gdahia"
+    - "Gabriel Dahia"
   license: "Apache-2.0"
   responsible_maintainers:
-    - name: "Gabriel Dahia"
-      github: "gdahia"
+    - "Gabriel Dahia"
 
 classification:
   arxiv: ["math.CO", "math.NT"]
-  msc2020: ["11P70", "11B13", "11B30", "05A16"]
+  msc2020: ["11P70", "11B13", "11B30", "05C80", "05C55"]
 
 sources:
   - title: "Counting sets with small sumset, and the clique number of random Cayley graphs"
@@ -30,16 +34,14 @@ sources:
     id: "https://arxiv.org/abs/math/0304183v2"
     type: "paper"
     location: "https://arxiv.org/abs/math/0304183v2"
-    relationship: "adapts"
+    relationship: "formalizes"
     note: >-
-      Combinatorica 25 (2005), 307–326, arXiv:math/0304183. The version used is version 2
-      of the arXiv preprint, of 11 August 2003. Only Sections 3 and 4 are formalized, in the
-      form needed to count pairs of sets with a sumset of moderate size in Dahia, Marciano
-      and Souza, Dense sets without large sumsets. The statements are numbered as in the
-      arXiv version, where theorems, propositions, lemmas and corollaries share one counter;
-      the numbers were not compared with those of the published version. The Lean
-      proofs were compared with the paper at the level of the statements and of the
-      parameters described in the README, and not line by line.
+      Combinatorica 25 (2005), 307–326. The version used is version 2 of the arXiv preprint,
+      of 11 August 2003, read from its LaTeX source. The statements are numbered as in that
+      version, where theorems, propositions, lemmas and corollaries share one counter; the
+      numbers were not compared with those of the published version. Theorems 4, 5 and 6,
+      which the paper cites, and Proposition 29, which it states without proof, are not
+      formalized.
     license: "unknown"
     author_endorsement: "not-contacted"
   - title: "Dense sets without large sumsets"
@@ -52,38 +54,40 @@ sources:
     location: "https://arxiv.org/abs/2607.15269"
     relationship: "background"
     note: >-
-      The paper that uses these bounds, to count pairs of sets with a sumset of moderate
-      size. It determines the form of the statements here.
+      Uses Proposition 18 and the count in the proof of Proposition 23 to count pairs of sets
+      with a sumset of moderate size. The two counts of sets of natural numbers in the library
+      that the paper of Green does not state, card_boundedFreimanDimSets and
+      smallSumsetFreimanDimSets_ncard_le_of_class_cover, have the form needed there.
+    license: "unknown"
+    author_endorsement: "not-contacted"
 
 related_formalizations:
-  - id: "https://github.com/gdahia/DenseSetsWithoutLargeSumsets"
-    relationship: "adapts"
+  - id: "https://github.com/leanprover-community/mathlib4"
+    relationship: "builds-on"
     note: >-
-      Source of the proofs. The four modules of its directories
-      Combinatorics/Additive/FreimanIsomorphismClasses and
-      Combinatorics/Additive/SmallSumsetIsomorphismClasses were written there up to commit
-      5f4b915 and rewritten on 11 October 2026 with the same definitions and main
-      statements. They are copied here in the namespace CountingSetsWithSmallSumset, with
-      Finset.Icc 1 n in place of the definition interval n of that repository.
+      Mathlib has Freiman homomorphisms and isomorphisms (IsAddFreimanHom, IsAddFreimanIso),
+      Module.finrank, vectorSpan and affine independence, the clique and independence numbers
+      of a simple graph, the Cayley graph SimpleGraph.addCayley, which is the Cayley sum graph
+      in F_2^n, and the Plünnecke–Ruzsa inequality, which is Theorem 24 of the paper and is
+      used for Lemma 25. It has no restricted sumset, no Cayley sum graph, no space of Freiman
+      homomorphisms and none of the results of the paper.
   - id: "https://github.com/gdahia/SumOfSetsInSeveralDimensions"
     relationship: "builds-on"
     note: >-
-      Formalization of Ruzsa's lower bound for sumsets in several dimensions. A Lake
-      dependency, private for now, used here for the affine dimension of a finite set
-      (finsetAffineDim) and for the definition of the Freiman dimension (freimanDim).
+      A Lake dependency. It provides the affine dimension of a finite set (finsetAffineDim),
+      Freiman's definition of the Freiman dimension (freimanDim), which Corollary 14 compares
+      with Green's, and Freiman's lemma |A + A| ≥ (d + 1)|A| - d(d + 1)/2, from which Lemma 21
+      is proved.
 
 status:
   scope: >-
-    Sections 3 and 4 of Green's paper for finite sets of natural numbers: Lemmas 10 and 11 on
-    the relations of a tuple, the uniqueness part of Lemma 13 (i) and the count of the
-    members of an isomorphism class in {1, ..., n} that follows from it, Proposition 15 and
-    Lemmas 16 and 17 with explicit parameters, and Proposition 18 with the threshold
-    2^9000. The count of the subsets of {1, ..., n} of given size, Freiman dimension and
-    sumset is the one in the proof of Proposition 23. Not formalized: Corollary 14, the
-    existence part of Lemma 13 (i) and Lemma 13 (ii), the lemma of Freiman (Lemma 21),
-    Lemma 22, Proposition 23 for subsets of Z/NZ, and the rest of the paper. The sorry
+    Definition 3, Theorems 7, 8 and 9, Lemmas 10 to 13, Corollary 14, Propositions 15, 18, 19,
+    23, 26 and 27, Lemmas 16, 17, 21, 22, 25 and 28, Corollary 20 and the computations of
+    Section 7, with explicit thresholds. Theorem 24 is the Plünnecke–Ruzsa inequality of
+    Mathlib. Theorems 4, 5 and 6 and Proposition 29 are not formalized. The library also
+    proves two counts of sets of natural numbers that the paper does not state. The sorry
     counts refer to the library and Solution.lean; Challenge.lean has one placeholder for
-    each of its three statements.
+    each of its twelve statements.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: ["propext", "Classical.choice", "Quot.sound"]
@@ -94,159 +98,248 @@ automation:
       models: ["gpt-5.6 sol high", "claude opus 5"]
       framework: "Codex"
       tool_setup: >-
-        The entry of DenseSetsWithoutLargeSumsets, which covers the first version of the
-        proofs: Codex agents guided by the AGENTS.md of that repository, with Lean proofs
-        checked in its pinned Lake environment.
+        Codex agents guided by an AGENTS.md, with Lean proofs checked in a pinned Lake
+        environment.
       cost:
         wall_time: "not tracked"
         spend_usd: "not tracked"
         hardware: "local machine"
       prompting_notes: >-
-        The proofs of the results of Sections 3 and 4 of Green's paper, as part of the proof
-        of Theorem 1.1 of Dense sets without large sumsets, up to commit 5f4b915 of
-        DenseSetsWithoutLargeSumsets.
+        The first proofs of the results of Sections 3 and 4, written as part of the proof of
+        Theorem 1.1 of Dense sets without large sumsets.
     - method: "agent"
       models: ["Claude Opus 5.5"]
       framework: "Claude Code"
-      tool_setup: >-
-        Lean 4, Mathlib, shell, a clone of DenseSetsWithoutLargeSumsets and the arXiv source
-        of Green's paper.
+      tool_setup: "Lean 4, Mathlib, shell, and the arXiv source of the paper."
       cost:
         wall_time: "not tracked"
         spend_usd: "not tracked"
         hardware: "local machine"
       prompting_notes: >-
-        In DenseSetsWithoutLargeSumsets, an instruction to rewrite the modules written by
-        Codex in the style of the others. Then instructions to move the four modules to this
-        repository, to take the Freiman dimension from SumOfSetsInSeveralDimensions, and to
-        state the main results in Challenge.lean after comparing them with the paper.
+        Instructions to restyle the proofs of Sections 3 and 4, to prove Corollary 14 with
+        Green's definition of the Freiman dimension, to formalize the other results of the
+        paper, and to restyle the statements, proofs and documentation after Gabriel Dahia's
+        review of other repositories. Claude Code split the work among subagents, one for
+        each part of the paper, and merged and restyled their proofs.
   spend_usd: "not tracked"
   notes: >-
-    The proofs were first written by Codex agents directed by Gabriel Dahia, in
-    DenseSetsWithoutLargeSumsets, up to its commit 5f4b915. On 11 October 2026 Claude Code,
-    directed by Gabriel Dahia, rewrote them there, keeping the definitions and the main
-    statements. Claude Code then split this repository from it: it copied the four modules,
-    replaced interval n by Finset.Icc 1 n, compared the statements with the arXiv source of
-    the paper, and wrote Challenge.lean, Solution.lean, the README and this file. Every
-    proof is checked by Lean.
+    The first proofs of Sections 3 and 4 were written by Codex agents in
+    DenseSetsWithoutLargeSumsets. Claude Code, directed by Gabriel Dahia, rewrote them for
+    vector spaces over a field and wrote the rest of the library, Challenge.lean,
+    Solution.lean, the README and this file.
 
 fidelity:
   divergences: >-
-    Numbering. The statements of the paper are numbered as in arXiv:math/0304183v2, where
-    theorems, propositions, lemmas and corollaries share one counter: Lemmas 10 to 13,
-    Corollary 14, Proposition 15, Lemmas 16 and 17, Proposition 18 in Sections 3 and 4, and
-    Lemmas 21 and 22 and Proposition 23 in Section 6.
+    Thresholds. The paper states its results for sufficiently large parameters. Here the
+    thresholds are explicit: k, t ≥ 2^9000 in Propositions 18, 23 (i) and 26 (i),
+    log_2 N ≥ 2^9000 in Theorems 7 and 8, n ≥ 2^9000 in Theorem 9, |A| ≥ 16/ε^2 in
+    Proposition 19, |A| ≥ 46656 in Corollary 20 and n ≥ 2^16 in Proposition 27. They are not
+    optimized.
 
-    Ambient space. The paper works with finite subsets of a vector space W over a field F.
-    The Lean statements are for finite sets of natural numbers.
+    Almost sure statements. Theorem 7 states that ω ≤ 160 log_2 N with probability tending to
+    1. Here at most 2^N / N sets A ⊆ Z/NZ have ω(G_A) > 160 log_2 N. In Theorem 9, with
+    N = 2^n, at most 2^N / n + 2^N / N sets A ⊆ F_2^n have ω(G_A) < n log_2 n / 4 or
+    ω(G_A) > 308 n log_2 n, and the proportion of the other sets tends to 1. In
+    Proposition 27, at most 2^N / n sets have ω(G_A) < n log_2 n / 4.
 
-    Proposition 18. The paper bounds by (e m / k)^k exp(k^(31/32)) the number of isomorphism
-    classes of sets A in F^k with |A| = k whose restricted sumset has at most m elements,
-    for k sufficiently large and m <= k^(31/30). The Lean statement takes k >= 2^9000 and
-    gives a family of at most that many finite sets of natural numbers such that every set
-    of k natural numbers whose restricted sumset has at most m elements is Freiman
-    isomorphic of order 2 to a member of the family. The members of the family need not
-    have small restricted sumset, and two of them may be isomorphic. The library form has
-    the irreducible constant smallSumsetClassCountThreshold in place of 2^9000.
+    Theorem 8. The paper asks for no clique or independent set of size 160 log_2 N. The Lean
+    statement has clique number and independence number at most 160 log_2 N.
 
-    Sets of bounded Freiman dimension. The paper does not state the bound n^(r+1) t^(4t) for
-    the number of sets X in {1, ..., n} with t elements and Freiman dimension at most r. It
-    is the combination of Lemma 11 with s = 2 and of Lemma 13 (i) made in the proof of the
-    second bound of Proposition 23. The Lean statement needs t > 0.
+    Cayley graphs on F_2^n. The paper uses the Cayley sum graph on F_2^n. The Lean statements
+    use Mathlib's SimpleGraph.addCayley, which is the same graph because x + y = y - x there
+    (cayleySumGraph_eq_addCayley). On Z/NZ the two graphs differ, and the statements use
+    cayleySumGraph.
 
-    Sets with small sumset. Proposition 23 bounds the number of subsets of Z/NZ with k
-    elements whose restricted sumset has m elements by
-    N^(1 + 4m/k) (2 e m / k)^k exp(k^(31/32)) if m <= k^(31/30) / 2. Its proof lifts such a
-    set to a subset of {1, ..., N} whose restricted sumset has at most 2m elements and
-    bounds the Freiman dimension of the lift by 4m/k with Lemmas 21 and 22. The Lean
-    statement counts the sets X in {1, ..., n} with t elements, Freiman dimension at most r
-    and |X + X| <= s, for t >= 2^9000 and s <= t^(31/30) / 2, and gives
-    n^(r+1) (2 e s / t)^t exp(t^(31/32)). The Freiman dimension is a parameter, the bound s
-    is on the sumset X + X and not on the restricted sumset, and the reduction from Z/NZ is
-    not formalized.
+    Corollary 14. The condition that a subset S of F^d is not contained in a proper affine
+    subspace is stated as finrank F (vectorSpan F S) = d, and the corollary as IsGreatest.
+    For a finite set X of integers, Challenge.lean states r_Q(X) = freimanDim X, where
+    freimanDim is Freiman's dimension of SumOfSetsInSeveralDimensions, defined with the
+    affine dimension over R of the image in R^d of a model in Q^d.
 
-    Freiman dimension. The paper defines the Freiman dimension of A as dim Hom_2(A, F) - 1,
-    where Hom_2(A, F) is the space of the Freiman homomorphisms of order 2 from A to F, and
-    Corollary 14 states that it is the largest d such that A is isomorphic to a subset of
-    F^d not contained in a proper affine subspace. In Lean, freimanDim X is the largest
-    d <= |X| such that X is Freiman isomorphic of order 2 to a subset of Q^d whose image in
-    R^d has affine dimension d. Corollary 14 is not formalized.
+    Lemma 13. The paper gives dim Hom_2(A, W') as (r_F(A) + 1)^(dim W'). The correct value,
+    proved here as finrank_freimanHomSpace, is (r_F(A) + 1) dim W'.
+
+    Proposition 15 holds for every m ≥ t with |A ∔ A| ≤ m, in a commutative monoid with
+    cancellation. A sum with at least Q representations has at least ⌊Q/2⌋ disjoint ones,
+    where the paper uses Q/3.
+
+    Lemmas 16 and 17. The orders of the isomorphisms are 4 and 8 in place of 3 and 6, and
+    Lemma 16 has the bound (1 + l^4)^((t + 1)^4) in place of l^(3 t^4).
+
+    Proposition 18. The number of isomorphism classes is bounded through a family of sets
+    that contains a member of each class. The members of the family need not have small
+    restricted sumset, and two of them may be isomorphic.
+
+    Proposition 19. The paper picks the elements of B independently at random and uses a
+    Chernoff bound. Here B has exactly ⌈2√k / ε⌉ elements, and averaging over all subsets of
+    this size bounds the number of nondegenerate summing quadruples of some B. This gives
+    the stronger bound |B| ≤ 3√k / ε.
+
+    Lemma 21 is stated with Freiman's dimension and proved from Freiman's lemma for the full
+    sumset, applied to a model of S in Q^r ⊆ R^r, and |S + S| ≤ |S ∔ S| + |S|.
+
+    Lemma 22. The lift of A ⊆ Z/NZ is {a.val + 1 : a ∈ A} ⊆ {1, ..., N}.
+
+    Lemma 25. The paper takes X ⊆ A maximal such that the sums of h distinct elements of X
+    are distinct, and argues that each a ∈ A \ X lies in hX - (h - 1)X. This step needs one
+    of two colliding sums of X ∪ {a} to avoid a, which the paper does not justify. Here
+    h = ⌊log_2 k⌋, and X is an affinely independent subset of a Freiman isomorphic copy of A
+    with the same affine span, so that its sums of h distinct elements are distinct.
+
+    Section 7. For F_2^n the sum over j is taken over j ≥ 38 n log_2 n.
+
+    Counts not in the paper. card_boundedFreimanDimSets and
+    smallSumsetFreimanDimSets_ncard_le_of_class_cover count subsets of {1, ..., n} of given
+    size and bounded Freiman dimension, the second with |X + X| ≤ s. They combine Lemma 11
+    or Proposition 18 with the bound n^(r + 1) for the members of an isomorphism class in
+    {1, ..., n}, as the proof of Proposition 23 does.
 
 review:
-  status: "not reviewed"
+  status: "unchecked"
   reviewers: []
   notes: >-
-    No independent mathematical or formalization review. lake comparator, run on macOS on
-    11 October 2026 with its sandbox disabled, accepts the solution with Lean's kernel,
-    nanoda and con-ron. scripts/verify-comparator.sh, which runs it in the sandbox and needs
-    Linux, has not been run.
+    Unreviewed. No mathematical or formalization review of this repository. lake
+    comparator, run on macOS with its sandbox disabled, accepts the solution with Lean's
+    kernel, nanoda and con-ron. scripts/verify-comparator.sh, which runs it in the sandbox
+    and needs Linux, has not been run.
 
 alignment:
   namespace: "CountingSetsWithSmallSumset"
   statements:
-    - source: "Number of sets of given size and bounded Freiman dimension in {1, ..., n}"
-      lean: "CountingSetsWithSmallSumset.ncard_setOf_card_eq_freimanDim_le_le"
+    - source: "Theorem 7"
+      lean: "CountingSetsWithSmallSumset.card_cliqueNum_cayleySumGraph_gt_le'"
       module: "Challenge"
       status: "proved"
-      note: >-
-        Not stated in the paper. From Lemma 11 with s = 2 and Lemma 13 (i), as in the proof
-        of the second bound of Proposition 23.
+      note: "At most 2^N / N exceptional sets, for log_2 N ≥ 2^9000."
+    - source: "Theorem 8"
+      lean: "CountingSetsWithSmallSumset.exists_cliqueNum_le_and_indepNum_le'"
+      module: "Challenge"
+      status: "proved"
+      note: "For log_2 N ≥ 2^9000, with clique and independence numbers at most 160 log_2 N."
+    - source: "Theorem 9, count"
+      lean: "CountingSetsWithSmallSumset.card_cliqueNum_addCayley_lt_or_gt_le'"
+      module: "Challenge"
+      status: "proved"
+      note: "C_1 = 1/4 and C_2 = 308, for n ≥ 2^9000."
+    - source: "Theorem 9"
+      lean: "CountingSetsWithSmallSumset.tendsto_card_le_cliqueNum_addCayley_le'"
+      module: "Challenge"
+      status: "proved"
+      note: "C_1 = 1/4 and C_2 = 308."
+    - source: "Corollary 14"
+      lean: "CountingSetsWithSmallSumset.isGreatest_freimanDimOver'"
+      module: "Challenge"
+      status: "proved"
+      note: "For a nonempty finite subset of a vector space over a field F."
+    - source: "Corollary 14, sets of integers"
+      lean: "CountingSetsWithSmallSumset.freimanDimOver_rat_eq_freimanDim_int'"
+      module: "Challenge"
+      status: "proved"
+      note: "Green's r_Q(X) equals Freiman's dimension freimanDim X."
     - source: "Proposition 18"
-      lean: "CountingSetsWithSmallSumset.exists_forall_exists_isAddFreimanIso_card_le"
+      lean: "CountingSetsWithSmallSumset.exists_coversFreimanIsoClasses_card_restrictedSumset_le'"
       module: "Challenge"
       status: "proved"
-      note: "For sets of natural numbers, with the threshold 2^9000."
-    - source: "Number of sets of given size, bounded Freiman dimension and small sumset in {1, ..., n}"
-      lean: "CountingSetsWithSmallSumset.ncard_setOf_card_eq_freimanDim_le_card_add_le_le"
+      note: "For subsets of a vector space W over a field F, with t ≥ 2^9000."
+    - source: "Proposition 19"
+      lean: "CountingSetsWithSmallSumset.exists_subset_card_le_and_le_card_restrictedSumset'"
       module: "Challenge"
       status: "proved"
-      note: >-
-        Not stated in the paper. The count in the proof of the first bound of
-        Proposition 23, with the Freiman dimension as a parameter and a bound on |X + X|.
-    - source: "Number of sets of given size and bounded Freiman dimension, library form"
-      lean: "CountingSetsWithSmallSumset.card_boundedFreimanDimSets"
-      module: "CountingSetsWithSmallSumset.FreimanIsomorphismClasses.DimensionAndCounting"
+      note: "For |A| ≥ 16/ε^2."
+    - source: "Proposition 23 (i)"
+      lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_zmod_le_of_le_rpow'"
+      module: "Challenge"
       status: "proved"
-      note: "With the definition boundedFreimanDimSets."
-    - source: "Proposition 18, library form"
-      lean: "CountingSetsWithSmallSumset.exists_smallRestrictedSumsetFreimanClassCover"
-      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ClassCountBounds"
+      note: "For k ≥ 2^9000."
+    - source: "Proposition 23 (ii)"
+      lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_zmod_le'"
+      module: "Challenge"
       status: "proved"
-      note: >-
-        With the definitions CoversFreimanClasses, smallRestrictedSumsetSets and
-        smallSumsetClassCountThreshold.
-    - source: "Number of sets with small sumset, library form"
-      lean: "CountingSetsWithSmallSumset.smallSumsetFreimanDimSets_ncard_le_of_class_cover"
-      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ClassCountBounds"
+      note: "For k ≥ 1."
+    - source: "Proposition 26 (i)"
+      lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow'"
+      module: "Challenge"
       status: "proved"
-      note: "With the definition smallSumsetFreimanDimSets."
+      note: "For k ≥ 2^9000."
+    - source: "Proposition 26 (ii)"
+      lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_pi_zmod_two_le'"
+      module: "Challenge"
+      status: "proved"
+      note: "For k ≥ 2."
+    - source: "Definition 3"
+      lean: "CountingSetsWithSmallSumset.restrictedSumsetCardSets"
+      module: "CountingSetsWithSmallSumset.RestrictedSumsetCardSets"
+      status: "proved"
+      note: "The family S_k^m(Γ)."
+    - source: "Lemma 10"
+      lean: "CountingSetsWithSmallSumset.exists_isAddFreimanIso_range_of_freimanRelationSpace_eq"
+      module: "CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationCodes"
+      status: "proved"
+      note: "For tuples in vector spaces over a field F."
     - source: "Lemma 11"
-      lean: "CountingSetsWithSmallSumset.card_freimanRelationCodes"
-      module: "CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationAndExtensionCodes"
+      lean: "CountingSetsWithSmallSumset.exists_coversFreimanIsoClasses_card_le_pow"
+      module: "CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationCodes"
       status: "proved"
-      note: >-
-        The number t^(2 s t) of codes. Sets with the same canonical code are isomorphic by
-        freimanEquivalent_of_canonicalCode_eq.
-    - source: "Lemma 13 (i), number of members of a class in {1, ..., n}"
-      lean: "CountingSetsWithSmallSumset.ncard_freimanClassRealizations_le"
-      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ClassCountBounds"
+      note: "As a family of at most k^(2sk) sets that meets every class."
+    - source: "Lemma 12"
+      lean: "CountingSetsWithSmallSumset.exists_interpolation_points"
+      module: "CountingSetsWithSmallSumset.FreimanDimension.Interpolation"
       status: "proved"
-      note: "The bound n^(r+1), from the uniqueness part of Lemma 13 (i)."
+    - source: "Lemma 13"
+      lean: "CountingSetsWithSmallSumset.exists_freimanBasis_of_module"
+      module: "CountingSetsWithSmallSumset.FreimanDimension.Basis"
+      status: "proved"
+      note: "The dimension formula is finrank_freimanHomSpace."
     - source: "Proposition 15"
-      lean: "CountingSetsWithSmallSumset.exists_core_decomposition_with_card_bounds"
-      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.CoreAndCovers"
+      lean: "CountingSetsWithSmallSumset.exists_image_add_subset_restrictedSumset"
+      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.CoreParameters"
       status: "proved"
-      note: "For sets of at least 2^9000 natural numbers."
+      note: "For t ≥ 2^9000 and m ≥ t."
     - source: "Lemma 16"
-      lean: "CountingSetsWithSmallSumset.exists_extensionFreimanClassCover"
-      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.CoreAndCovers"
+      lean: "CountingSetsWithSmallSumset.exists_coversFreimanIsoClasses_extensionsOfFreimanClass_card_le"
+      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ExtensionAndRemainderCovers"
       status: "proved"
-      note: "With order 4 in place of 3 and the bound (1 + l^4)^((d + 1)^4)."
+      note: "With order 4 in place of 3 and the bound (1 + l^4)^((t + 1)^4)."
     - source: "Lemma 17"
-      lean: "CountingSetsWithSmallSumset.exists_remainderFreimanClassCover"
-      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.CoreAndCovers"
+      lean: "CountingSetsWithSmallSumset.exists_subset_restrictedSumset_freimanIsomorphic"
+      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ExtensionAndRemainderCovers"
       status: "proved"
-      note: "With the orders 8 and 4 in place of 6 and 3, in the form of a count of classes."
+      note: "With the orders 8 and 4 in place of 6 and 3."
+    - source: "Corollary 20"
+      lean: "CountingSetsWithSmallSumset.exists_subset_seven_mul_card_le_card_restrictedSumset"
+      module: "CountingSetsWithSmallSumset.LargeRestrictedSumset.LargeSubset"
+      status: "proved"
+      note: "For |A| ≥ 46656."
+    - source: "Lemma 21"
+      lean: "CountingSetsWithSmallSumset.freimanDim_mul_le_card_restrictedSumset"
+      module: "CountingSetsWithSmallSumset.FreimanLemma.RestrictedSumset"
+      status: "proved"
+    - source: "Lemma 22"
+      lean: "CountingSetsWithSmallSumset.freimanDim_zmodLift_le"
+      module: "CountingSetsWithSmallSumset.CyclicGroups.Unfolding"
+      status: "proved"
+    - source: "Lemma 25"
+      lean: "CountingSetsWithSmallSumset.freimanDimOver_add_one_le_of_card_restrictedSumset_le"
+      module: "CountingSetsWithSmallSumset.BinaryGroups.FreimanDimension"
+      status: "proved"
+      note: "For |A| ≥ 2."
+    - source: "Section 7, Z/NZ"
+      lean: "CountingSetsWithSmallSumset.sum_card_restrictedSumsetCardSets_zmod_div_two_pow_le"
+      module: "CountingSetsWithSmallSumset.CyclicGroups.LargeRestrictedSumsetSum"
+      status: "proved"
+    - source: "Section 7, F_2^n"
+      lean: "CountingSetsWithSmallSumset.sum_card_restrictedSumsetCardSets_pi_zmod_two_div_two_pow_le"
+      module: "CountingSetsWithSmallSumset.BinaryGroups.LargeRestrictedSumsetSum"
+      status: "proved"
+    - source: "Proposition 27"
+      lean: "CountingSetsWithSmallSumset.tendsto_card_le_cliqueNum_addCayley"
+      module: "CountingSetsWithSmallSumset.BinaryLowerBound.CliqueNumber"
+      status: "proved"
+      note: "The count for n ≥ 2^16 is card_cliqueNum_addCayley_lt_le."
+    - source: "Lemma 28"
+      lean: "CountingSetsWithSmallSumset.card_finrank_inf_eq_le"
+      module: "CountingSetsWithSmallSumset.BinaryLowerBound.SubspacePairs"
+      status: "proved"
 
 acknowledgements: >-
   Lean 4 and Mathlib; the Palomar registry template.
