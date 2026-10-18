@@ -24,7 +24,6 @@ affine dimension of a finite set of rational vectors is its rational affine dime
 
 ## Main statements
 
-* `rationalVectorToReal_injective`: the inclusion is injective.
 * `finrank_span_image_rationalVectorToReal`: the real span of a set of rational vectors has the
   dimension of its rational span.
 * `affineDim_image_rationalVectorToReal`: the real affine dimension of a finite set of
@@ -50,19 +49,9 @@ lemma coe_rationalVectorToRealLinearMap :
   simp [rationalVectorToRealLinearMap, rationalVectorToReal]
 
 @[simp]
-lemma rationalVectorToReal_add (u v : Fin d → ℚ) :
-    rationalVectorToReal (u + v) = rationalVectorToReal u + rationalVectorToReal v := by
-  simp [← coe_rationalVectorToRealLinearMap]
-
-@[simp]
 lemma rationalVectorToReal_sub (u v : Fin d → ℚ) :
     rationalVectorToReal (u - v) = rationalVectorToReal u - rationalVectorToReal v := by
   simp [← coe_rationalVectorToRealLinearMap]
-
-lemma rationalVectorToReal_injective : Function.Injective (rationalVectorToReal (d := d)) := by
-  intro u v h
-  ext i
-  simpa [rationalVectorToReal] using congrFun h i
 
 /-- The real span of a set of rational vectors has the dimension of its rational span. -/
 lemma finrank_span_image_rationalVectorToReal (T : Set (Fin d → ℚ)) :

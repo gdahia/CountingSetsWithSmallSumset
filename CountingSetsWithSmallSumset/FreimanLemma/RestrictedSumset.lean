@@ -7,9 +7,9 @@ module
 
 public import CountingSetsWithSmallSumset.RestrictedSumset
 public import SumOfSetsInSeveralDimensions.FreimanDimension
-import CountingSetsWithSmallSumset.FreimanDimension.RationalVectors
 import SumOfSetsInSeveralDimensions.AffineDimSumset
 import SumOfSetsInSeveralDimensions.ClosedForm
+import SumOfSetsInSeveralDimensions.FreimanDimensionSumsetBounds
 import Mathlib.Tactic.Linarith
 
 /-!
