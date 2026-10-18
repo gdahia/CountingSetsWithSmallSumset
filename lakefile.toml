@@ -13,13 +13,13 @@ maxSynthPendingDepth = 3
 [[require]]
 name = "SumOfSetsInSeveralDimensions"
 git = "https://github.com/gdahia/SumOfSetsInSeveralDimensions"
-rev = "14ba023a601c3fc8a9e64d56c9212dddf585fb44"
+rev = "1f8da867debcce675e07cac515ea9598c1245a92"
 
 # Last, so that its pins of the shared dependencies take precedence on `lake update`.
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-rev = "v4.35.0-rc4"
+rev = "v4.35.0"
 
 # The proof development; `Solution.lean` imports it.
 [[lean_lib]]

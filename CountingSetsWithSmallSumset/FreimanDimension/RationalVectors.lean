@@ -27,7 +27,7 @@ affine dimension of a finite set of rational vectors is its rational affine dime
 * `rationalVectorToReal_injective`: the inclusion is injective.
 * `finrank_span_image_rationalVectorToReal`: the real span of a set of rational vectors has the
   dimension of its rational span.
-* `finsetAffineDim_image_rationalVectorToReal`: the real affine dimension of a finite set of
+* `affineDim_image_rationalVectorToReal`: the real affine dimension of a finite set of
   rational vectors is its rational affine dimension.
 -/
 
@@ -84,15 +84,15 @@ lemma finrank_span_image_rationalVectorToReal (T : Set (Fin d → ℚ)) :
 
 /-- The real affine dimension of a finite set of rational vectors is its rational affine
 dimension. -/
-lemma finsetAffineDim_image_rationalVectorToReal (S : Finset (Fin d → ℚ)) :
-    finsetAffineDim (S.image rationalVectorToReal) =
+lemma affineDim_image_rationalVectorToReal (S : Finset (Fin d → ℚ)) :
+    (S.image rationalVectorToReal).affineDim =
       finrank ℚ (vectorSpan ℚ (S : Set (Fin d → ℚ))) := by
   rcases S.eq_empty_or_nonempty with rfl | ⟨p, hp⟩
-  · rw [Finset.image_empty, finsetAffineDim_empty, Finset.coe_empty, vectorSpan_empty, finrank_bot]
+  · rw [Finset.image_empty, Finset.affineDim_empty, Finset.coe_empty, vectorSpan_empty, finrank_bot]
   have hset : (fun x ↦ x -ᵥ rationalVectorToReal p) '' (rationalVectorToReal '' S) =
       rationalVectorToReal '' ((fun x ↦ x -ᵥ p) '' S) := by
     simp [Set.image_image, vsub_eq_sub]
-  rw [finsetAffineDim_eq_finrank_vectorSpan, Finset.coe_image,
+  rw [Finset.affineDim_eq_finrank_vectorSpan, Finset.coe_image,
     vectorSpan_eq_span_vsub_set_right ℝ (Set.mem_image_of_mem _ (Finset.mem_coe.2 hp)),
     vectorSpan_eq_span_vsub_set_right ℚ (Finset.mem_coe.2 hp), hset,
     finrank_span_image_rationalVectorToReal]

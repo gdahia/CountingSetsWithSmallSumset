@@ -74,7 +74,7 @@ related_formalizations:
   - id: "https://github.com/gdahia/SumOfSetsInSeveralDimensions"
     relationship: "builds-on"
     note: >-
-      A Lake dependency. It provides the affine dimension of a finite set (finsetAffineDim),
+      A Lake dependency. It provides the affine dimension of a finite set (Finset.affineDim),
       Freiman's definition of the Freiman dimension (freimanDim), which Corollary 14 compares
       with Green's, and Freiman's lemma |A + A| ≥ (d + 1)|A| - d(d + 1)/2, from which Lemma 21
       is proved.

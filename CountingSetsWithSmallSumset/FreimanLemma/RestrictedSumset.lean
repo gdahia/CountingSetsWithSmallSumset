@@ -60,7 +60,7 @@ lemma freimanDim_add_one_le_card [AddCommMonoid G] {S : Finset G} (hS : S.Nonemp
   by_cases h : freimanDim S = 0
   · grind [hS.card_pos]
   obtain ⟨f, -, hdim⟩ : freimanModelDim S (freimanDim S) := Nat.findGreatest_of_ne_zero rfl h
-  grind [finsetAffineDim_add_one_le_card (hS := (hS.image f).image rationalVectorToReal),
+  grind [affineDim_add_one_le_card ((hS.image f).image rationalVectorToReal),
     card_image_le (s := S) (f := f),
     card_image_le (s := S.image f) (f := rationalVectorToReal)]
 
@@ -80,7 +80,7 @@ lemma card_add_mul_card_sub_le_card_add_of_freimanDim [AddCommMonoid G] {S : Fin
     card_image_of_injOn (rationalVectorToReal_injective.comp_injOn hf.bijOn.injOn)
   rw [image_image] at hdim
   have h := card_add_mul_card_sub_le_card_add (A := S.image g) (B := S.image g) (hS.image g) le_rfl
-    ((finsetAffineDim_le_finsetAffineDim_add_left (hS.image g) _).trans' hdim.ge)
+    ((affineDim_le_affineDim_add_left (hS.image g) _).trans' hdim.ge)
   rw [hcard] at h
   exact h.trans (mod_cast card_image_add_image_le_card_add hg)
 

@@ -88,7 +88,7 @@ and for every $k \ge 2$ and every $m$, $|S_k^m(\mathbb{F}_2^n)| \le N^{4m \log_2
 
 [Solution.lean](Solution.lean) proves these twelve statements. [Challenge.lean](Challenge.lean)
 contains them with `sorry` placeholders, together with the definitions they use, restated in
-terms of Mathlib: `finsetAffineDim`, `rationalVectorToReal`, `freimanModelDim` and `freimanDim` of
+terms of Mathlib: `Finset.affineDim`, `rationalVectorToReal`, `freimanModelDim` and `freimanDim` of
 SumOfSetsInSeveralDimensions, and `restrictedSumset`, `cayleySumGraph`,
 `restrictedSumsetCardSets`, `freimanHomSpace` and `freimanDimOver` of this library. The library and
 the solution contain no `sorry`, and the theorems depend on no axioms other than `propext`,

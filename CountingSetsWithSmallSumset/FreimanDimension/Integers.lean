@@ -45,7 +45,7 @@ lemma freimanModelDim_iff {X : Finset G} {d : ℕ} :
       finrank ℚ (vectorSpan ℚ (f '' X)) = d := by
   refine exists_congr ?_
   intro f
-  rw [finsetAffineDim_image_rationalVectorToReal, Finset.coe_image]
+  rw [affineDim_image_rationalVectorToReal, Finset.coe_image]
 
 /-- **Corollary 14** of Green, last part. If `X` is Freiman isomorphic to a subset of a
 `ℚ`-vector space, then `r_ℚ(X)` is Freiman's dimension of `X`. -/

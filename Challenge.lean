@@ -30,12 +30,16 @@ sets. The proofs are in `Solution.lean`.
 open Finset Real SimpleGraph Filter Topology
 open scoped Pointwise
 
-namespace SumOfSetsInSeveralDimensions
+namespace Finset
 
 /-- The affine dimension of a finite set `S ⊆ ℝ^D`: the dimension of the direction of the affine
 span of `S`. -/
-noncomputable def finsetAffineDim {D : ℕ} (S : Finset (Fin D → ℝ)) : ℕ :=
+noncomputable def affineDim {D : ℕ} (S : Finset (Fin D → ℝ)) : ℕ :=
   Module.finrank ℝ (affineSpan ℝ (S : Set (Fin D → ℝ))).direction
+
+end Finset
+
+namespace SumOfSetsInSeveralDimensions
 
 /-- The coordinatewise inclusion of rational vectors into real vectors. -/
 def rationalVectorToReal {d : ℕ} (v : Fin d → ℚ) : Fin d → ℝ := fun i ↦ (v i : ℝ)
@@ -45,7 +49,7 @@ from `X` onto a subset of `ℚ^d` of affine dimension `d`. -/
 def freimanModelDim {G : Type*} [DecidableEq G] [AddCommMonoid G] (X : Finset G) (d : ℕ) : Prop :=
   ∃ f : G → (Fin d → ℚ),
     IsAddFreimanIso 2 (X : Set G) ((X.image f : Finset (Fin d → ℚ)) : Set (Fin d → ℚ)) f ∧
-      finsetAffineDim ((X.image f).image rationalVectorToReal) = d
+      ((X.image f).image rationalVectorToReal).affineDim = d
 
 /-- Freiman's dimension of `X`: the largest `d ≤ |X|` such that `X` has a Freiman model of
 dimension `d`. -/
