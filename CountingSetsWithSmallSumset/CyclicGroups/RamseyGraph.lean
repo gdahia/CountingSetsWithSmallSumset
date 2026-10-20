@@ -43,26 +43,22 @@ with clique number and independence number at most `160 * log₂ N`. -/
 theorem exists_cliqueNum_le_and_indepNum_le (hN : 2 ^ 9000 ≤ logb 2 N) :
     ∃ A : Finset (ZMod N), (cayleySumGraph (A : Set (ZMod N))).cliqueNum ≤ 160 * logb 2 N ∧
       (cayleySumGraph (A : Set (ZMod N))).indepNum ≤ 160 * logb 2 N := by
-  have h3 : (3 : ℝ) ≤ N := (by norm_num : (3 : ℝ) ≤ 2 ^ (2 : ℝ)).trans
-    ((le_logb_iff_rpow_le one_lt_two (Nat.cast_pos.2 (NeZero.pos N))).1
-      ((by norm_num : (2 : ℝ) ≤ 2 ^ 9).trans ((pow_le_pow_right₀ (by norm_num) (by norm_num) :
-        (2 : ℝ) ^ 9 ≤ 2 ^ 9000).trans hN)))
+  have h3 : (3 : ℝ) ≤ N := by
+    rcases N with _ | _ | _ | N <;> norm_num at hN ⊢ <;> grind
   by_contra! h
-  set P : Finset (Finset (ZMod N)) :=
-    {A | 160 * logb 2 N < (cayleySumGraph (A : Set (ZMod N))).cliqueNum}
-  set Q : Finset (Finset (ZMod N)) :=
-    {A | 160 * logb 2 N < (cayleySumGraph (A : Set (ZMod N))).indepNum}
-  have hcover : (univ : Finset (Finset (ZMod N))) ⊆ P ∪ Q := by
+  have hcover : univ ⊆
+      ({A | 160 * logb 2 N < (cayleySumGraph (A : Set (ZMod N))).cliqueNum} :
+        Finset (Finset (ZMod N))) ∪
+      ({A | 160 * logb 2 N < (cayleySumGraph (A : Set (ZMod N))).indepNum} :
+        Finset (Finset (ZMod N))) := by
     intro A _
-    rw [mem_union, mem_filter, mem_filter]
-    by_cases hA : ((cayleySumGraph (A : Set (ZMod N))).cliqueNum : ℝ) ≤ 160 * logb 2 N
-    · exact Or.inr ⟨mem_univ A, h A hA⟩
-    · exact Or.inl ⟨mem_univ A, not_le.1 hA⟩
-  have hcard := (Nat.cast_le (α := ℝ)).2 ((card_le_card hcover).trans (card_union_le P Q))
+    simp only [mem_union, mem_filter, mem_univ, true_and]
+    grind
+  have hcard := (Nat.cast_le (α := ℝ)).2 ((card_le_card hcover).trans (card_union_le _ _))
   rw [card_univ, Fintype.card_finset, ZMod.card] at hcard
   push_cast at hcard
-  have h2N : (0 : ℝ) < 2 ^ N := by positivity
   linarith [card_cliqueNum_cayleySumGraph_gt_le hN, card_indepNum_cayleySumGraph_gt_le hN,
-    div_le_div_of_nonneg_left h2N.le (by norm_num : (0 : ℝ) < 3) h3]
+    div_le_div_of_nonneg_left (by positivity : (0 : ℝ) ≤ 2 ^ N) (by norm_num : (0 : ℝ) < 3) h3,
+    (by positivity : (0 : ℝ) < 2 ^ N)]
 
 end CountingSetsWithSmallSumset

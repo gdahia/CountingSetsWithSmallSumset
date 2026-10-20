@@ -32,7 +32,7 @@ variable {G : Type*} [DecidableEq G]
 
 /-- **Corollary 20** of Green. If `#A ≥ 46656`, then some `C ⊆ A` has `#A ≤ 8 * #C` and
 `7 * #C ≤ #(restrictedSumset C)`. -/
-theorem exists_subset_seven_mul_card_le_card_restrictedSumset [AddCommGroup G] {A : Finset G}
+lemma exists_subset_seven_mul_card_le_card_restrictedSumset [AddCommGroup G] {A : Finset G}
     (hA : 46656 ≤ #A) : ∃ C ⊆ A, #A ≤ 8 * #C ∧ 7 * #C ≤ #(restrictedSumset C) := by
   have hk : (46656 : ℝ) ≤ #A := by exact_mod_cast hA
   obtain ⟨B, hBA, hB, hS⟩ := exists_subset_card_le_sqrt_div_and_le_card_restrictedSumset
@@ -43,13 +43,14 @@ theorem exists_subset_seven_mul_card_le_card_restrictedSumset [AddCommGroup G] {
     rw [← Nat.cast_le (α := ℝ)]
     push_cast
     nlinarith [sq_sqrt (Nat.cast_nonneg (α := ℝ) (#A))]
+  have hS8 : 8 * #A ≤ 9 * #(restrictedSumset B) := by
+    rw [← Nat.cast_le (α := ℝ)]
+    push_cast
+    linarith
   obtain ⟨C, hBC, hCA, hC⟩ := exists_subsuperset_card_eq hBA (n := (#A + 7) / 8) (by grind)
     (by grind)
   refine ⟨C, hCA, by grind, ?_⟩
   grw [← card_le_card (restrictedSumset_mono hBC)]
-  rw [← Nat.cast_le (α := ℝ)]
-  push_cast
-  have h8C : 8 * (#C : ℝ) ≤ #A + 7 := by exact_mod_cast (by grind : 8 * #C ≤ #A + 7)
-  linarith
+  grind
 
 end CountingSetsWithSmallSumset

@@ -49,7 +49,7 @@ lemma freimanModelDim_iff {X : Finset G} {d : ℕ} :
 
 /-- **Corollary 14** of Green, last part. If `X` is Freiman isomorphic to a subset of a
 `ℚ`-vector space, then `r_ℚ(X)` is Freiman's dimension of `X`. -/
-theorem freimanDimOver_rat_eq_freimanDim_of_isAddFreimanIso {V : Type*} [AddCommGroup V]
+lemma freimanDimOver_rat_eq_freimanDim_of_isAddFreimanIso {V : Type*} [AddCommGroup V]
     [Module ℚ V] {X : Finset G} {g : G → V} (hg : IsAddFreimanIso 2 (X : Set G) (g '' X) g) :
     freimanDimOver ℚ X = freimanDim X := by
   classical
@@ -72,7 +72,7 @@ theorem freimanDimOver_rat_eq_freimanDim_int (X : Finset ℤ) :
 
 /-- **Corollary 14** of Green, last part. For a finite set `X` of natural numbers, `r_ℚ(X)` is
 Freiman's dimension of `X`. -/
-theorem freimanDimOver_rat_eq_freimanDim_nat (X : Finset ℕ) :
+lemma freimanDimOver_rat_eq_freimanDim_nat (X : Finset ℕ) :
     freimanDimOver ℚ X = freimanDim X := by
   apply freimanDimOver_rat_eq_freimanDim_of_isAddFreimanIso (g := ((↑) : ℕ → ℚ))
   simpa using

@@ -58,32 +58,24 @@ lemma finrank_span_image_rationalVectorToReal (T : Set (Fin d → ℚ)) :
     finrank ℝ (Submodule.span ℝ (rationalVectorToReal '' T)) =
       finrank ℚ (Submodule.span ℚ T) := by
   obtain ⟨b, -, hspan, hli⟩ := exists_linearIndependent ℚ T
-  have : Fintype b := have := hli.finite; Fintype.ofFinite b
+  have := hli.setFinite.fintype
   have hreal : LinearIndependent ℝ (rationalVectorToReal ∘ ((↑) : b → Fin d → ℚ)) := by
     convert (linearIndependent_algebraMap_comp_iff (S := ℝ)).2 hli using 1
     ext
     simp [rationalVectorToReal]
-  have hspanR : Submodule.span ℝ (rationalVectorToReal '' T) =
-      Submodule.span ℝ (Set.range (rationalVectorToReal ∘ ((↑) : b → Fin d → ℚ))) := by
-    rw [Set.range_comp, Subtype.range_coe, ← Submodule.span_span_of_tower ℚ ℝ,
-      ← Submodule.span_span_of_tower ℚ ℝ (rationalVectorToReal '' b),
-      ← coe_rationalVectorToRealLinearMap, Submodule.span_image, Submodule.span_image, hspan]
-  rw [hspanR, finrank_span_eq_card hreal, ← hspan, finrank_span_set_eq_card hli,
-    Set.toFinset_card]
+  rw [← Submodule.span_span_of_tower ℚ ℝ, ← coe_rationalVectorToRealLinearMap,
+    Submodule.span_image, ← hspan, ← Submodule.span_image, Submodule.span_span_of_tower,
+    coe_rationalVectorToRealLinearMap, ← Subtype.range_coe (s := b), ← Set.range_comp,
+    finrank_span_eq_card hreal, finrank_span_eq_card hli]
 
 /-- The real affine dimension of a finite set of rational vectors is its rational affine
 dimension. -/
 lemma affineDim_image_rationalVectorToReal (S : Finset (Fin d → ℚ)) :
     (S.image rationalVectorToReal).affineDim =
       finrank ℚ (vectorSpan ℚ (S : Set (Fin d → ℚ))) := by
-  rcases S.eq_empty_or_nonempty with rfl | ⟨p, hp⟩
-  · rw [Finset.image_empty, Finset.affineDim_empty, Finset.coe_empty, vectorSpan_empty, finrank_bot]
-  have hset : (fun x ↦ x -ᵥ rationalVectorToReal p) '' (rationalVectorToReal '' S) =
-      rationalVectorToReal '' ((fun x ↦ x -ᵥ p) '' S) := by
-    simp [Set.image_image, vsub_eq_sub]
-  rw [Finset.affineDim_eq_finrank_vectorSpan, Finset.coe_image,
-    vectorSpan_eq_span_vsub_set_right ℝ (Set.mem_image_of_mem _ (Finset.mem_coe.2 hp)),
-    vectorSpan_eq_span_vsub_set_right ℚ (Finset.mem_coe.2 hp), hset,
+  rw [Finset.affineDim_eq_finrank_vectorSpan, Finset.coe_image, vectorSpan_def, vectorSpan_def,
+    ← coe_rationalVectorToRealLinearMap, ← LinearMap.coe_toAffineMap,
+    AffineMap.image_vsub_image, LinearMap.toAffineMap_linear, coe_rationalVectorToRealLinearMap,
     finrank_span_image_rationalVectorToReal]
 
 end CountingSetsWithSmallSumset

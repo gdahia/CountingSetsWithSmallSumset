@@ -42,26 +42,31 @@ noncomputable section
 irreducible_def smallSumsetClassCountThreshold : ℕ :=
   2 ^ (9000 : ℕ)
 
+/-- The threshold `smallSumsetClassCountThreshold` is at least `2 ^ 200`. -/
 lemma two_pow_200_le_smallSumsetClassCountThreshold :
     2 ^ (200 : ℕ) ≤ smallSumsetClassCountThreshold := by
   rw [smallSumsetClassCountThreshold_def]
   exact pow_le_pow_right' (by norm_num) (by norm_num)
 
+/-- The threshold `smallSumsetClassCountThreshold` is positive. -/
 lemma smallSumsetClassCountThreshold_pos :
     0 < smallSumsetClassCountThreshold := by
   rw [smallSumsetClassCountThreshold_def]
   positivity
 
+/-- A number at least `smallSumsetClassCountThreshold` is greater than `1`. -/
 lemma one_lt_of_smallSumsetClassCountThreshold_le {t : ℕ}
     (ht : smallSumsetClassCountThreshold ≤ t) : 1 < t := by
   rw [smallSumsetClassCountThreshold_def] at ht
   exact (Nat.one_lt_two_pow (by norm_num)).trans_le ht
 
+/-- A number at least `smallSumsetClassCountThreshold` is positive. -/
 lemma pos_of_smallSumsetClassCountThreshold_le {t : ℕ}
     (ht : smallSumsetClassCountThreshold ≤ t) : 0 < t :=
   Nat.zero_lt_of_lt (one_lt_of_smallSumsetClassCountThreshold_le ht)
 
-lemma one_lt_cast_of_smallSumsetClassCountThreshold_le {t : ℕ}
+/-- A number at least `smallSumsetClassCountThreshold` is greater than `1` as a real number. -/
+lemma one_lt_natCast_of_smallSumsetClassCountThreshold_le {t : ℕ}
     (ht : smallSumsetClassCountThreshold ≤ t) : (1 : ℝ) < t :=
   mod_cast one_lt_of_smallSumsetClassCountThreshold_le ht
 
@@ -100,12 +105,12 @@ private lemma exceptionPenalty_mul_rpow_neg_four_fifths {t : ℕ} (ht : 0 < t) :
 private lemma coreSamplingRate_pos {t : ℕ} (ht : smallSumsetClassCountThreshold ≤ t) :
     0 < coreSamplingRate t := by
   unfold coreSamplingRate
-  exact Real.rpow_pos_of_pos (by linarith [one_lt_cast_of_smallSumsetClassCountThreshold_le ht]) _
+  exact Real.rpow_pos_of_pos (mod_cast pos_of_smallSumsetClassCountThreshold_le ht) _
 
 private lemma coreSamplingRate_lt_one {t : ℕ} (ht : smallSumsetClassCountThreshold ≤ t) :
     coreSamplingRate t < 1 := by
   unfold coreSamplingRate
-  exact Real.rpow_lt_one_of_one_lt_of_neg (one_lt_cast_of_smallSumsetClassCountThreshold_le ht)
+  exact Real.rpow_lt_one_of_one_lt_of_neg (one_lt_natCast_of_smallSumsetClassCountThreshold_le ht)
     (by norm_num)
 
 private lemma exceptionPenalty_nonneg (t : ℕ) : 0 ≤ exceptionPenalty t := by
@@ -160,7 +165,7 @@ private lemma rpow_one_fifteenth_eq_sq (t : ℕ) :
 private lemma four_fifths_mul_log_le_rpow_one_fifteenth_div_six {t : ℕ}
     (ht : smallSumsetClassCountThreshold ≤ t) :
     (4 : ℝ) / 5 * Real.log t ≤ (t : ℝ) ^ ((1 : ℝ) / 15) / 6 := by
-  have htPos : (0 : ℝ) < t := by linarith [one_lt_cast_of_smallSumsetClassCountThreshold_le ht]
+  have htPos : (0 : ℝ) < t := mod_cast pos_of_smallSumsetClassCountThreshold_le ht
   have hlog := Real.log_le_sub_one_of_pos (Real.rpow_pos_of_pos htPos ((1 : ℝ) / 30))
   rw [Real.log_rpow htPos] at hlog
   rw [rpow_one_fifteenth_eq_sq]
@@ -190,13 +195,12 @@ private lemma exceptionPenalty_le_coreSamplingRate_mul {t : ℕ}
     exceptionPenalty t ≤ coreSamplingRate t * t := by
   rw [← exceptionPenalty_mul_rpow_one_fifth (pos_of_smallSumsetClassCountThreshold_le ht)]
   exact le_mul_of_one_le_right (exceptionPenalty_nonneg t)
-    (Real.one_le_rpow (one_lt_cast_of_smallSumsetClassCountThreshold_le ht).le (by norm_num))
+    (Real.one_le_rpow (one_lt_natCast_of_smallSumsetClassCountThreshold_le ht).le (by norm_num))
 
 private lemma exceptionPenalty_mul_popularSumThreshold_le {t : ℕ}
     (ht : smallSumsetClassCountThreshold ≤ t) (m : ℕ) :
     exceptionPenalty t * (popularSumThreshold t * m / t) ≤ coreSamplingRate t * m := by
-  rw [← mul_div_assoc,
-    div_le_iff₀ (by linarith [one_lt_cast_of_smallSumsetClassCountThreshold_le ht]),
+  rw [← mul_div_assoc, div_le_iff₀ (mod_cast pos_of_smallSumsetClassCountThreshold_le ht),
     mul_right_comm,
     ← exceptionPenalty_mul_rpow_one_fifth (pos_of_smallSumsetClassCountThreshold_le ht),
     ← mul_assoc]
@@ -241,7 +245,7 @@ private lemma exists_image_add_subset_restrictedSumset_card_add_mul_le_budget {A
 `t ≤ m`. A `t`-set `A` whose restricted sumset has at most `m` elements has a core `A₀` with at
 most `4 * t ^ (-1 / 15) * m` elements and a subset `A₁` missing at most `4 * t ^ (-4 / 5) * m`
 elements such that a translate of `A₁` lies in the restricted sumset of `A₀`. -/
-theorem exists_image_add_subset_restrictedSumset {A : Finset G} {t m : ℕ} (hA : #A = t)
+lemma exists_image_add_subset_restrictedSumset {A : Finset G} {t m : ℕ} (hA : #A = t)
     (ht : smallSumsetClassCountThreshold ≤ t) (htm : t ≤ m) (hm : #(restrictedSumset A) ≤ m) :
     ∃ a ∈ A, ∃ A₀ ⊆ A, ∃ A₁ ⊆ A, A₁.image (a + ·) ⊆ restrictedSumset A₀ ∧
       #A₀ ≤ 4 * (t : ℝ) ^ (-(1 : ℝ) / 15) * m ∧ #(A \ A₁) ≤ 4 * (t : ℝ) ^ (-(4 : ℝ) / 5) * m := by

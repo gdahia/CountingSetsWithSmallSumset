@@ -3,6 +3,7 @@
   "solution_module": "Solution",
   "theorem_names": [
     "CountingSetsWithSmallSumset.card_cliqueNum_cayleySumGraph_gt_le'",
+    "CountingSetsWithSmallSumset.tendsto_card_cliqueNum_cayleySumGraph_le'",
     "CountingSetsWithSmallSumset.exists_cliqueNum_le_and_indepNum_le'",
     "CountingSetsWithSmallSumset.card_cliqueNum_addCayley_lt_or_gt_le'",
     "CountingSetsWithSmallSumset.tendsto_card_le_cliqueNum_addCayley_le'",

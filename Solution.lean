@@ -9,6 +9,7 @@ public import CountingSetsWithSmallSumset.CayleySumGraph
 public import CountingSetsWithSmallSumset.FreimanDimension.HomSpace
 public import CountingSetsWithSmallSumset.RestrictedSumsetCardSets
 public import SumOfSetsInSeveralDimensions.FreimanDimension
+public import Mathlib.Algebra.Field.ZMod
 public import Mathlib.Analysis.SpecialFunctions.Log.Base
 public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 public import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Basic
@@ -45,6 +46,14 @@ theorem card_cliqueNum_cayleySumGraph_gt_le' {N : ℕ} [NeZero N] (hN : 2 ^ 9000
     (#{A : Finset (ZMod N) | 160 * logb 2 N < (cayleySumGraph (A : Set (ZMod N))).cliqueNum} :
       ℝ) ≤ 2 ^ N / N :=
   card_cliqueNum_cayleySumGraph_gt_le hN
+
+/-- **Theorem 7** of Green. The proportion of the subsets `A ⊆ ℤ/Nℤ` whose Cayley sum graph has
+clique number at most `160 * log₂ N` tends to `1`. -/
+theorem tendsto_card_cliqueNum_cayleySumGraph_le' :
+    Tendsto (fun N : ℕ+ ↦ (#{A : Finset (ZMod N) |
+      (cayleySumGraph (A : Set (ZMod N))).cliqueNum ≤ 160 * logb 2 N} : ℝ) / 2 ^ (N : ℕ))
+      atTop (𝓝 1) :=
+  tendsto_card_cliqueNum_cayleySumGraph_le
 
 /-- **Theorem 8** of Green. If `log₂ N ≥ 2 ^ 9000`, some subset `A ⊆ ℤ/Nℤ` has a Cayley sum graph
 with clique number and independence number at most `160 * log₂ N`. -/
@@ -95,13 +104,11 @@ theorem exists_coversFreimanIsoClasses_card_restrictedSumset_le' (F W : Type*) [
     [AddCommGroup W] [Module F W] [DecidableEq W] {t m : ℕ} (ht : 2 ^ 9000 ≤ t)
     (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) :
     ∃ representatives : Finset (Finset W),
-      (∀ A : Finset W, #A = t → #(restrictedSumset A) ≤ m →
+      (∀ A : Finset W, #A = t ∧ #(restrictedSumset A) ≤ m →
         ∃ B ∈ representatives, ∃ f : W → W, IsAddFreimanIso 2 (A : Set W) (B : Set W) f) ∧
-      #representatives ≤ (exp 1 * m / t) ^ t * exp (t ^ ((31 : ℝ) / 32)) := by
-  rw [← smallSumsetClassCountThreshold_def] at ht
-  obtain ⟨representatives, hcover, hcard⟩ :=
-    exists_coversFreimanIsoClasses_card_restrictedSumset_le F W ht hm
-  exact ⟨representatives, fun A hA hAm ↦ hcover A ⟨hA, hAm⟩, hcard⟩
+      #representatives ≤ (exp 1 * m / t) ^ t * exp (t ^ ((31 : ℝ) / 32)) :=
+  exists_coversFreimanIsoClasses_card_restrictedSumset_le F W
+    (smallSumsetClassCountThreshold_def ▸ ht) hm
 
 /-- **Proposition 19** of Green. Let `0 < ε ≤ 1 / 2` and let `A` be a finite subset of an abelian
 group with `|A| ≥ 16 / ε ^ 2`. Some `B ⊆ A` with `|B| ≤ 3 * log₂ (1 / ε) / ε * √|A|` has

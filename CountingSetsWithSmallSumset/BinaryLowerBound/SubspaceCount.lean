@@ -23,6 +23,8 @@ subspaces of `𝔽₂ⁿ` satisfies `2 ^ (n * k) ≤ 2 ^ (k ^ 2 + k) * M`. Indee
 ## Main statements
 
 * `card_filter_mem_submodule`: a subspace `H` of `𝔽₂ⁿ` has `2 ^ dim H` elements.
+* `two_pow_le_two_pow_mul_card_linearIndependent`: the lower bound for the number of linearly
+  independent `k`-tuples.
 * `two_pow_le_two_pow_mul_card_finrank_eq`: the lower bound for the number of `k`-dimensional
   subspaces.
 -/
@@ -33,9 +35,25 @@ namespace CountingSetsWithSmallSumset
 
 open Finset Module Submodule
 
+/-- A subspace `H` of `𝔽₂ⁿ` has `2 ^ dim H` elements. -/
 lemma card_filter_mem_submodule {n : ℕ} (H : Submodule (ZMod 2) (Fin n → ZMod 2))
     [DecidablePred (· ∈ H)] : #{x | x ∈ H} = 2 ^ finrank (ZMod 2) H := by
   rw [← Fintype.card_subtype, card_eq_pow_finrank (K := ZMod 2) (V := H), ZMod.card]
+
+/-- For `k ≤ n`, the number `L` of linearly independent `k`-tuples of vectors of `𝔽₂ⁿ` satisfies
+`2 ^ (n * k) ≤ 2 ^ k * L`. -/
+lemma two_pow_le_two_pow_mul_card_linearIndependent {n k : ℕ} (hk : k ≤ n)
+    [DecidablePred fun v : Fin k → Fin n → ZMod 2 ↦ LinearIndependent (ZMod 2) v] :
+    2 ^ (n * k) ≤ 2 ^ k * #{v : Fin k → Fin n → ZMod 2 | LinearIndependent (ZMod 2) v} := by
+  have hLI : #{v : Fin k → Fin n → ZMod 2 | LinearIndependent (ZMod 2) v} =
+      ∏ i : Fin k, (2 ^ n - 2 ^ (i : ℕ)) := by
+    simpa [Nat.card_eq_fintype_card, Fintype.card_subtype] using
+      card_linearIndependent (K := ZMod 2) (V := Fin n → ZMod 2) (k := k) (by simpa)
+  rw [hLI, (by simp [pow_mul] : 2 ^ (n * k) = ∏ _ : Fin k, 2 ^ n),
+    (by simp : 2 ^ k = ∏ _ : Fin k, 2), ← prod_mul_distrib]
+  apply prod_le_prod
+  intro i _
+  grind [pow_succ, Nat.pow_le_pow_right two_pos (i.isLt.trans_le hk : (i : ℕ) + 1 ≤ n)]
 
 /-- For `k ≤ n`, the number `M` of `k`-dimensional subspaces of `𝔽₂ⁿ` satisfies
 `2 ^ (n * k) ≤ 2 ^ (k ^ 2 + k) * M`. -/
@@ -43,17 +61,8 @@ lemma two_pow_le_two_pow_mul_card_finrank_eq {n k : ℕ} (hk : k ≤ n) :
     2 ^ (n * k) ≤
       2 ^ (k ^ 2 + k) * #{H : Submodule (ZMod 2) (Fin n → ZMod 2) | finrank (ZMod 2) H = k} := by
   classical
+  refine (two_pow_le_two_pow_mul_card_linearIndependent hk).trans ?_
   set LI : Finset (Fin k → Fin n → ZMod 2) := {v | LinearIndependent (ZMod 2) v}
-  have hLI : #LI = ∏ i : Fin k, (2 ^ n - 2 ^ (i : ℕ)) := by
-    have := card_linearIndependent (K := ZMod 2) (V := Fin n → ZMod 2) (k := k) (by simpa)
-    simpa [LI, Nat.card_eq_fintype_card, Fintype.card_subtype] using this
-  trans 2 ^ k * #LI
-  · rw [hLI, (by simp [pow_mul] : 2 ^ (n * k) = ∏ _ : Fin k, 2 ^ n),
-      (by simp : 2 ^ k = ∏ _ : Fin k, 2), ← prod_mul_distrib]
-    apply prod_le_prod
-    intro i _
-    have := Nat.pow_le_pow_right two_pos (i.isLt.trans_le hk : (i : ℕ) + 1 ≤ n)
-    grind [pow_succ]
   rw [pow_add, mul_comm (2 ^ (k ^ 2)), mul_assoc]
   refine Nat.mul_le_mul_left _ ((card_le_mul_card_image
     (f := fun v ↦ span (ZMod 2) (Set.range v)) LI (2 ^ (k ^ 2)) ?_).trans ?_)

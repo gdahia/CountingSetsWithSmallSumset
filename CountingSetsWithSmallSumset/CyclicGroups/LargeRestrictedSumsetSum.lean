@@ -39,11 +39,9 @@ open Finset Real
 
 private lemma mul_log_two_mul_exp_one_mul_div_le {j m : ℝ} (hj : 0 < j) (hm : 0 < m) :
     j * log (2 * exp 1 * m / j) ≤ 4 * log 2 * j + m / 8 := by
-  have h : 2 * exp 1 * m / j = 2 ^ 4 * exp 1 * (m / (8 * j)) := by
-    field_simp
-    ring
-  rw [h, log_mul (by positivity) (by positivity), log_mul (by positivity) (by positivity),
-    log_pow, log_exp]
+  rw [(by ring : 2 * exp 1 * m / j = 2 ^ 4 * exp 1 * (m / (8 * j))),
+    log_mul (by positivity) (by positivity), log_mul (by positivity) (by positivity), log_pow,
+    log_exp]
   nlinarith [log_le_sub_one_of_pos (by positivity : 0 < m / (8 * j)),
     (by field_simp : j * (m / (8 * j)) = m / 8)]
 

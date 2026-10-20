@@ -47,10 +47,11 @@ open Finset
 
 noncomputable section
 
-/-- The number `t ^ (2 * s * t)` of tuples of `t` relations of order `s` in Green's Lemma 11. -/
+/-- There are `t ^ (2 * s * t)` tuples of `t` relations of order `s`. These tuples are the codes
+in Lemma 11 of Green. -/
 lemma card_freimanRelationCodes (s t : ℕ) :
     Fintype.card (Fin t → FreimanRelationIndex s t) = t ^ (2 * s * t) := by
-  simp
+  simp only [Fintype.card_fun, Fintype.card_prod, Fintype.card_fin]
   ring
 
 variable (F : Type*) {W W' : Type*} [Field F] [AddCommGroup W] [AddCommGroup W']
@@ -127,7 +128,7 @@ lemma freimanRelationHolds_iff_of_freimanRelationSpace_eq {s t : ℕ} {a : Fin t
 variable {F} in
 /-- **Lemma 10** of Green. If the relations of order `s` of two injective tuples span the same
 space, then their ranges are Freiman isomorphic of order `s`. -/
-theorem exists_isAddFreimanIso_range_of_freimanRelationSpace_eq {s t : ℕ} {a : Fin t → W}
+lemma exists_isAddFreimanIso_range_of_freimanRelationSpace_eq {s t : ℕ} {a : Fin t → W}
     {b : Fin t → W'} (ha : Function.Injective a) (hb : Function.Injective b)
     (h : freimanRelationSpace F s a = freimanRelationSpace F s b) :
     ∃ f : W → W', IsAddFreimanIso s (Set.range a) (Set.range b) f :=
@@ -159,7 +160,7 @@ include F in
 /-- **Lemma 11** of Green. Let `W` be a vector space over a field `F`. There is a family of at most
 `k ^ (2 * s * k)` sets of `k` elements of `W` such that every set of `k` elements of `W` is Freiman
 isomorphic of order `s` to a member of the family. -/
-theorem exists_coversFreimanIsoClasses_card_le_pow (s k : ℕ) :
+lemma exists_coversFreimanIsoClasses_card_le_pow (s k : ℕ) :
     ∃ representatives : Finset (Finset W),
       CoversFreimanIsoClasses s {A : Finset W | #A = k} representatives ∧
         #representatives ≤ k ^ (2 * s * k) := by

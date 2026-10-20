@@ -64,7 +64,6 @@ lemma rpow_thirtyOne_div_thirty_eq {j : ℝ} (hj : 0 ≤ j) :
   norm_num
 
 lemma log_le_sixty_mul_rpow_inv_sixty {j : ℝ} (hj : 0 ≤ j) : log j ≤ 60 * j ^ (60 : ℝ)⁻¹ := by
-  have h := log_le_rpow_div hj (by norm_num : (0 : ℝ) < 60⁻¹)
-  rwa [div_inv_eq_mul, mul_comm] at h
+  simpa [div_inv_eq_mul, mul_comm] using log_le_rpow_div hj (by norm_num : (0 : ℝ) < 60⁻¹)
 
 end CountingSetsWithSmallSumset

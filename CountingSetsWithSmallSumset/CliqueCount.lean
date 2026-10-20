@@ -103,13 +103,10 @@ lemma card_lt_cliqueNum_cayleySumGraph_le {L : ℝ} (hL : 46656 ≤ L) :
     obtain ⟨-, hCL, hCm⟩ := mem_filter.1 hC
     refine ⟨mem_filter.2 ⟨mem_Icc.2 ⟨?_, card_le_univ C⟩, hCL⟩, hCm⟩
     exact_mod_cast (by linarith : (0 : ℝ) < #C)
-  calc _ ≤ ∑ C ∈ T, (2 : ℝ) ^ (Fintype.card Γ - #(restrictedSumset C)) := by exact_mod_cast hcard
-    _ = 2 ^ Fintype.card Γ * ∑ C ∈ T, 1 / 2 ^ #(restrictedSumset C) := by
-      rw [mul_sum]
-      congr with C
-      rw [pow_sub₀ 2 two_ne_zero (card_le_univ _), one_div]
-    _ ≤ _ := by
-      gcongr
-      exact sum_one_div_two_pow_le_sum_sum hT
+  refine (Nat.cast_le.2 hcard).trans ?_
+  grw [← sum_one_div_two_pow_le_sum_sum hT, mul_sum]
+  push_cast
+  gcongr with C
+  rw [pow_sub₀ 2 two_ne_zero (card_le_univ _), one_div]
 
 end CountingSetsWithSmallSumset

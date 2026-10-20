@@ -81,11 +81,9 @@ lemma exists_subset_coversFreimanIsoClasses_card_le_of_code {C : Type*} [Fintype
   choose! pick hpick using fun c (h : ∃ A ∈ family, code A c) ↦ h
   refine ⟨(univ.filter fun c ↦ ∃ A ∈ family, code A c).image pick, ?_, ?_,
     card_image_le.trans (card_le_univ _)⟩
-  · intro B hB
-    obtain ⟨c, hc, rfl⟩ := mem_image.mp hB
-    obtain ⟨-, hc⟩ := mem_filter.mp hc
-    obtain ⟨hpickfamily, -⟩ := hpick c hc
-    exact hpickfamily
+  · simp only [coe_image, coe_filter, mem_univ, true_and, Set.image_subset_iff]
+    intro c hc
+    grind
   · intro A hA
     obtain ⟨c, hc⟩ := hcode A hA
     obtain ⟨hpickfamily, hpickcode⟩ := hpick c ⟨A, hA, hc⟩

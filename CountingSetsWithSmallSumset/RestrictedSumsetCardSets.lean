@@ -46,8 +46,6 @@ lemma mem_restrictedSumsetCardSets {k m : ℕ} {X : Finset Γ} :
 lemma restrictedSumsetCardSets_eq_empty (k : ℕ) {m : ℕ} (hm : Fintype.card Γ < m) :
     restrictedSumsetCardSets Γ k m = ∅ := by
   ext X
-  simp only [mem_restrictedSumsetCardSets, notMem_empty, iff_false, not_and]
-  intro _ hX
-  grind [card_le_univ (restrictedSumset X)]
+  grind [mem_restrictedSumsetCardSets, card_le_univ (restrictedSumset X)]
 
 end CountingSetsWithSmallSumset

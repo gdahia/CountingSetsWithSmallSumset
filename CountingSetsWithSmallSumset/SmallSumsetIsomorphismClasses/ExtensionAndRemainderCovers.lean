@@ -99,7 +99,7 @@ private lemma exists_extensionLabeling {base : Finset G} {b₀ : Fin #base → G
 /-- **Lemma 16** of Green, in the form of a cover. The sets obtained by adjoining `d` elements to
 a member of the class of order `4` of `base` lie in at most `(1 + |base| ^ 4) ^ ((d + 1) ^ 4)`
 classes of order `2`. -/
-theorem exists_coversFreimanIsoClasses_extensionsOfFreimanClass_card_le {base : Finset G}
+lemma exists_coversFreimanIsoClasses_extensionsOfFreimanClass_card_le {base : Finset G}
     (hbase : base.Nonempty) (d : ℕ) :
     ∃ representatives : Finset (Finset G),
       ↑representatives ⊆ extensionsOfFreimanClass base d ∧
@@ -127,7 +127,7 @@ variable [DecidableEq G]
 /-- **Lemma 17** of Green, with the orders `8` and `4`. If `C` is Freiman isomorphic of order `8`
 to `core`, then every subset `B` of the restricted sumset of `C` is Freiman isomorphic of order `4`
 to a subset of the restricted sumset of `core`. -/
-theorem exists_subset_restrictedSumset_freimanIsomorphic {C core B : Finset G}
+lemma exists_subset_restrictedSumset_freimanIsomorphic {C core B : Finset G}
     (hC : FreimanIsomorphic 8 C core) (hB : B ⊆ restrictedSumset C) :
     ∃ D ⊆ restrictedSumset core, #D = #B ∧ FreimanIsomorphic 4 B D := by
   obtain ⟨f, hf⟩ := hC
@@ -162,7 +162,6 @@ lemma exists_coversFreimanIsoClasses_remaindersFromCoreClass_card_le (core : Fin
     obtain ⟨D, hD, hDB, hBD⟩ := exists_subset_restrictedSumset_freimanIsomorphic hC hBC
     exact ⟨D, mem_powersetCard.mpr ⟨hD, hDB⟩, hBD⟩
   · intro R hR
-    obtain ⟨-, hR⟩ := mem_powersetCard.mp hR
-    exact hR
+    grind
 
 end CountingSetsWithSmallSumset

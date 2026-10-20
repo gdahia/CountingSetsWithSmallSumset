@@ -50,7 +50,7 @@ lemma exists_sup_span_range_eq {K V : Type*} [DivisionRing K] [AddCommGroup V] [
 
 /-- **Lemma 28** of Green. For `l ≤ k`, there are at most `2 ^ (n * (2 * k - l))` ordered pairs
 of `k`-dimensional subspaces of `𝔽₂ⁿ` whose intersection has dimension `l`. -/
-theorem card_finrank_inf_eq_le (n : ℕ) {k l : ℕ} (hl : l ≤ k) :
+lemma card_finrank_inf_eq_le (n : ℕ) {k l : ℕ} (hl : l ≤ k) :
     #{(H, H') : Submodule (ZMod 2) (Fin n → ZMod 2) × Submodule (ZMod 2) (Fin n → ZMod 2) |
       finrank (ZMod 2) H = k ∧ finrank (ZMod 2) H' = k ∧ finrank (ZMod 2) ↥(H ⊓ H') = l} ≤
       2 ^ (n * (2 * k - l)) := by
@@ -63,8 +63,7 @@ theorem card_finrank_inf_eq_le (n : ℕ) {k l : ℕ} (hl : l ≤ k) :
   trans #(univ.image f)
   · apply card_le_card
     rintro ⟨H, H'⟩ hH
-    simp only [mem_filter, mem_univ, true_and] at hH
-    obtain ⟨hH, hH', hHH'⟩ := hH
+    obtain ⟨-, hH, hH', hHH'⟩ := mem_filter.1 hH
     obtain ⟨w, hw⟩ := exists_sup_span_range_eq (K := ZMod 2) (L := ⊥) (H := H ⊓ H') bot_le
       (d := l) (by simp [hHH'])
     obtain ⟨u, hu⟩ := exists_sup_span_range_eq (K := ZMod 2) (L := H ⊓ H') (H := H) inf_le_left
@@ -73,7 +72,7 @@ theorem card_finrank_inf_eq_le (n : ℕ) {k l : ℕ} (hl : l ≤ k) :
       inf_le_right (d := k - l) (by grind)
     rw [bot_sup_eq] at hw
     exact mem_image.mpr ⟨(w, u, v), mem_univ _, by simp [f, hw, hu, hv]⟩
-  refine (card_image_le).trans ?_
+  refine card_image_le.trans ?_
   simp only [card_univ, Fintype.card_prod, Fintype.card_fun, Fintype.card_fin, ZMod.card,
     ← pow_mul, ← pow_add]
   rw [(by grind : 2 * k - l = l + 2 * (k - l))]

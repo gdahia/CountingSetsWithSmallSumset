@@ -8,6 +8,7 @@ module
 public import Mathlib.Analysis.SpecialFunctions.Log.Base
 public import Mathlib.Combinatorics.SimpleGraph.Cayley
 public import Mathlib.Combinatorics.SimpleGraph.Clique
+import CountingSetsWithSmallSumset.AlmostAllSets
 import CountingSetsWithSmallSumset.BinaryGroups.LargeRestrictedSumsetSum
 import CountingSetsWithSmallSumset.BinaryLowerBound.CliqueNumber
 import CountingSetsWithSmallSumset.CliqueCount
@@ -70,7 +71,7 @@ private lemma le_three_hundred_eight_mul_mul_logb (hn : 2 ^ 9000 ≤ n) :
 /-- **Theorem 9** of Green, upper bound, explicit form. If `n ≥ 2 ^ 9000`, then at most
 `2 ^ 2 ^ n / 2 ^ n` of the `2 ^ 2 ^ n` sets `A ⊆ 𝔽₂ⁿ` have a Cayley graph with clique number
 greater than `308 * n * log₂ n`. -/
-theorem card_cliqueNum_addCayley_gt_le (hn : 2 ^ 9000 ≤ n) :
+lemma card_cliqueNum_addCayley_gt_le (hn : 2 ^ 9000 ≤ n) :
     (#{A : Finset (Fin n → ZMod 2) |
       308 * n * logb 2 n < (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum} : ℝ) ≤
       2 ^ 2 ^ n / 2 ^ n := by
@@ -113,32 +114,12 @@ theorem tendsto_card_le_cliqueNum_addCayley_le :
       n * logb 2 n / 4 ≤ (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum ∧
         (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum ≤ 308 * n * logb 2 n} : ℝ) / 2 ^ 2 ^ n)
       atTop (𝓝 1) := by
-  have hcompl (n : ℕ) : (#{A : Finset (Fin n → ZMod 2) |
-      n * logb 2 n / 4 ≤ (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum ∧
-        (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum ≤ 308 * n * logb 2 n} : ℝ) =
-      2 ^ 2 ^ n - #{A : Finset (Fin n → ZMod 2) |
-        (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum < n * logb 2 n / 4 ∨
-          308 * n * logb 2 n < (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum} := by
-    have := card_filter_add_card_filter_not (s := (univ : Finset (Finset (Fin n → ZMod 2))))
-      fun A ↦ n * logb 2 n / 4 ≤ (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum ∧
-        (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum ≤ 308 * n * logb 2 n
-    simp only [not_and_or, not_le, card_univ, Fintype.card_finset, card_univ_pi_zmod_two] at this
-    rw [eq_sub_iff_add_eq]
-    exact_mod_cast this
-  refine tendsto_of_tendsto_of_tendsto_of_le_of_le'
-    (g := fun n : ℕ ↦ 1 - ((n : ℝ)⁻¹ + ((2 : ℝ) ^ n)⁻¹)) (h := fun _ ↦ 1) ?_ tendsto_const_nhds
-    ?_ ?_
-  · simpa using (tendsto_inv_atTop_nhds_zero_nat.add (tendsto_inv_atTop_zero.comp
-      (tendsto_pow_atTop_atTop_of_one_lt one_lt_two))).const_sub (1 : ℝ)
+  refine tendsto_card_filter_div_two_pow_of_card_filter_not_le (fun _ ↦ card_univ_pi_zmod_two) _
+    (ε := fun n ↦ (n : ℝ)⁻¹ + ((2 : ℝ) ^ n)⁻¹) ?_ ?_
+  · simpa using (tendsto_inv_atTop_nhds_zero_nat (𝕜 := ℝ)).add
+      (tendsto_inv_atTop_zero.comp (tendsto_pow_atTop_atTop_of_one_lt one_lt_two))
   · filter_upwards [eventually_ge_atTop (2 ^ 9000)] with n hn
-    rw [hcompl, sub_div, div_self (by positivity)]
-    gcongr
-    rw [div_le_iff₀ (by positivity)]
+    simp only [not_and_or, not_le]
     exact (card_cliqueNum_addCayley_lt_or_gt_le hn).trans_eq (by ring)
-  · filter_upwards with n
-    rw [hcompl, div_le_one (by positivity)]
-    linarith [Nat.cast_nonneg (α := ℝ) #{A : Finset (Fin n → ZMod 2) |
-      (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum < n * logb 2 n / 4 ∨
-        308 * n * logb 2 n < (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum}]
 
 end CountingSetsWithSmallSumset

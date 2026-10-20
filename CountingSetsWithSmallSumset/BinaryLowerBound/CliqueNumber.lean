@@ -9,6 +9,7 @@ public import Mathlib.Analysis.SpecialFunctions.Log.Base
 public import Mathlib.Combinatorics.SimpleGraph.Cayley
 public import Mathlib.Combinatorics.SimpleGraph.Clique
 public import Mathlib.LinearAlgebra.Dimension.Finrank
+import CountingSetsWithSmallSumset.AlmostAllSets
 import CountingSetsWithSmallSumset.BinaryLowerBound.Covariance
 import CountingSetsWithSmallSumset.BinaryLowerBound.SecondMoment
 import CountingSetsWithSmallSumset.BinaryLowerBound.SubspaceCount
@@ -100,7 +101,7 @@ private lemma card_cliqueNum_lt_le_card_forall_not_subset {n k : ℕ}
 
 /-- **Proposition 27** of Green, explicit form. For `n ≥ 2 ^ 16`, at most `2 ^ 2 ^ n / n` of the
 `2 ^ 2 ^ n` sets `A ⊆ 𝔽₂ⁿ` have a Cayley graph with clique number less than `n * log₂ n / 4`. -/
-theorem card_cliqueNum_addCayley_lt_le {n : ℕ} (hn : 2 ^ 16 ≤ n) :
+lemma card_cliqueNum_addCayley_lt_le {n : ℕ} (hn : 2 ^ 16 ≤ n) :
     #{A : Finset (Fin n → ZMod 2) |
       (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum < n * Real.logb 2 n / 4} ≤
       (2 ^ 2 ^ n / n : ℝ) := by
@@ -136,31 +137,14 @@ theorem card_cliqueNum_addCayley_lt_le {n : ℕ} (hn : 2 ^ 16 ≤ n) :
 
 /-- **Proposition 27** of Green. The proportion of the sets `A ⊆ 𝔽₂ⁿ` whose Cayley graph has
 clique number at least `n * log₂ n / 4` tends to `1`. -/
-theorem tendsto_card_le_cliqueNum_addCayley :
+lemma tendsto_card_le_cliqueNum_addCayley :
     Tendsto (fun n : ℕ ↦ (#{A : Finset (Fin n → ZMod 2) |
       n * Real.logb 2 n / 4 ≤ (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum} : ℝ) / 2 ^ 2 ^ n)
       atTop (𝓝 1) := by
-  have hcompl (n : ℕ) : (#{A : Finset (Fin n → ZMod 2) |
-      n * Real.logb 2 n / 4 ≤ (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum} : ℝ) =
-      2 ^ 2 ^ n - #{A : Finset (Fin n → ZMod 2) |
-        (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum < n * Real.logb 2 n / 4} := by
-    have := card_filter_add_card_filter_not (s := (univ : Finset (Finset (Fin n → ZMod 2))))
-      fun A ↦ n * Real.logb 2 n / 4 ≤ (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum
-    simp only [not_le, card_univ, Fintype.card_finset, Fintype.card_fun, Fintype.card_fin,
-      ZMod.card] at this
-    rw [eq_sub_iff_add_eq]
-    exact_mod_cast this
-  refine tendsto_of_tendsto_of_tendsto_of_le_of_le' (g := fun n : ℕ ↦ 1 - 1 / (n : ℝ))
-    (h := fun _ ↦ 1) ?_ tendsto_const_nhds ?_ ?_
-  · simpa using (tendsto_one_div_atTop_nhds_zero_nat (𝕜 := ℝ)).const_sub 1
-  · filter_upwards [eventually_ge_atTop (2 ^ 16)] with n hn
-    rw [hcompl, sub_div, div_self (by positivity), one_div]
-    gcongr
-    rw [div_le_iff₀ (by positivity), inv_mul_eq_div]
-    exact card_cliqueNum_addCayley_lt_le hn
-  · filter_upwards with n
-    rw [hcompl, div_le_one (by positivity)]
-    linarith [Nat.cast_nonneg (α := ℝ) #{A : Finset (Fin n → ZMod 2) |
-      (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum < n * Real.logb 2 n / 4}]
+  refine tendsto_card_filter_div_two_pow_of_card_filter_not_le (fun _ ↦ by simp) _
+    (ε := fun n ↦ (n : ℝ)⁻¹) tendsto_inv_atTop_nhds_zero_nat ?_
+  filter_upwards [eventually_ge_atTop (2 ^ 16)] with n hn
+  simp only [not_le]
+  exact (card_cliqueNum_addCayley_lt_le hn).trans_eq (by ring)
 
 end CountingSetsWithSmallSumset

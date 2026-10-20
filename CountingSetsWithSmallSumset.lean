@@ -5,6 +5,7 @@ Authors: Gabriel Dahia
 -/
 module  -- shake: keep-all
 
+public import CountingSetsWithSmallSumset.AlmostAllSets
 public import CountingSetsWithSmallSumset.BinaryGroups.CliqueNumber
 public import CountingSetsWithSmallSumset.BinaryGroups.FreimanDimension
 public import CountingSetsWithSmallSumset.BinaryGroups.IteratedSumsets
@@ -58,8 +59,8 @@ random Cayley graphs*, Combinatorica 25 (2005), with the numbering of arXiv:math
 all theorem-like statements share one counter. The Freiman dimension `r_F(A)` of a finite set `A`
 is defined, as in the paper, as `dim Hom₂(A, F) - 1`. Statements for `t` or `k` sufficiently large
 are proved for `t ≥ 2 ^ 9000` or a similar explicit bound. Statements about almost all sets are
-proved as explicit bounds on the number of exceptional sets; Theorem 9 and Proposition 27 are also
-stated as limits.
+proved as explicit bounds on the number of exceptional sets. Theorems 7 and 9 and Proposition 27
+are also stated as limits, as in the paper.
 
 ## Main statements
 
@@ -88,7 +89,7 @@ stated as limits.
 * Lemma 25: `freimanDimOver_add_one_le_of_card_restrictedSumset_le`.
 * Proposition 26: `card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow` (i) and
   `card_restrictedSumsetCardSets_pi_zmod_two_le` (ii).
-* Theorem 7: `card_cliqueNum_cayleySumGraph_gt_le`.
+* Theorem 7: `card_cliqueNum_cayleySumGraph_gt_le` and `tendsto_card_cliqueNum_cayleySumGraph_le`.
 * Theorem 8: `exists_cliqueNum_le_and_indepNum_le`.
 * Theorem 9: `card_cliqueNum_addCayley_lt_or_gt_le` and `tendsto_card_le_cliqueNum_addCayley_le`,
   with the upper bound `card_cliqueNum_addCayley_gt_le`.

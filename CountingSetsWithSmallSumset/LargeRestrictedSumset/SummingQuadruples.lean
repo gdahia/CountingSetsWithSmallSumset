@@ -56,7 +56,7 @@ private lemma sum_card_fiber_eq_card_offDiag [Add G] (B : Finset G) :
     ∑ x ∈ restrictedSumset B, #(B.offDiag.filter fun (a, b) ↦ a + b = x) = #B.offDiag := by
   rw [restrictedSumset_eq_image_offDiag, card_eq_sum_card_image fun ((a, b) : G × G) ↦ a + b]
 
-private lemma sum_sq_card_fiber_eq_card_filter [Add G] (B : Finset G) :
+private lemma sum_sq_card_fiber_eq_card_summingQuadruples [Add G] (B : Finset G) :
     ∑ x ∈ restrictedSumset B, #(B.offDiag.filter fun (a, b) ↦ a + b = x) ^ 2 =
       #(summingQuadruples B) := by
   rw [summingQuadruples, card_eq_sum_card_fiberwise (f := fun ((a, b), _) ↦ a + b)
@@ -69,9 +69,10 @@ private lemma sum_sq_card_fiber_eq_card_filter [Add G] (B : Finset G) :
     grind
   · rintro ⟨⟨a, b⟩, c, d⟩ h
     simp only [coe_filter, Set.mem_ofPred_eq, mem_product, mem_offDiag] at h
-    exact mem_coe.mpr (mem_restrictedSumset.mpr ⟨a, by grind, b, by grind⟩)
+    simp only [mem_coe, mem_restrictedSumset]
+    grind
 
-private lemma card_filter_sum_eq_le [Add G] (B : Finset G) :
+private lemma card_summingQuadruples_le [Add G] (B : Finset G) :
     #(summingQuadruples B) ≤
       2 * #B.offDiag + #(nondegenerateSummingQuadruples B) := by
   have hsub : summingQuadruples B ⊆
@@ -89,10 +90,9 @@ private lemma card_filter_sum_eq_le [Add G] (B : Finset G) :
 lemma sq_card_offDiag_le_card_restrictedSumset_mul [Add G] (B : Finset G) :
     #B.offDiag ^ 2 ≤
       #(restrictedSumset B) * (2 * #B.offDiag + #(nondegenerateSummingQuadruples B)) := by
-  have h := sq_sum_le_card_mul_sum_sq (s := restrictedSumset B)
-    (f := fun x ↦ #(B.offDiag.filter fun (a, b) ↦ a + b = x))
-  rw [sum_card_fiber_eq_card_offDiag, sum_sq_card_fiber_eq_card_filter, Nat.cast_id] at h
-  grw [h, card_filter_sum_eq_le]
+  nth_rw 1 [← sum_card_fiber_eq_card_offDiag]
+  grw [sq_sum_le_card_mul_sum_sq, Nat.cast_id, sum_sq_card_fiber_eq_card_summingQuadruples,
+    card_summingQuadruples_le]
 
 /-- A non-degenerate summing quadruple has four distinct entries. -/
 lemma card_entries_eq_four_of_mem_nondegenerateSummingQuadruples [AddCommGroup G]
@@ -115,8 +115,6 @@ lemma card_nondegenerateSummingQuadruples_le [AddCommGroup G] (A : Finset G) :
   · rintro ⟨⟨a, b⟩, c, d⟩ h ⟨⟨a', b'⟩, c', d'⟩ h' heq
     simp only [nondegenerateSummingQuadruples, coe_filter, Set.mem_ofPred_eq] at h h'
     simp only [Prod.mk.injEq] at heq ⊢
-    obtain ⟨⟨rfl, rfl⟩, rfl⟩ := heq
-    refine ⟨⟨rfl, rfl⟩, rfl, ?_⟩
     grind
 
 end CountingSetsWithSmallSumset

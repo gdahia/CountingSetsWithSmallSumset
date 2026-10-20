@@ -77,25 +77,22 @@ private lemma freimanIsomorphic_image_add (n : ℕ) (a : G) (A : Finset G) :
     simp [hu, hv]
 
 private lemma four_mul_rpow_neg_four_fifths_mul_lt {t m : ℕ}
-    (ht : smallSumsetClassCountThreshold ≤ t) (htm : t ≤ m) (hlarge : ¬t ≤ coreCardBound t m) :
+    (ht : smallSumsetClassCountThreshold ≤ t) (hlarge : ¬t ≤ coreCardBound t m) :
     4 * (t : ℝ) ^ (-(4 : ℝ) / 5) * m < t := by
-  have hpow : (t : ℝ) ^ (-(4 : ℝ) / 5) < (t : ℝ) ^ (-(1 : ℝ) / 15) :=
-    Real.rpow_lt_rpow_of_exponent_lt (one_lt_cast_of_smallSumsetClassCountThreshold_le ht)
-      (by norm_num)
-  have hcore_lt : 4 * (t : ℝ) ^ (-(1 : ℝ) / 15) * m < t :=
-    (Nat.le_ceil _).trans_lt (Nat.cast_lt.mpr (not_le.mp hlarge))
-  have hm : (0 : ℝ) < m := mod_cast (pos_of_smallSumsetClassCountThreshold_le ht).trans_le htm
-  nlinarith
+  refine lt_of_le_of_lt ?_ ((Nat.le_ceil _).trans_lt (Nat.cast_lt.mpr (not_le.mp hlarge)))
+  gcongr 4 * ?_ * _
+  exact Real.rpow_le_rpow_of_exponent_le
+    (one_lt_natCast_of_smallSumsetClassCountThreshold_le ht).le (by norm_num)
 
-private lemma exists_nonemptyCoreDecomposition {A : Finset G} {t m : ℕ}
+private lemma exists_nonempty_image_add_subset_restrictedSumset {A : Finset G} {t m : ℕ}
     (hA : #A = t) (ht : smallSumsetClassCountThreshold ≤ t) (htm : t ≤ m)
     (hm : #(restrictedSumset A) ≤ m) :
     ∃ a ∈ A, ∃ A₀ ⊆ A, ∃ A₁ ⊆ A,
       A₁.image (a + ·) ⊆ restrictedSumset A₀ ∧ A₀.Nonempty ∧ A₁.Nonempty ∧
       #A₀ ≤ coreCardBound t m ∧ #(A \ A₁) ≤ exceptionCardBound t m := by
-  have ht₁ := one_lt_of_smallSumsetClassCountThreshold_le ht
   by_cases hlarge : t ≤ coreCardBound t m
-  · obtain ⟨a, ha⟩ : A.Nonempty := card_pos.mp (by grind)
+  · have ht₁ := one_lt_of_smallSumsetClassCountThreshold_le ht
+    obtain ⟨a, ha⟩ : A.Nonempty := card_pos.mp (by grind)
     refine ⟨a, ha, A, subset_rfl, A.erase a, A.erase_subset a,
       image_add_erase_subset_restrictedSumset ha, ⟨a, ha⟩, ?_, hA ▸ hlarge, ?_⟩
     · rw [← card_pos, card_erase_of_mem ha]
@@ -105,15 +102,12 @@ private lemma exists_nonemptyCoreDecomposition {A : Finset G} {t m : ℕ}
       positivity
   · obtain ⟨a, ha, A₀, hA₀, A₁, hA₁, htranslate, hcore, hexception⟩ :=
       exists_image_add_subset_restrictedSumset hA ht htm hm
-    have hdiff_lt : #(A \ A₁) < t := by
-      exact_mod_cast hexception.trans_lt (four_mul_rpow_neg_four_fifths_mul_lt ht htm hlarge)
-    have hA₁_nonempty : A₁.Nonempty := by
+    obtain ⟨x, hx⟩ : A₁.Nonempty := by
       rw [← card_pos]
-      grind [card_sdiff_add_card_eq_card hA₁]
-    refine ⟨a, ha, A₀, hA₀, A₁, hA₁, htranslate, ?_, hA₁_nonempty, ?_, ?_⟩
-    · rw [nonempty_iff_ne_empty]
-      rintro rfl
-      simp [restrictedSumset, hA₁_nonempty.ne_empty] at htranslate
+      grind [card_sdiff_add_card_eq_card hA₁,
+        Nat.cast_lt.mp (hexception.trans_lt (four_mul_rpow_neg_four_fifths_mul_lt ht hlarge))]
+    obtain ⟨b, hb, -⟩ := mem_restrictedSumset.mp (htranslate (mem_image_of_mem _ hx))
+    refine ⟨a, ha, A₀, hA₀, A₁, hA₁, htranslate, ⟨b, hb⟩, ⟨x, hx⟩, ?_, ?_⟩
     · exact Nat.cast_le (α := ℝ).mp (hcore.trans (Nat.le_ceil _))
     · exact Nat.cast_le (α := ℝ).mp (hexception.trans (Nat.le_ceil _))
 
@@ -157,10 +151,10 @@ private lemma exists_freimanClassCover_of_card_core_of_card_exception (t m d l :
       exact hR_card ▸ hextension_card R hR_card
     · rw [mul_assoc]
       exact Nat.mul_le_mul_right _ (hcore_card.trans_eq (by ring))
-  · rintro A hA hm a A₀ hA₀ A₁ hA₁ htranslate - hl' hd
+  · rintro A hA hm a A₀ hA₀ A₁ hA₁ htranslate - hl hd
     have hA₁_card : #A₁ = t - d := by grind [card_sdiff_add_card_eq_card hA₁]
     obtain ⟨C, hC, hA₀C⟩ :=
-      hcore_cover A₀ ⟨hl', (card_le_card (restrictedSumset_mono hA₀)).trans hm⟩
+      hcore_cover A₀ ⟨hl, (card_le_card (restrictedSumset_mono hA₀)).trans hm⟩
     obtain ⟨R, hR, hBR⟩ := hremainder_cover C (A₁.image (a + ·))
       ⟨(card_image_of_injective _ (add_right_injective a)).trans hA₁_card, A₀, hA₀C, htranslate⟩
     have hR_card := hremainder_spec C R hR
@@ -188,16 +182,18 @@ lemma exists_coversFreimanIsoClasses_card_le_freimanClassCountBound {t m : ℕ}
     (Icc 1 (coreCardBound t m)).biUnion (reps d), ?_, ?_⟩
   · rintro A ⟨hA, hm⟩
     obtain ⟨a, -, A₀, hA₀, A₁, hA₁, htranslate, hA₀_nonempty, hA₁_nonempty, hcore, hexception⟩ :=
-      exists_nonemptyCoreDecomposition hA ht htm hm
+      exists_nonempty_image_add_subset_restrictedSumset hA ht htm hm
     obtain ⟨Q, hQ, hAQ⟩ := hcover #(A \ A₁) #A₀ A hA hm a A₀ hA₀ A₁ hA₁ htranslate
       hA₁_nonempty rfl rfl
     refine ⟨Q, ?_, hAQ⟩
     simp only [mem_biUnion, mem_range, mem_Icc]
     exact ⟨_, Nat.lt_succ_of_le hexception, _, ⟨hA₀_nonempty.card_pos, hcore⟩, hQ⟩
   · unfold freimanClassCountBound
-    refine card_biUnion_le.trans (sum_le_sum ?_)
-    intro d _
-    exact card_biUnion_le.trans (sum_le_sum fun l _ ↦ hcard d l)
+    refine card_biUnion_le.trans ?_
+    gcongr with d
+    refine card_biUnion_le.trans ?_
+    gcongr with l
+    exact hcard d l
 
 end
 

@@ -10,7 +10,7 @@ public import Mathlib.Basic.Real.Basic
 public import Mathlib.Data.Fintype.Powerset
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
-import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Ring.RingNF
 
 /-!
 # The second moment method for a uniformly random set
@@ -36,6 +36,7 @@ open Finset
 
 variable {α : Type*} [Fintype α] [DecidableEq α]
 
+/-- There are `2 ^ (|α| - |B|)` sets `A ⊆ α` containing `B`. -/
 lemma card_filter_superset (B : Finset α) :
     #{A : Finset α | B ⊆ A} = 2 ^ (Fintype.card α - #B) := by
   rw [← card_compl, ← card_powerset]
@@ -54,8 +55,7 @@ lemma sum_centered_indicator_mul (B C : Finset α) :
   trans ∑ A : Finset α, ((if B ∪ C ⊆ A then (2 : ℝ) ^ (#B + #C) else 0) -
     (if B ⊆ A then (2 : ℝ) ^ #B else 0) - (if C ⊆ A then (2 : ℝ) ^ #C else 0) + 1)
   · congr with A
-    by_cases hB : B ⊆ A <;> by_cases hC : C ⊆ A <;>
-      simp [hB, hC, union_subset_iff, pow_add] <;> grind
+    grind [union_subset_iff, pow_add]
   have key (D : Finset α) (m : ℕ) (h : #D ≤ m + Fintype.card α) :
       (2 : ℝ) ^ m * 2 ^ (Fintype.card α - #D) = 2 ^ (Fintype.card α + m - #D) := by
     rw [← pow_add]
@@ -76,15 +76,14 @@ lemma card_filter_forall_not_subset_mul_sq_le {ι : Type*} (s : Finset ι) (B : 
     #{A : Finset α | ∀ i ∈ s, ¬B i ⊆ A} * (#s : ℝ) ^ 2 ≤
       2 ^ Fintype.card α * ∑ i ∈ s, ∑ j ∈ s, (2 ^ #(B i ∩ B j) - 1) := by
   set f : ι → Finset α → ℝ := fun i A ↦ (if B i ⊆ A then (2 : ℝ) ^ #(B i) else 0) - 1
-  have hf (A : Finset α) (hA : A ∈ ({A : Finset α | ∀ i ∈ s, ¬B i ⊆ A} : Finset _)) :
-      (#s : ℝ) ^ 2 = (∑ i ∈ s, f i A) ^ 2 := by
-    obtain ⟨-, hA⟩ := mem_filter.mp hA
-    simp [f, sum_sub_distrib, sum_ite_of_false hA]
-  rw [← nsmul_eq_mul, ← sum_const, sum_congr rfl hf]
+  rw [← nsmul_eq_mul, ← sum_const]
   trans ∑ A : Finset α, (∑ i ∈ s, f i A) ^ 2
-  · apply sum_le_sum_of_subset_of_nonneg (subset_univ _)
-    intro A _ _
-    exact sq_nonneg _
+  · refine (sum_le_sum ?_).trans (sum_le_sum_of_subset_of_nonneg (subset_univ _) ?_)
+    · intro A hA
+      obtain ⟨-, hA⟩ := mem_filter.1 hA
+      simp [f, sum_sub_distrib, sum_ite_of_false hA]
+    · intro A _ _
+      exact sq_nonneg _
   apply le_of_eq
   simp_rw [sq, sum_mul_sum, mul_sum]
   rw [sum_comm]

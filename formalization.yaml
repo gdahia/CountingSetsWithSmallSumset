@@ -12,8 +12,9 @@ project:
     sumset in a vector space. It deduces that the Cayley sum graph of a random subset of
     Z/NZ almost surely has clique number at most 160 log_2 N, and that the Cayley graph of a
     random subset of F_2^n almost surely has clique number between C_1 n log_2 n and
-    C_2 n log_2 n. The formalization proves these results with explicit thresholds and
-    C_1 = 1/4, C_2 = 308, and proves Corollary 14: Green's Freiman dimension
+    C_2 n log_2 n. The formalization proves these results with C_1 = 1/4 and C_2 = 308, both
+    as limits and as explicit bounds on the number of exceptional sets, and proves
+    Corollary 14: Green's Freiman dimension
     dim Hom_2(A, F) - 1 is the largest dimension of a Freiman isomorphic copy of A in F^d
     that is not contained in a proper affine subspace, and for sets of integers it equals
     Freiman's definition.
@@ -87,7 +88,7 @@ status:
     Mathlib. Theorems 4, 5 and 6 and Proposition 29 are not formalized. The library also
     proves two counts of sets of natural numbers that the paper does not state. The sorry
     counts refer to the library and Solution.lean; Challenge.lean has one placeholder for
-    each of its twelve statements.
+    each of its thirteen statements.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: ["propext", "Classical.choice", "Quot.sound"]
@@ -120,7 +121,9 @@ automation:
         Green's definition of the Freiman dimension, to formalize the other results of the
         paper, and to restyle the statements, proofs and documentation after Gabriel Dahia's
         review of other repositories. Claude Code split the work among subagents, one for
-        each part of the paper, and merged and restyled their proofs.
+        each part of the paper, and merged and restyled their proofs. A later session added
+        the limit form of Theorem 7 and restyled the library again, with subagents for groups
+        of files.
   spend_usd: "not tracked"
   notes: >-
     The first proofs of Sections 3 and 4 were written by Codex agents in
@@ -136,11 +139,12 @@ fidelity:
     Proposition 19, |A| ≥ 46656 in Corollary 20 and n ≥ 2^16 in Proposition 27. They are not
     optimized.
 
-    Almost sure statements. Theorem 7 states that ω ≤ 160 log_2 N with probability tending to
-    1. Here at most 2^N / N sets A ⊆ Z/NZ have ω(G_A) > 160 log_2 N. In Theorem 9, with
-    N = 2^n, at most 2^N / n + 2^N / N sets A ⊆ F_2^n have ω(G_A) < n log_2 n / 4 or
-    ω(G_A) > 308 n log_2 n, and the proportion of the other sets tends to 1. In
-    Proposition 27, at most 2^N / n sets have ω(G_A) < n log_2 n / 4.
+    Almost sure statements. Theorems 7 and 9 and Proposition 27 are stated as limits of
+    proportions of sets, as in the paper, and also as explicit counts of the exceptional sets.
+    In Theorem 7, at most 2^N / N sets A ⊆ Z/NZ have ω(G_A) > 160 log_2 N, and the limit is
+    taken over the positive integers N. In Theorem 9, with N = 2^n, at most
+    2^N / n + 2^N / N sets A ⊆ F_2^n have ω(G_A) < n log_2 n / 4 or ω(G_A) > 308 n log_2 n.
+    In Proposition 27, at most 2^N / n sets have ω(G_A) < n log_2 n / 4.
 
     Theorem 8. The paper asks for no clique or independent set of size 160 log_2 N. The Lean
     statement has clique number and independence number at most 160 log_2 N.
@@ -197,16 +201,17 @@ fidelity:
 review:
   status: "unchecked"
   reviewers: []
-  notes: >-
-    Unreviewed. No mathematical or formalization review of this repository. lake
-    comparator, run on macOS with its sandbox disabled, accepts the solution with Lean's
-    kernel, nanoda and con-ron. scripts/verify-comparator.sh, which runs it in the sandbox
-    and needs Linux, has not been run.
+  notes: "Unreviewed"
 
 alignment:
   namespace: "CountingSetsWithSmallSumset"
   statements:
     - source: "Theorem 7"
+      lean: "CountingSetsWithSmallSumset.tendsto_card_cliqueNum_cayleySumGraph_le'"
+      module: "Challenge"
+      status: "proved"
+      note: "The limit over the positive integers N."
+    - source: "Theorem 7, count"
       lean: "CountingSetsWithSmallSumset.card_cliqueNum_cayleySumGraph_gt_le'"
       module: "Challenge"
       status: "proved"

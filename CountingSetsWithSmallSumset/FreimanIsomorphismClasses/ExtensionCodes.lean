@@ -11,20 +11,20 @@ public import Mathlib.Data.Fintype.Prod
 public import Mathlib.Data.Fintype.Sum
 public import Mathlib.Logic.Equiv.Fin.Basic
 import Mathlib.Algebra.BigOperators.Fin
-import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Ring.RingNF
 
 /-!
 # Extension codes
 
 This file contains the coding argument of Lemma 16 of Green, *Counting sets with small sumset,
 and the clique number of random Cayley graphs*. Let `a` be a tuple of length `l + d` in a
-commutative monoid with cancellation. The shape of a relation `a i + a j = a k + a l` records
-which of its four indices are among the first `l` and which of the last `d` indices the others
+cancellative commutative monoid. The shape of a relation `a i₁ + a i₂ = a j₁ + a j₂` records which
+of its four indices are among the first `l` indices, and which of the last `d` indices the others
 are. If two relations of the same shape hold, the difference of their parts on the first `l`
 coordinates is a relation with four terms on each side between the first `l` coordinates. So the
 relations with two terms on each side of `a` are determined by the relations with four terms on
-each side of its first `l` coordinates and by one relation of each shape, if there is one. This is
-the extension code of `a`.
+each side of its first `l` coordinates and by one relation of each shape, if there is one. This
+choice of one relation of each shape is the extension code of `a`.
 
 ## Main definitions
 
@@ -141,14 +141,16 @@ private lemma exists_extensionCode_eq_some (i₀ : Fin l) {a : Fin (l + d) → G
 lemma card_extensionCodeType (l d : ℕ) :
     Fintype.card (ExtensionShape d → Option (FreimanRelationIndex 2 l)) =
       (1 + l ^ 4) ^ ((d + 1) ^ 4) := by
-  simp [FreimanRelationIndex]
+  simp only [Fintype.card_fun, Fintype.card_prod, Fintype.card_option, Fintype.card_sum,
+    Fintype.card_unit, Fintype.card_fin]
   ring
 
 /-- The first `l` coordinates of a tuple of length `l + d`. -/
 def extensionBaseTuple (a : Fin (l + d) → G) : Fin l → G :=
   fun i ↦ a (finSumFinEquiv (Sum.inl i))
 
-private lemma extensionSlot_add_base_eq (i₀ : Fin l) (a : Fin (l + d) → G) {i j : Fin (l + d)}
+private lemma add_extensionBaseTuple_eq_of_extensionSlot_eq (i₀ : Fin l) (a : Fin (l + d) → G)
+    {i j : Fin (l + d)}
     (hslot : extensionSlot i = extensionSlot j) :
     a i + extensionBaseTuple a (extensionBaseIndex i₀ j) =
       a j + extensionBaseTuple a (extensionBaseIndex i₀ i) := by
@@ -173,8 +175,8 @@ private lemma freimanRelationHolds_extensionComparison_iff (i₀ : Fin l) (a : F
         a (p₂ 0) + a (p₂ 1) + (a (q₁ 0) + a (q₁ 1)) := by
   simp only [extensionShape, Prod.mk.injEq, funext_iff, Function.comp_apply] at hshape
   obtain ⟨h₁, h₂⟩ := hshape
-  have hl (k : Fin 2) := extensionSlot_add_base_eq i₀ a (h₁ k)
-  have hr (k : Fin 2) := extensionSlot_add_base_eq i₀ a (h₂ k)
+  have hl (k : Fin 2) := add_extensionBaseTuple_eq_of_extensionSlot_eq i₀ a (h₁ k)
+  have hr (k : Fin 2) := add_extensionBaseTuple_eq_of_extensionSlot_eq i₀ a (h₂ k)
   rw [freimanRelationHolds, ← (finSumFinEquiv (m := 2) (n := 2)).sum_comp,
     ← (finSumFinEquiv (m := 2) (n := 2)).sum_comp]
   simp only [extensionComparison, Fintype.sum_sum_type, finSumFinEquiv_apply_left,

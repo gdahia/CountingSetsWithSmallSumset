@@ -87,11 +87,10 @@ private lemma le_four_mul_logb_div {x k m : ℕ} (hk : 2 ≤ k) (hkm : k ≤ m +
     exact_mod_cast hk
   have hm : (1 : ℝ) ≤ m := by exact_mod_cast (by grind : 1 ≤ m)
   rcases lt_or_ge x (Nat.log 2 k) with hxh | hxh
-  · have hxL : (x : ℝ) ≤ logb 2 k :=
-      (Nat.cast_le.2 hxh.le).trans (by exact_mod_cast natLog_le_logb k 2)
-    rw [le_div_iff₀ (by positivity)]
-    nlinarith [mul_le_mul hxL (by exact_mod_cast (by grind : k ≤ 4 * m) : (k : ℝ) ≤ 4 * m)
-      (Nat.cast_nonneg k) (by linarith)]
+  · rw [le_div_iff₀ (by positivity)]
+    nlinarith [mul_le_mul ((Nat.cast_le.2 hxh.le).trans (by exact_mod_cast natLog_le_logb k 2))
+      (by exact_mod_cast (by grind : k ≤ 4 * m) : (k : ℝ) ≤ 4 * m) (Nat.cast_nonneg k)
+      (by linarith)]
   · have hh : 0 < Nat.log 2 k := Nat.log_pos one_lt_two hk
     refine le_of_pow_le_pow_left₀ hh.ne' (div_nonneg (by nlinarith) (by positivity)) ?_
     calc (x : ℝ) ^ Nat.log 2 k
@@ -117,11 +116,10 @@ lemma finrank_vectorSpan_add_one_le_of_card_restrictedSumset_le {A : Finset V} (
   have hne : A.Nonempty := card_pos.1 (by grind)
   obtain ⟨t, htA, hspan, hind⟩ := exists_affineIndependent (ZMod 2) V (A : Set V)
   obtain ⟨X, rfl⟩ := (A.finite_toSet.subset htA).exists_finset_coe
-  have hXne : X.Nonempty := by
-    rw [← coe_nonempty, ← affineSpan_nonempty (k := ZMod 2), hspan, affineSpan_nonempty,
-      coe_nonempty]
+  have : Nonempty X := by
+    rw [nonempty_coe_sort, ← coe_nonempty, ← affineSpan_nonempty (k := ZMod 2), hspan,
+      affineSpan_nonempty, coe_nonempty]
     exact hne
-  have : Nonempty X := hXne.to_subtype
   have hX : finrank (ZMod 2) (vectorSpan (ZMod 2) (A : Set V)) + 1 = #X := by
     rw [← direction_affineSpan, ← hspan, direction_affineSpan,
       ← Subtype.range_coe (s := (X : Set V)), hind.finrank_vectorSpan_add_one]
@@ -137,7 +135,7 @@ variable {W : Type*} [AddCommGroup W] [Module (ZMod 2) W] [DecidableEq W]
 
 /-- **Lemma 25** of Green. If `A` is a set of `k ≥ 2` elements of an `𝔽₂`-vector space with
 `|A ∔ A| ≤ m`, then `r_{𝔽₂}(A) + 1 ≤ 4 m log₂ k / k`. -/
-theorem freimanDimOver_add_one_le_of_card_restrictedSumset_le {A : Finset W} (hA : 2 ≤ #A)
+lemma freimanDimOver_add_one_le_of_card_restrictedSumset_le {A : Finset W} (hA : 2 ≤ #A)
     {m : ℕ} (hm : #(restrictedSumset A) ≤ m) :
     (freimanDimOver (ZMod 2) A + 1 : ℝ) ≤ 4 * m * logb 2 #A / #A := by
   obtain ⟨⟨f, hf, hdim⟩, -⟩ := isGreatest_freimanDimOver (ZMod 2) (card_pos.1 (by grind : 0 < #A))
@@ -154,13 +152,10 @@ lemma ncard_isAddFreimanIso_le_of_card_restrictedSumset_le {A : Finset W} (hA : 
     ({B : Finset (Fin n → ZMod 2) | ∃ f : W → (Fin n → ZMod 2),
       IsAddFreimanIso 2 (A : Set W) (B : Set (Fin n → ZMod 2)) f}.ncard : ℝ) ≤
       ((2 : ℝ) ^ n) ^ (4 * m * logb 2 #A / #A) := by
-  have hle := ncard_isAddFreimanIso_le (ZMod 2) n (card_pos.1 (by grind) : A.Nonempty)
-  rw [Nat.card_zmod] at hle
-  refine (Nat.cast_le.2 hle).trans ?_
-  push_cast
-  rw [← rpow_natCast ((2 : ℝ) ^ n)]
-  push_cast
-  exact rpow_le_rpow_of_exponent_le (one_le_pow₀ one_le_two)
+  refine (Nat.cast_le.2 (ncard_isAddFreimanIso_le (ZMod 2) n (card_pos.1 (by grind)))).trans ?_
+  push_cast [Nat.card_zmod]
+  rw [← rpow_natCast]
+  exact_mod_cast rpow_le_rpow_of_exponent_le (one_le_pow₀ one_le_two)
     (freimanDimOver_add_one_le_of_card_restrictedSumset_le hA hm)
 
 end CountingSetsWithSmallSumset

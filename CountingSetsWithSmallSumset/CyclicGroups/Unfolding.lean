@@ -46,18 +46,23 @@ def zmodLift (A : Finset (ZMod N)) : Finset ℕ :=
 private lemma val_add_one_injective : Function.Injective fun a : ZMod N ↦ a.val + 1 :=
   (add_left_injective 1).comp (ZMod.val_injective N)
 
+/-- Distinct subsets of `ℤ_N` have distinct unfoldings. -/
 lemma zmodLift_injective : Function.Injective (zmodLift (N := N)) :=
   image_injective val_add_one_injective
 
+/-- The unfolding of `A` has as many elements as `A`. -/
 @[simp]
 lemma card_zmodLift (A : Finset (ZMod N)) : #(zmodLift A) = #A :=
   card_image_of_injective A val_add_one_injective
 
+/-- The unfolding of `A ⊆ ℤ_N` lies in `{1, …, N}`. -/
 lemma zmodLift_subset_Icc (A : Finset (ZMod N)) : zmodLift A ⊆ Icc 1 N := by
   intro x hx
   obtain ⟨a, -, rfl⟩ := mem_image.1 hx
   grind [ZMod.val_lt a]
 
+/-- Each element of the restricted sumset of the unfolding of `A` is `z.val + 2` or
+`z.val + 2 + N` for some `z` in the restricted sumset of `A`. -/
 lemma restrictedSumset_zmodLift_subset (A : Finset (ZMod N)) :
     restrictedSumset (zmodLift A) ⊆ (restrictedSumset A).image (fun z ↦ z.val + 2) ∪
       (restrictedSumset A).image (fun z ↦ z.val + 2 + N) := by
@@ -73,21 +78,21 @@ lemma restrictedSumset_zmodLift_subset (A : Finset (ZMod N)) :
 
 /-- The unfolding at most doubles the size of the restricted sumset. -/
 lemma card_restrictedSumset_zmodLift_le (A : Finset (ZMod N)) :
-    #(restrictedSumset (zmodLift A)) ≤ 2 * #(restrictedSumset A) :=
-  (card_le_card (restrictedSumset_zmodLift_subset A)).trans ((card_union_le _ _).trans
-    ((add_le_add card_image_le card_image_le).trans_eq (two_mul _).symm))
+    #(restrictedSumset (zmodLift A)) ≤ 2 * #(restrictedSumset A) := by
+  grw [card_le_card (restrictedSumset_zmodLift_subset A), card_union_le, card_image_le,
+    card_image_le, two_mul]
 
 /-- **Lemma 22** of Green. If `A ⊆ ℤ_N` is nonempty, then its unfolding has Freiman dimension at
 most `4 * |A ∔ A| / |A|`. -/
-theorem freimanDim_zmodLift_le {A : Finset (ZMod N)} (hA : A.Nonempty) :
+lemma freimanDim_zmodLift_le {A : Finset (ZMod N)} (hA : A.Nonempty) :
     (freimanDim (zmodLift A) : ℝ) ≤ 4 * #(restrictedSumset A) / #A := by
   have hr : (freimanDim (zmodLift A) : ℝ) + 1 ≤ #A := by
     exact_mod_cast card_zmodLift A ▸ freimanDim_add_one_le_card (S := zmodLift A) (hA.image _)
   have h21 := freimanDim_mul_le_card_restrictedSumset (zmodLift A)
   rw [card_zmodLift] at h21
+  rw [le_div_iff₀ (mod_cast hA.card_pos)]
   have h22 : (#(restrictedSumset (zmodLift A)) : ℝ) ≤ 2 * #(restrictedSumset A) :=
     mod_cast card_restrictedSumset_zmodLift_le A
-  rw [le_div_iff₀ (mod_cast hA.card_pos)]
   linarith [mul_le_mul_of_nonneg_left hr (Nat.cast_nonneg (α := ℝ) (freimanDim (zmodLift A)))]
 
 end CountingSetsWithSmallSumset

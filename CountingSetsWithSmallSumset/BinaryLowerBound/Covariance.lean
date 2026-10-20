@@ -43,17 +43,14 @@ private lemma mul_card_mul_two_pow_sub_one_le {n k l : ℕ} (hk : 2 * 2 ^ k ≤ 
     (hs : (#s : ℝ) ≤ 2 ^ (n * (2 * k - l))) :
     (n : ℝ) * 2 ^ (2 * (k ^ 2 + k)) * (#s * ((2 : ℝ) ^ (2 ^ l - 1) - 1)) ≤
       2 ^ (2 * (n * k)) / (k + 1) := by
-  have hnum : ((k + 1) * n * 2 ^ (2 * (k ^ 2 + k)) * 2 ^ (n * (2 * k - l)) * 2 ^ 2 ^ l : ℝ) ≤
-      2 ^ (2 * (n * k)) := by
-    exact_mod_cast succ_mul_mul_two_pow_mul_le hl₀ hl hk hkn
   rw [le_div_iff₀ (by positivity)]
   calc (n : ℝ) * 2 ^ (2 * (k ^ 2 + k)) * (#s * ((2 : ℝ) ^ (2 ^ l - 1) - 1)) * ((k : ℝ) + 1)
-      = ((k : ℝ) + 1) * n * 2 ^ (2 * (k ^ 2 + k)) * (#s * ((2 : ℝ) ^ (2 ^ l - 1) - 1)) := by ring
-    _ ≤ ((k : ℝ) + 1) * n * 2 ^ (2 * (k ^ 2 + k)) * (2 ^ (n * (2 * k - l)) * 2 ^ 2 ^ l) := by
+      = ((k : ℝ) + 1) * n * 2 ^ (2 * (k ^ 2 + k)) * #s * ((2 : ℝ) ^ (2 ^ l - 1) - 1) := by ring
+    _ ≤ ((k : ℝ) + 1) * n * 2 ^ (2 * (k ^ 2 + k)) * 2 ^ (n * (2 * k - l)) * 2 ^ 2 ^ l := by
       gcongr
       · linarith [one_le_pow₀ (one_le_two (α := ℝ)) (n := 2 ^ l - 1)]
       · linarith [pow_le_pow_right₀ (one_le_two (α := ℝ)) (Nat.sub_le (2 ^ l) 1)]
-    _ ≤ 2 ^ (2 * (n * k)) := by linarith
+    _ ≤ 2 ^ (2 * (n * k)) := by exact_mod_cast succ_mul_mul_two_pow_mul_le hl₀ hl hk hkn
 
 /-- The sum over the ordered pairs `(H, H')` of `k`-dimensional subspaces of `𝔽₂ⁿ` of the
 covariance terms `2 ^ (2 ^ dim (H ∩ H') - 1) - 1`, times `n * 2 ^ (2 * (k ^ 2 + k))`, is at most

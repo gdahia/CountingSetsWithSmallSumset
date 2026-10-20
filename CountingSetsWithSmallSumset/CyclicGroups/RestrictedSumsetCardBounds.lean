@@ -62,7 +62,7 @@ theorem card_restrictedSumsetCardSets_zmod_le {k : ℕ} (hk : 0 < k) (m : ℕ) :
     (fun A hA ↦ zmodLift_mem_boundedFreimanDimSets (m := m) hk hA) zmodLift_injective.injOn
     ((Icc 1 N).powerset.finite_toSet.subset fun _ ⟨hXN, _⟩ ↦ mem_powerset.2 hXN)
   rw [Set.ncard_coe_finset] at h
-  exact (Nat.cast_le.2 h).trans ((card_boundedFreimanDimSets N _ k hk).trans
+  exact (Nat.cast_le.2 h).trans ((card_boundedFreimanDimSets N _ hk).trans
     (mul_le_mul_of_nonneg_right (natCast_pow_floor_add_one_le k m) (by positivity)))
 
 variable (N) in
@@ -82,13 +82,12 @@ theorem card_restrictedSumsetCardSets_zmod_le_of_le_rpow {k m : ℕ} (hk : 2 ^ 9
     rintro _ ⟨A, hA, rfl⟩
     obtain ⟨hAk, hAm⟩ := mem_restrictedSumsetCardSets.1 hA
     exact ⟨by simp [hAk], hAm ▸ card_restrictedSumset_zmodLift_le A⟩
-  have h := ncard_le_card_mul_pow_of_coversFreimanIsoClasses (hcover.subset hsub)
-    (n := N) (r := ⌊4 * (m : ℝ) / k⌋₊) (by
-      rintro _ ⟨A, hA, rfl⟩
-      obtain ⟨hXn, hXk, hXr⟩ := zmodLift_mem_boundedFreimanDimSets hk₀ hA
-      exact ⟨card_pos.1 (hXk ▸ hk₀), hXn, hXr⟩)
-  rw [Set.ncard_image_of_injective _ zmodLift_injective, Set.ncard_coe_finset] at h
-  refine (Nat.cast_le.2 h).trans ?_
+  rw [← Set.ncard_coe_finset, ← Set.ncard_image_of_injective _ zmodLift_injective]
+  refine (Nat.cast_le.2 (ncard_le_card_mul_pow_of_coversFreimanIsoClasses (hcover.subset hsub)
+    (n := N) (r := ⌊4 * (m : ℝ) / k⌋₊) ?_)).trans ?_
+  · rintro _ ⟨A, hA, rfl⟩
+    obtain ⟨hXn, hXk, hXr⟩ := zmodLift_mem_boundedFreimanDimSets hk₀ hA
+    exact ⟨card_pos.1 (hXk ▸ hk₀), hXn, hXr⟩
   rw [Nat.cast_mul, Nat.cast_pow]
   refine (mul_le_mul hcard (natCast_pow_floor_add_one_le k m) (by positivity)
     (by positivity)).trans_eq ?_

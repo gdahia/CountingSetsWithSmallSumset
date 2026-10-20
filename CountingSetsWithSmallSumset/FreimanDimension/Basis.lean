@@ -34,8 +34,8 @@ with small sumset, and the clique number of random Cayley graphs*.
 * `exists_isFreimanBasis`: `A` has a Freiman basis of `r_F(A) + 1` points.
 * `IsFreimanBasis.bijective`: the homomorphisms `A → M` take any values at a Freiman basis, each
   exactly once.
-* `IsFreimanBasis.exists_sum_eq_one`: the value of a homomorphism at `x ∈ A` is a fixed affine
-  combination of its values at a Freiman basis.
+* `IsFreimanBasis.exists_sum_eq_one_and_eq_sum_smul`: the value of a homomorphism at `x ∈ A` is
+  a fixed affine combination of its values at a Freiman basis.
 * `IsFreimanBasis.isAddFreimanIso_of_affineIndependent`: a homomorphism with affinely independent
   values at a Freiman basis is a Freiman isomorphism onto its image.
 * `exists_freimanBasis_of_module`: Lemma 13 of Green.
@@ -94,11 +94,11 @@ lemma injective (ha : IsFreimanBasis F A a) (M : Type*) [AddCommGroup M] [Module
   ext x
   rw [← sub_eq_zero, ← forall_dual_apply_eq_zero_iff F]
   intro ℓ
-  have hmem := comp_mem_freimanHomSpace (sub_mem φ.prop φ'.prop) ℓ
-  have hzero : (⟨_, hmem⟩ : freimanHomSpace F F A) = 0 := by
+  have hzero : (⟨_, comp_mem_freimanHomSpace (sub_mem φ.prop φ'.prop) ℓ⟩ :
+      freimanHomSpace F F A) = 0 := by
     apply Function.Bijective.injective ha
     ext i
-    simp [(congrFun h i : (φ : A → M) (a i) = (φ' : A → M) (a i))]
+    simpa [sub_eq_zero] using congrArg ℓ (congrFun h i)
   simpa using congrFun (congrArg Subtype.val hzero) x
 
 private lemma eq_sum_coord (ha : IsFreimanBasis F A a) {φ : A → M}
@@ -109,7 +109,7 @@ private lemma eq_sum_coord (ha : IsFreimanBasis F A a) {φ : A → M}
 
 /-- **Lemma 13 (i)** of Green. For every `F`-module `M`, every vector of `M^k` is
 `(φ(a₁), …, φ(a_k))` for exactly one `φ ∈ Hom₂(A, M)`. -/
-theorem bijective (ha : IsFreimanBasis F A a) (M : Type*) [AddCommGroup M] [Module F M] :
+lemma bijective (ha : IsFreimanBasis F A a) (M : Type*) [AddCommGroup M] [Module F M] :
     Function.Bijective fun φ : freimanHomSpace F M A ↦ fun i ↦ (φ : A → M) (a i) := by
   refine ⟨ha.injective M, ?_⟩
   intro w
@@ -122,7 +122,7 @@ private lemma sum_coord (ha : IsFreimanBasis F A a) (x : A) :
 /-- **Lemma 13 (ii)** of Green. For every `x ∈ A` there are `λ₁, …, λ_k` with sum `1` such that
 `φ(x) = λ₁ φ(a₁) + ⋯ + λ_k φ(a_k)` for every Freiman homomorphism `φ` from `A` to any `F`-module.
 -/
-theorem exists_sum_eq_one (ha : IsFreimanBasis F A a) (x : A) :
+lemma exists_sum_eq_one_and_eq_sum_smul (ha : IsFreimanBasis F A a) (x : A) :
     ∃ c : Fin k → F, ∑ i, c i = 1 ∧ ∀ (M : Type*) [AddCommGroup M] [Module F M],
       ∀ φ ∈ freimanHomSpace F M A, φ x = ∑ i, c i • φ (a i) := by
   refine ⟨fun i ↦ (ha.coord i : A → F) x, ha.sum_coord x, ?_⟩
@@ -165,7 +165,7 @@ lemma add_eq_add_of_affineIndependent (ha : IsFreimanBasis F A a) {V : Type*} [A
 /-- **Lemma 13 (i)** of Green, second part. Let `g` be a Freiman isomorphism from `A` into an
 `F`-module. If `f` is a Freiman homomorphism on `A` whose values at a Freiman basis are affinely
 independent, then `f` is a Freiman isomorphism from `A` onto its image. -/
-theorem isAddFreimanIso_of_affineIndependent (ha : IsFreimanBasis F A a) {V : Type*}
+lemma isAddFreimanIso_of_affineIndependent (ha : IsFreimanBasis F A a) {V : Type*}
     [AddCommGroup V] [Module F V] {g : G → V} (hg : IsAddFreimanIso 2 (A : Set G) (g '' A) g)
     {f : G → M} (hf : IsAddFreimanHom 2 (A : Set G) Set.univ f)
     (hind : AffineIndependent F fun i ↦ f (a i)) :
@@ -193,7 +193,7 @@ of `A`;
 (ii) for every `x ∈ A` there are `λ₁, …, λ_{r+1}` with sum `1` such that
 `φ(x) = λ₁ φ(a₁) + ⋯ + λ_{r+1} φ(a_{r+1})` for every Freiman homomorphism `φ` from `A` to any
 `F`-module. -/
-theorem exists_freimanBasis_of_module {W : Type*} [AddCommGroup W] [Module F W] {A : Finset W}
+lemma exists_freimanBasis_of_module {W : Type*} [AddCommGroup W] [Module F W] {A : Finset W}
     (hA : A.Nonempty) :
     ∃ a : Fin (freimanDimOver F A + 1) → A,
       (∀ (M : Type*) [AddCommGroup M] [Module F M],
@@ -204,7 +204,7 @@ theorem exists_freimanBasis_of_module {W : Type*} [AddCommGroup W] [Module F W] 
         ∀ (M : Type*) [AddCommGroup M] [Module F M], ∀ φ ∈ freimanHomSpace F M A,
           φ x = ∑ i, c i • φ (a i) := by
   obtain ⟨a, ha⟩ := exists_isFreimanBasis F hA
-  refine ⟨a, ?_, ha.exists_sum_eq_one⟩
+  refine ⟨a, ?_, ha.exists_sum_eq_one_and_eq_sum_smul⟩
   intro M _ _
   refine ⟨ha.bijective M, ?_⟩
   intro φ hφ hind x y z w h
@@ -217,9 +217,9 @@ lemma finrank_freimanHomSpace (M : Type*) [AddCommGroup M] [Module F M] [FiniteD
     {A : Finset G} (hA : A.Nonempty) :
     finrank F (freimanHomSpace F M A) = (freimanDimOver F A + 1) * finrank F M := by
   obtain ⟨a, ha⟩ := exists_isFreimanBasis F hA
-  let E : freimanHomSpace F M A →ₗ[F] (Fin (freimanDimOver F A + 1) → M) :=
-    LinearMap.pi fun i ↦ (LinearMap.proj (a i)).comp (freimanHomSpace F M A).subtype
-  rw [(LinearEquiv.ofBijective E (ha.bijective M)).finrank_eq, finrank_pi_fintype]
+  rw [(LinearEquiv.ofBijective (LinearMap.pi fun i ↦
+      (LinearMap.proj (a i)).comp (freimanHomSpace F M A).subtype) (ha.bijective M)).finrank_eq,
+    finrank_pi_fintype]
   simp
 
 variable (F) in

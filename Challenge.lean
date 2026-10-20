@@ -5,15 +5,7 @@ Authors: Gabriel Dahia
 -/
 module
 
-public import Mathlib.Analysis.SpecialFunctions.Log.Base
-public import Mathlib.Analysis.SpecialFunctions.Pow.Real
-public import Mathlib.Combinatorics.Additive.FreimanHom
-public import Mathlib.Combinatorics.SimpleGraph.Cayley
-public import Mathlib.Combinatorics.SimpleGraph.Clique
-public import Mathlib.Data.Fintype.Powerset
-public import Mathlib.Data.ZMod.Defs
-public import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Basic
-public import Mathlib.LinearAlgebra.Dimension.Finrank
+public import Mathlib
 
 /-!
 # Counting sets with small sumset
@@ -21,14 +13,19 @@ public import Mathlib.LinearAlgebra.Dimension.Finrank
 Theorems 7, 8 and 9, Corollary 14 and Propositions 18, 19, 23 and 26 of Green, *Counting sets
 with small sumset, and the clique number of random Cayley graphs*, numbered as in
 arXiv:math/0304183v2. Statements about all sufficiently large sets are proved above an explicit
-threshold, and statements about almost all sets are proved as bounds on the number of exceptional
-sets. The proofs are in `Solution.lean`.
+threshold. Theorems 7 and 9 are stated as limits, as in the paper, and as bounds on the number of
+exceptional sets. The proofs are in `Solution.lean`.
 -/
 
 @[expose] public section
 
 open Finset Real SimpleGraph Filter Topology
 open scoped Pointwise
+
+-- A function space `ι → k` is an affine space over itself through `Pi.instAddTorsor` and
+-- `AddGroup.instAddTorsor`, the instances that the library and SumOfSetsInSeveralDimensions use.
+-- Mathlib has other, equal instances, through function spaces and through normed groups.
+attribute [-instance] Finset.instAddTorsorForall SeminormedAddCommGroup.toNormedAddTorsor
 
 namespace Finset
 
@@ -126,6 +123,14 @@ theorem card_cliqueNum_cayleySumGraph_gt_le' {N : ℕ} [NeZero N] (hN : 2 ^ 9000
       ℝ) ≤ 2 ^ N / N :=
   sorry
 
+/-- **Theorem 7** of Green. The proportion of the subsets `A ⊆ ℤ/Nℤ` whose Cayley sum graph has
+clique number at most `160 * log₂ N` tends to `1`. -/
+theorem tendsto_card_cliqueNum_cayleySumGraph_le' :
+    Tendsto (fun N : ℕ+ ↦ (#{A : Finset (ZMod N) |
+      (cayleySumGraph (A : Set (ZMod N))).cliqueNum ≤ 160 * logb 2 N} : ℝ) / 2 ^ (N : ℕ))
+      atTop (𝓝 1) :=
+  sorry
+
 /-- **Theorem 8** of Green. If `log₂ N ≥ 2 ^ 9000`, some subset `A ⊆ ℤ/Nℤ` has a Cayley sum graph
 with clique number and independence number at most `160 * log₂ N`. -/
 theorem exists_cliqueNum_le_and_indepNum_le' {N : ℕ} [NeZero N] (hN : 2 ^ 9000 ≤ logb 2 N) :
@@ -175,7 +180,7 @@ theorem exists_coversFreimanIsoClasses_card_restrictedSumset_le' (F W : Type*) [
     [AddCommGroup W] [Module F W] [DecidableEq W] {t m : ℕ} (ht : 2 ^ 9000 ≤ t)
     (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) :
     ∃ representatives : Finset (Finset W),
-      (∀ A : Finset W, #A = t → #(restrictedSumset A) ≤ m →
+      (∀ A : Finset W, #A = t ∧ #(restrictedSumset A) ≤ m →
         ∃ B ∈ representatives, ∃ f : W → W, IsAddFreimanIso 2 (A : Set W) (B : Set W) f) ∧
       #representatives ≤ (exp 1 * m / t) ^ t * exp (t ^ ((31 : ℝ) / 32)) :=
   sorry

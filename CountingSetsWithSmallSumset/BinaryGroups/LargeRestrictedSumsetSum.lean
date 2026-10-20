@@ -38,6 +38,8 @@ namespace CountingSetsWithSmallSumset
 
 open Finset Real
 
+/-- For `j, m > 0`, `j * log (e * m / j) ≤ 3 * log 2 * j + m / 8`. This is
+`log (e * c) ≤ 3 * log 2 + c / 8` for `c = m / j`. -/
 private lemma mul_log_exp_one_mul_div_le {j m : ℝ} (hj : 0 < j) (hm : 0 < m) :
     j * log (exp 1 * m / j) ≤ 3 * log 2 * j + m / 8 := by
   have h : exp 1 * m / j = 2 ^ 3 * exp 1 * (m / (8 * j)) := by
@@ -52,10 +54,8 @@ private lemma mul_log_exp_one_mul_div_le {j m : ℝ} (hj : 0 < j) (hm : 0 < m) :
 `40 * n * log j ≤ j`. -/
 private lemma four_mul_logb_div_mul_le {j m n : ℝ} (hj : 0 < j) (hm : 0 ≤ m)
     (hnj : 40 * (n * log j) ≤ j) : 4 * m * logb 2 j / j * (n * log 2) ≤ m / 10 := by
-  have h : 4 * m * logb 2 j / j * (n * log 2) = 4 * m * (n * log j) / j := by
-    rw [logb]
-    field_simp [(log_pos one_lt_two).ne']
-  rw [h, div_le_iff₀ hj]
+  rw [logb]
+  field_simp [(log_pos one_lt_two).ne']
   nlinarith [mul_le_mul_of_nonneg_left hnj hm]
 
 /-- The logarithm of the bound of Proposition 26 (i), divided by `2 ^ m`, is at most
@@ -84,6 +84,8 @@ private lemma exponent_le_of_rpow_lt {j m n : ℝ} (hj : 0 < j) (hu : 1000 ≤ j
 
 variable {n : ℕ}
 
+/-- If `j ≥ 2 ^ 9000`, `40 * n * log j ≤ j` and `m ≥ 7 * j`, then
+`|S_j^m(𝔽₂ⁿ)| / 2 ^ m ≤ exp (-m * log 2 / 5)`. -/
 private lemma card_restrictedSumsetCardSets_div_two_pow_le_exp {j m : ℕ} (hj : 2 ^ 9000 ≤ j)
     (hnj : 40 * (n * log j) ≤ j) (hjm : 7 * j ≤ m) :
     (#(restrictedSumsetCardSets (Fin n → ZMod 2) j m) : ℝ) / 2 ^ m ≤
@@ -106,14 +108,16 @@ private lemma card_restrictedSumsetCardSets_div_two_pow_le_exp {j m : ℕ} (hj :
     push_cast
     linarith [exponent_le_of_rpow_lt hj₀ (thousand_le_rpow_inv_sixty hj) (not_le.1 hsmall) hnj]
 
+/-- If `n ≥ 2 ^ 9000`, then `9000 * log 2 ≤ log n`. -/
 private lemma nineThousand_mul_log_two_le_log (hn : 2 ^ 9000 ≤ n) : 9000 * log 2 ≤ log n := by
-  have h := log_le_log (by positivity) (by exact_mod_cast hn : (2 : ℝ) ^ 9000 ≤ n)
-  rwa [log_pow, Nat.cast_ofNat] at h
+  simpa using log_le_log (by positivity) (by exact_mod_cast hn : (2 : ℝ) ^ 9000 ≤ n)
 
+/-- The inequality `38 * n * log₂ n ≤ j` in natural logarithms. -/
 private lemma mul_log_le_mul_log_two {j : ℕ} (hjn : 38 * n * logb 2 n ≤ j) :
     38 * n * log n ≤ j * log 2 := by
   rwa [logb, ← mul_div_assoc, div_le_iff₀ (log_pos one_lt_two)] at hjn
 
+/-- If `n ≥ 2 ^ 9000` and `j ≥ 38 * n * log₂ n`, then `1000 * n ≤ j`. -/
 private lemma thousand_mul_le {j : ℕ} (hn : 2 ^ 9000 ≤ n) (hjn : 38 * n * logb 2 n ≤ j) :
     1000 * n ≤ (j : ℝ) := by
   nlinarith [mul_log_le_mul_log_two hjn, nineThousand_mul_log_two_le_log hn,
@@ -121,6 +125,7 @@ private lemma thousand_mul_le {j : ℕ} (hn : 2 ^ 9000 ≤ n) (hjn : 38 * n * lo
     mul_le_mul_of_nonneg_left log_two_lt_d9.le (Nat.cast_nonneg j),
     mul_le_mul_of_nonneg_left log_two_gt_d9.le (Nat.cast_nonneg n)]
 
+/-- If `n ≥ 2 ^ 9000` and `j ≥ 38 * n * log₂ n`, then `n ≤ j`. -/
 private lemma le_of_le_mul_logb {j : ℕ} (hn : 2 ^ 9000 ≤ n) (hjn : 38 * n * logb 2 n ≤ j) :
     n ≤ j := by
   refine (Nat.cast_le (α := ℝ)).1 ?_
@@ -168,9 +173,8 @@ lemma sum_card_restrictedSumsetCardSets_pi_zmod_two_div_two_pow_le {j : ℕ} (hn
     exact card_restrictedSumsetCardSets_pi_zmod_two_div_two_pow_le hn hjn hjm
   have hj : 1 ≤ j := (Nat.one_le_two_pow.trans hn).trans (le_of_le_mul_logb hn hjn)
   rw [sum_const, Nat.card_Icc, nsmul_eq_mul]
-  refine (mul_le_mul_of_nonneg_right (Nat.cast_le.2 (tsub_le_iff_right.2
-    (Nat.add_le_add_left (hj.trans (Nat.le_mul_of_pos_left j (by norm_num))) _) :
-    2 ^ n + 1 - 7 * j ≤ 2 ^ n)) (by positivity)).trans_eq ?_
+  refine (mul_le_mul_of_nonneg_right (Nat.cast_le.2 (by grind : 2 ^ n + 1 - 7 * j ≤ 2 ^ n))
+    (by positivity)).trans_eq ?_
   push_cast
   field_simp
 

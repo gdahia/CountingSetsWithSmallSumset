@@ -55,14 +55,13 @@ lemma finrank_vectorSpan_image_le_freimanDimOver {A : Finset G} {f : G → V}
   obtain ⟨a, ha⟩ := exists_isFreimanBasis F hA
   have hsub : f '' A ⊆ affineSpan F (Set.range fun i ↦ f (a i)) := by
     rintro _ ⟨x, hx, rfl⟩
-    obtain ⟨c, hc, hφ⟩ := ha.exists_sum_eq_one ⟨x, hx⟩
+    obtain ⟨c, hc, hφ⟩ := ha.exists_sum_eq_one_and_eq_sum_smul ⟨x, hx⟩
     rw [(hφ V _ (mem_freimanHomSpace_of_isAddFreimanHom F hf) : f x = ∑ i, c i • f (a i)),
       ← Finset.affineCombination_eq_linear_combination _ _ _ hc]
     exact affineCombination_mem_affineSpan hc _
-  rw [← direction_affineSpan]
-  refine (Submodule.finrank_mono (AffineSubspace.direction_le (affineSpan_le.2 hsub))).trans ?_
-  rw [direction_affineSpan]
-  exact finrank_vectorSpan_range_le F _ (Fintype.card_fin _)
+  refine (Submodule.finrank_mono ?_).trans
+    (finrank_vectorSpan_range_le F (fun i ↦ f (a i)) (Fintype.card_fin _))
+  simpa [direction_affineSpan] using AffineSubspace.direction_le (affineSpan_le.2 hsub)
 
 /-- A finite set `A` in an `F`-vector space has affine dimension at most `r_F(A)`. -/
 lemma finrank_vectorSpan_le_freimanDimOver (A : Finset W) :
@@ -98,9 +97,7 @@ lemma exists_isAddFreimanIso_finrank_vectorSpan_eq {A : Finset G} (hA : A.Nonemp
   let f : G → Fin (freimanDimOver F A) → F := fun x ↦
     if h : x ∈ A then (φ : A → Fin (freimanDimOver F A) → F) ⟨x, h⟩ else 0
   have hfφ : (fun x : A ↦ f x) = φ := funext fun x ↦ dite_eq_left x.prop
-  have hfa (i) : f (a i) = w i := by
-    rw [← congrFun hφ i]
-    exact dite_eq_left (a i).prop
+  have hfa (i) : f (a i) = w i := (dite_eq_left (a i).prop).trans (congrFun hφ i)
   have hind : AffineIndependent F fun i ↦ f (a i) := by
     simpa [hfa] using affineIndependent_cons_zero_single F (freimanDimOver F A)
   refine ⟨f, ha.isAddFreimanIso_of_affineIndependent hg
@@ -114,7 +111,7 @@ lemma exists_isAddFreimanIso_finrank_vectorSpan_eq {A : Finset G} (hA : A.Nonemp
 /-- **Corollary 14** of Green, for a set whose additive relations are those of a subset of an
 `F`-vector space: `r_F(A)` is the largest `d` such that `A` is Freiman isomorphic to a subset of
 `F^d` of affine dimension `d`. -/
-theorem isGreatest_freimanDimOver_of_isAddFreimanIso {A : Finset G} (hA : A.Nonempty)
+lemma isGreatest_freimanDimOver_of_isAddFreimanIso {A : Finset G} (hA : A.Nonempty)
     {g : G → V} (hg : IsAddFreimanIso 2 (A : Set G) (g '' A) g) :
     IsGreatest {d | ∃ f : G → (Fin d → F), IsAddFreimanIso 2 (A : Set G) (f '' A) f ∧
       finrank F (vectorSpan F (f '' A)) = d} (freimanDimOver F A) := by

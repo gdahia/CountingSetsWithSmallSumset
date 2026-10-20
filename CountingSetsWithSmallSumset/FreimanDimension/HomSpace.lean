@@ -127,16 +127,13 @@ lemma freimanDimOver_le_card_sub_one (A : Finset G) : freimanDimOver F A ≤ #A 
 lemma finrank_freimanHomSpace_le_of_isAddFreimanHom {A : Finset G} {B : Finset H} {f : G → H}
     (hf : IsAddFreimanHom 2 (A : Set G) B f) (hsurj : Set.SurjOn f A B) :
     finrank F (freimanHomSpace F F B) ≤ finrank F (freimanHomSpace F F A) := by
-  let g : A → B := fun a ↦ ⟨f a, hf.mapsTo a.prop⟩
-  have hg : Function.Surjective g := by
-    rintro ⟨b, hb⟩
-    obtain ⟨a, ha, rfl⟩ := hsurj hb
-    exact ⟨⟨a, ha⟩, rfl⟩
-  refine LinearMap.finrank_le_finrank_of_injective (f := (LinearMap.funLeft F F g).restrict ?_) ?_
+  refine LinearMap.finrank_le_finrank_of_injective
+    (f := (LinearMap.funLeft F F (hf.mapsTo.restrict f A B)).restrict ?_) ?_
   · intro φ hφ a b c d h
     exact hφ _ _ _ _ (hf.add_eq_add a.prop b.prop c.prop d.prop h)
   · intro φ ψ h
-    exact Subtype.ext (hg.injective_comp_right (congrArg Subtype.val h))
+    exact Subtype.ext ((hf.mapsTo.restrict_surjective_iff.2 hsurj).injective_comp_right
+      (congrArg Subtype.val h))
 
 /-- The Freiman dimension is invariant under Freiman isomorphisms of order `2`. -/
 lemma freimanDimOver_eq_of_isAddFreimanIso {A : Finset G} {B : Finset H} {f : G → H}

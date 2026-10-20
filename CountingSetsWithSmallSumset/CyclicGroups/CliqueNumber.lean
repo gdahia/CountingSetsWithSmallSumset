@@ -7,6 +7,7 @@ module
 
 public import CountingSetsWithSmallSumset.CayleySumGraph
 public import Mathlib.Analysis.SpecialFunctions.Log.Base
+import CountingSetsWithSmallSumset.AlmostAllSets
 import CountingSetsWithSmallSumset.CliqueCount
 import CountingSetsWithSmallSumset.CyclicGroups.LargeRestrictedSumsetSum
 
@@ -17,25 +18,25 @@ This file proves Theorem 7 of Green, *Counting sets with small sumset, and the c
 random Cayley graphs*: at most `2 ^ N / N` sets `A ⊆ ℤ_N` have a Cayley sum graph `G_A` with
 clique number greater than `160 * log₂ N`. The number of such `A` is at most `2 ^ N` times the sum
 of `|S_j^m(ℤ_N)| / 2 ^ m` over `20 * log₂ N < j ≤ N` and `7 * j ≤ m ≤ N`. Each inner sum is at
-most `N ^ (-2)`. The paper states that the clique number is almost surely at most `160 * log₂ N`;
-the bound `2 ^ N / N` on the number of exceptions is an explicit form of this, for
-`log₂ N ≥ 2 ^ 9000`.
+most `N ^ (-2)`. Hence the proportion of the sets `A ⊆ ℤ_N` with clique number at most
+`160 * log₂ N` tends to `1`, which is the statement of the paper.
 
 ## Main statements
 
-* `card_cliqueNum_cayleySumGraph_gt_le`: Theorem 7 of Green.
+* `card_cliqueNum_cayleySumGraph_gt_le`: Theorem 7 of Green, explicit form.
+* `tendsto_card_cliqueNum_cayleySumGraph_le`: Theorem 7 of Green.
 -/
 
 @[expose] public section
 
 namespace CountingSetsWithSmallSumset
 
-open Finset Real SimpleGraph
+open Finset Real SimpleGraph Filter Topology
 
 variable {N : ℕ} [NeZero N]
 
-/-- **Theorem 7** of Green. If `log₂ N ≥ 2 ^ 9000`, then at most `2 ^ N / N` sets `A ⊆ ℤ_N` have
-a Cayley sum graph with clique number greater than `160 * log₂ N`. -/
+/-- **Theorem 7** of Green, explicit form. If `log₂ N ≥ 2 ^ 9000`, then at most `2 ^ N / N` sets
+`A ⊆ ℤ_N` have a Cayley sum graph with clique number greater than `160 * log₂ N`. -/
 theorem card_cliqueNum_cayleySumGraph_gt_le (hN : 2 ^ 9000 ≤ logb 2 N) :
     (#{A : Finset (ZMod N) | 160 * logb 2 N < (cayleySumGraph (A : Set (ZMod N))).cliqueNum} :
       ℝ) ≤ 2 ^ N / N := by
@@ -56,5 +57,25 @@ theorem card_cliqueNum_cayleySumGraph_gt_le (hN : 2 ^ 9000 ≤ logb 2 N) :
       ((card_filter_le _ _).trans (by simp : #(Icc 1 N) ≤ N))) (by positivity))
         (by positivity)).trans_eq ?_
     field_simp
+
+private lemma two_pow_le_logb_of_two_pow_two_pow_le {x : ℝ} (hx : 2 ^ 2 ^ 9000 ≤ x) :
+    2 ^ 9000 ≤ logb 2 x := by
+  rw [le_logb_iff_rpow_le one_lt_two ((pow_pos two_pos _).trans_le hx)]
+  rwa [← rpow_natCast, Nat.cast_pow, Nat.cast_ofNat] at hx
+
+/-- **Theorem 7** of Green. The proportion of the sets `A ⊆ ℤ_N` whose Cayley sum graph has clique
+number at most `160 * log₂ N` tends to `1`. -/
+theorem tendsto_card_cliqueNum_cayleySumGraph_le :
+    Tendsto (fun N : ℕ+ ↦ (#{A : Finset (ZMod N) |
+      (cayleySumGraph (A : Set (ZMod N))).cliqueNum ≤ 160 * logb 2 N} : ℝ) / 2 ^ (N : ℕ))
+      atTop (𝓝 1) := by
+  refine tendsto_card_filter_div_two_pow_of_card_filter_not_le (fun N : ℕ+ ↦ ZMod.card N) _
+    (ε := fun N : ℕ+ ↦ ((N : ℕ) : ℝ)⁻¹)
+    (tendsto_inv_atTop_nhds_zero_nat.comp tendsto_PNat_val_atTop_atTop) ?_
+  filter_upwards [(tendsto_natCast_atTop_atTop.comp
+    tendsto_PNat_val_atTop_atTop).eventually_ge_atTop ((2 : ℝ) ^ 2 ^ 9000)] with N hN
+  simp only [not_le]
+  exact (card_cliqueNum_cayleySumGraph_gt_le (two_pow_le_logb_of_two_pow_two_pow_le hN)).trans_eq
+    (by ring)
 
 end CountingSetsWithSmallSumset

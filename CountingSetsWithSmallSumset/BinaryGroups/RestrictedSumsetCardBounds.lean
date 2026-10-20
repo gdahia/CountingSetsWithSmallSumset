@@ -42,16 +42,14 @@ private lemma card_le_of_forall_freimanIsomorphic {k m : ℕ} (hk : 2 ≤ k)
     {B : Finset (Fin n → ZMod 2)} (hB : ∀ A ∈ s, FreimanIsomorphic 2 A B) :
     (#s : ℝ) ≤ ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) := by
   obtain rfl | ⟨A₀, hA₀⟩ := s.eq_empty_or_nonempty
-  · simpa using by positivity
-  obtain ⟨hA₀k, hA₀m⟩ := mem_restrictedSumsetCardSets.1 (hs hA₀)
+  · rw [card_empty, Nat.cast_zero]
+    positivity
+  obtain ⟨rfl, hA₀m⟩ := mem_restrictedSumsetCardSets.1 (hs hA₀)
   rw [← Set.ncard_coe_finset]
-  refine ((Nat.cast_le (α := ℝ)).2 (Set.ncard_le_ncard (t := {A : Finset (Fin n → ZMod 2) |
-    ∃ f : (Fin n → ZMod 2) → Fin n → ZMod 2,
-      IsAddFreimanIso 2 (A₀ : Set (Fin n → ZMod 2)) (A : Set (Fin n → ZMod 2)) f}) ?_)).trans ?_
-  · intro A hA
-    exact (hB A₀ hA₀).trans (hB A hA).symm
-  · rw [← hA₀k]
-    exact ncard_isAddFreimanIso_le_of_card_restrictedSumset_le (hA₀k ▸ hk) hA₀m.le n
+  refine (Nat.cast_le.2 (Set.ncard_le_ncard ?_ (Set.toFinite _))).trans
+    (ncard_isAddFreimanIso_le_of_card_restrictedSumset_le hk hA₀m.le n)
+  intro A hA
+  exact (hB A₀ hA₀).trans (hB A hA).symm
 
 /-- If every set of `k` elements of `𝔽₂ⁿ` with at most `m` elements in its restricted sumset is
 Freiman isomorphic to a member of `representatives`, then
@@ -62,12 +60,8 @@ private lemma card_restrictedSumsetCardSets_le_card_mul {k m : ℕ} (hk : 2 ≤ 
       {A : Finset (Fin n → ZMod 2) | #A = k ∧ #(restrictedSumset A) ≤ m} representatives) :
     (#(restrictedSumsetCardSets (Fin n → ZMod 2) k m) : ℝ) ≤
       #representatives * ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) := by
-  have hcover' : ∀ A ∈ restrictedSumsetCardSets (Fin n → ZMod 2) k m,
-      ∃ B ∈ representatives, FreimanIsomorphic 2 A B := by
-    intro A hA
-    obtain ⟨hAk, hAm⟩ := mem_restrictedSumsetCardSets.1 hA
-    exact hcover A ⟨hAk, hAm.le⟩
-  choose! r hr hrA using hcover'
+  choose! r hr hrA using fun A (hA : A ∈ restrictedSumsetCardSets (Fin n → ZMod 2) k m) ↦
+    hcover A (by grind [mem_restrictedSumsetCardSets])
   rw [card_eq_sum_card_fiberwise hr, Nat.cast_sum, ← nsmul_eq_mul]
   refine sum_le_card_nsmul _ _ _ ?_
   intro B _

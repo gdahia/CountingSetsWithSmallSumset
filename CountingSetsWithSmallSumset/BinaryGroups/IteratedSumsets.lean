@@ -69,17 +69,14 @@ lemma injOn_sum_powersetCard {X : Finset V} (hX : AffineIndependent F ((↑) : X
     Set.InjOn (fun s ↦ ∑ x ∈ s, x) (X.powersetCard h : Set (Finset V)) := by
   classical
   intro s hs t ht hst
-  rw [mem_coe, mem_powersetCard] at hs ht
-  obtain ⟨hsX, rfl⟩ := hs
-  obtain ⟨htX, hts⟩ := ht
+  obtain ⟨hsX, rfl⟩ := mem_powersetCard.1 hs
+  obtain ⟨htX, hts⟩ := mem_powersetCard.1 ht
   have hw := hX.eq_of_sum_eq_sum_subtype (w₁ := fun x ↦ if x ∈ s then (1 : F) else 0)
     (w₂ := fun x ↦ if x ∈ t then (1 : F) else 0)
     (by simp [inter_eq_right.2 hsX, inter_eq_right.2 htX, hts])
     (by simpa [ite_smul, sum_ite_mem, inter_eq_right.2 hsX, inter_eq_right.2 htX] using hst)
   ext x
-  by_cases hx : x ∈ X
-  · grind [hw x hx]
-  · exact iff_of_false (fun h ↦ hx (hsX h)) (fun h ↦ hx (htX h))
+  grind [hw x]
 
 variable [DecidableEq V]
 
@@ -89,8 +86,7 @@ lemma choose_card_le_card_nsmul {A X : Finset V} (hXA : X ⊆ A)
   rw [← card_powersetCard]
   refine card_le_card_of_injOn _ ?_ (injOn_sum_powersetCard hX h)
   intro s hs
-  rw [mem_coe, mem_powersetCard] at hs
-  obtain ⟨hsX, rfl⟩ := hs
+  obtain ⟨hsX, rfl⟩ := mem_powersetCard.1 hs
   exact sum_mem_nsmul (hsX.trans hXA)
 
 /-- If `X ⊆ A` is affinely independent and `h ≤ |X|`, then
@@ -98,11 +94,10 @@ lemma choose_card_le_card_nsmul {A X : Finset V} (hXA : X ⊆ A)
 lemma card_pow_le_of_affineIndependent {A X : Finset V} (hA : A.Nonempty) (hXA : X ⊆ A)
     (hX : AffineIndependent F ((↑) : X → V)) {h : ℕ} (hh : h ≤ #X) :
     (#X : ℝ) ^ h ≤ h ^ h * ((#(A + A) / #A) ^ h * #A) := by
-  have hP : (#(h • A) : ℝ) ≤ (#(A + A) / #A) ^ h * #A := by
-    simpa using (NNRat.cast_le (K := ℝ)).2 (pluennecke_ruzsa_inequality_nsmul_add hA A h)
-  have hX' : (#X ^ h : ℝ) ≤ h ^ h * #(h • A) := by
-    exact_mod_cast (pow_le_pow_mul_choose hh).trans
+  refine le_trans (b := (h : ℝ) ^ h * #(h • A)) ?_ ?_
+  · exact_mod_cast (pow_le_pow_mul_choose hh).trans
       (Nat.mul_le_mul_left _ (choose_card_le_card_nsmul hXA hX h))
-  exact hX'.trans (by gcongr)
+  · gcongr
+    simpa using (NNRat.cast_le (K := ℝ)).2 (pluennecke_ruzsa_inequality_nsmul_add hA A h)
 
 end CountingSetsWithSmallSumset

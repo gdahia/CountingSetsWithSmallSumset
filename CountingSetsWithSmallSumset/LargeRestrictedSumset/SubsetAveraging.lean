@@ -35,6 +35,8 @@ open Finset
 
 variable {G : Type*} [DecidableEq G] [AddCommGroup G]
 
+/-- If `B ⊆ A`, then the non-degenerate summing quadruples of `B` are those of `A` whose entries
+lie in `B`. -/
 lemma nondegenerateSummingQuadruples_eq_filter {A B : Finset G} (hBA : B ⊆ A) :
     nondegenerateSummingQuadruples B =
       (nondegenerateSummingQuadruples A).filter fun ((a, b), (c, d)) ↦ {a, b, c, d} ⊆ B := by
@@ -48,22 +50,18 @@ quadruples of `B`. -/
 lemma sum_card_nondegenerateSummingQuadruples_powersetCard (A : Finset G) {n : ℕ} (hn : 4 ≤ n) :
     ∑ B ∈ A.powersetCard n, #(nondegenerateSummingQuadruples B) =
       #(nondegenerateSummingQuadruples A) * (#A - 4).choose (n - 4) := by
-  have h := sum_card_bipartiteAbove_eq_sum_card_bipartiteBelow (s := A.powersetCard n)
-    (t := nondegenerateSummingQuadruples A)
-    (r := fun B ((a, b), (c, d)) ↦ ({a, b, c, d} : Finset G) ⊆ B)
-  simp only [bipartiteAbove, bipartiteBelow] at h
-  have hfilter (B : Finset G) (hB : B ∈ A.powersetCard n) :
-      #(nondegenerateSummingQuadruples B) = #((nondegenerateSummingQuadruples A).filter
-        fun ((a, b), (c, d)) ↦ ({a, b, c, d} : Finset G) ⊆ B) := by
-    obtain ⟨hBA, -⟩ := mem_powersetCard.mp hB
-    rw [nondegenerateSummingQuadruples_eq_filter hBA]
-  rw [sum_congr rfl hfilter, h, sum_const_nat]
-  rintro ⟨⟨a, b⟩, c, d⟩ hq
-  have h4 := card_entries_eq_four_of_mem_nondegenerateSummingQuadruples hq
-  rw [← h4, card_filter_powersetCard_subset _ _ _ ?_ (by grind)]
-  simp only [nondegenerateSummingQuadruples, mem_filter, mem_product, mem_offDiag] at hq
-  simp only [insert_subset_iff, singleton_subset_iff]
-  grind
+  refine Eq.trans ?_ ((sum_card_bipartiteAbove_eq_sum_card_bipartiteBelow
+    (s := A.powersetCard n) (r := fun B ((a, b), (c, d)) ↦ ({a, b, c, d} : Finset G) ⊆ B)).trans
+    (sum_const_nat ?_))
+  · congr! 1 with B hB
+    obtain ⟨hBA, -⟩ := mem_powersetCard.1 hB
+    rw [bipartiteAbove, nondegenerateSummingQuadruples_eq_filter hBA]
+  · rintro ⟨⟨a, b⟩, c, d⟩ hq
+    rw [bipartiteBelow, ← card_entries_eq_four_of_mem_nondegenerateSummingQuadruples hq,
+      card_filter_powersetCard_subset _ _ _ ?_ (by grind)]
+    simp only [nondegenerateSummingQuadruples, mem_filter, mem_product, mem_offDiag] at hq
+    simp only [insert_subset_iff, singleton_subset_iff]
+    grind
 
 /-- Some `n`-element subset `B ⊆ A` has at most `#A ^ 3 * n.choose 4 / (#A).choose 4`
 non-degenerate summing quadruples. -/

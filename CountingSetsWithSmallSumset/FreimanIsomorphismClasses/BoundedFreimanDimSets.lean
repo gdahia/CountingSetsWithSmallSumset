@@ -99,7 +99,7 @@ lemma ncard_le_card_mul_pow_of_coversFreimanIsoClasses {n r : ℕ} {family : Set
 
 /-- There are at most `n ^ (r + 1) * t ^ (4 * t)` sets `X ⊆ [n]` with `t` elements and Freiman
 dimension at most `r`. -/
-lemma card_boundedFreimanDimSets (n r t : ℕ) (ht : 0 < t) :
+lemma card_boundedFreimanDimSets (n r : ℕ) {t : ℕ} (ht : 0 < t) :
     ((boundedFreimanDimSets n r t).ncard : ℝ) ≤ n ^ (r + 1) * t ^ (4 * t) := by
   obtain ⟨representatives, hcover, hcard⟩ := exists_coversFreimanIsoClasses_card_le_pow ℚ ℚ 2 t
   have hsub : image (Nat.castAddMonoidHom ℚ) '' boundedFreimanDimSets n r t ⊆ {A | #A = t} := by
@@ -108,9 +108,8 @@ lemma card_boundedFreimanDimSets (n r t : ℕ) (ht : 0 < t) :
   obtain ⟨representatives', -, hcover', hcard'⟩ := exists_coversFreimanIsoClasses_card_le_of_image
     (isAddFreimanIso_image_of_injective 2 (φ := Nat.castAddMonoidHom ℚ) Nat.cast_injective)
     (hcover.subset hsub)
-  have h := ncard_le_card_mul_pow_of_coversFreimanIsoClasses hcover' fun X ⟨hXn, hX, hXr⟩ ↦
-    ⟨card_pos.1 (hX ▸ ht), hXn, hXr⟩
   rw [mul_comm]
-  exact_mod_cast h.trans (Nat.mul_le_mul_right _ (hcard'.trans hcard))
+  exact_mod_cast (ncard_le_card_mul_pow_of_coversFreimanIsoClasses hcover' fun X ⟨hXn, hX, hXr⟩ ↦
+    ⟨card_pos.1 (hX ▸ ht), hXn, hXr⟩).trans (Nat.mul_le_mul_right _ (hcard'.trans hcard))
 
 end CountingSetsWithSmallSumset

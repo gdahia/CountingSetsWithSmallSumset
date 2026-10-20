@@ -37,38 +37,32 @@ private lemma exists_bijective_eval (Φ : Submodule F (ι → F)) :
     ∃ a : Fin (finrank F Φ) → ι, Function.Bijective fun φ : Φ ↦ fun i ↦ (φ : ι → F) (a i) := by
   let t : ι → Dual F Φ := fun x ↦ (LinearMap.proj x).comp Φ.subtype
   obtain ⟨κ, a, ha, hspan, hli⟩ := exists_linearIndependent' F t
-  have : Fintype κ := have := Finite.of_injective a ha; Fintype.ofFinite κ
-  have hzero {φ : Φ} (hφ : ∀ k, (φ : ι → F) (a k) = 0) : φ = 0 := by
+  have : Finite κ := .of_injective a ha
+  have := Fintype.ofFinite κ
+  have hE : Function.Injective (LinearMap.pi fun k ↦ t (a k)) := by
+    rw [← LinearMap.ker_eq_bot, Submodule.eq_bot_iff]
+    intro φ hφ
     have hle : Submodule.span F (Set.range t) ≤ LinearMap.ker (Dual.eval F Φ φ) := by
       rw [← hspan, Submodule.span_le]
       rintro _ ⟨k, rfl⟩
-      exact hφ k
+      exact congrFun hφ k
     ext x
     simpa [t] using hle (Submodule.subset_span (Set.mem_range_self x))
   have hcard : Fintype.card κ = finrank F Φ := by
     refine le_antisymm ?_ ?_
     · rw [← finrank_span_eq_card hli]
       exact (Submodule.finrank_le _).trans Subspace.dual_finrank_eq.le
-    · have := Fintype.ofFinite ι
-      rw [← finrank_fintype_fun_eq_card (R := F)]
-      refine LinearMap.finrank_le_finrank_of_injective (f := LinearMap.pi fun k ↦ t (a k)) ?_
-      rw [← LinearMap.ker_eq_bot, Submodule.eq_bot_iff]
-      intro φ hφ
-      exact hzero (congrFun hφ)
+    · simpa using LinearMap.finrank_le_finrank_of_injective hE
   let e := Fintype.equivFinOfCardEq hcard
-  let E : Φ →ₗ[F] (Fin (finrank F Φ) → F) := LinearMap.pi fun i ↦ t (a (e.symm i))
-  have hE : Function.Injective E := by
-    rw [← LinearMap.ker_eq_bot, Submodule.eq_bot_iff]
-    intro φ hφ
-    exact hzero fun k ↦ by simpa [E, t] using congrFun hφ (e k)
-  exact ⟨a ∘ e.symm, hE, (LinearMap.injective_iff_surjective_of_finrank_eq_finrank (by simp)).1 hE⟩
+  refine ⟨a ∘ e.symm, (e.arrowCongr (.refl F)).bijective.comp ⟨hE, ?_⟩⟩
+  exact (LinearMap.injective_iff_surjective_of_finrank_eq_finrank (by simpa using hcard.symm)).1 hE
 
 /-- **Lemma 12** of Green. Let `Φ` be a space of dimension `d` of maps from a finite set `ι` to
 `F`. There are distinct points `a₁, …, a_d` of `ι` such that every vector `f ∈ F^d` is
 `(φ(a₁), …, φ(a_d))` for exactly one `φ ∈ Φ`, and for every `x ∈ ι` there are `λ₁, …, λ_d` with
 `φ(x) = λ₁ φ(a₁) + ⋯ + λ_d φ(a_d)` for all `φ ∈ Φ`. If `Φ` contains the constant map `1`, then
 `λ₁ + ⋯ + λ_d = 1`. -/
-theorem exists_interpolation_points (Φ : Submodule F (ι → F)) {d : ℕ} (hd : finrank F Φ = d) :
+lemma exists_interpolation_points (Φ : Submodule F (ι → F)) {d : ℕ} (hd : finrank F Φ = d) :
     ∃ a : Fin d → ι, Function.Injective a ∧
       Function.Bijective (fun φ : Φ ↦ fun i ↦ (φ : ι → F) (a i)) ∧
       ∀ x, ∃ c : Fin d → F, (∀ φ ∈ Φ, φ x = ∑ i, c i * φ (a i)) ∧ (1 ∈ Φ → ∑ i, c i = 1) := by

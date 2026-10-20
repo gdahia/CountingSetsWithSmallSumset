@@ -17,8 +17,8 @@ of Ruzsa's lower bound for sumsets in several dimensions.
 
 The statements of the paper are numbered as in version 2 of the arXiv preprint, where theorems,
 propositions, lemmas and corollaries share one counter. Statements for sufficiently large
-parameters are proved above explicit thresholds, and statements about almost all sets are proved
-as bounds for the number of exceptional sets.
+parameters are proved above explicit thresholds. Theorems 7 and 9 are proved as limits, as in the
+paper, and as bounds for the number of exceptional sets.
 
 The restricted sumset of a finite set $A$ is $A \hat{+} A = \lbrace a + b : a, b \in A,\ a \ne b \rbrace$
 (`restrictedSumset A`). For a finite abelian group $\Gamma$, $S_k^m(\Gamma)$ is the family of the
@@ -38,7 +38,12 @@ $r_F(A) = \dim \mathrm{Hom}_2(A, F) - 1$ (`freimanDimOver F A`). Freiman's dimen
 isomorphic of order $2$ to a subset of $\mathbb{Q}^d$ whose affine span in $\mathbb{R}^d$ is the
 whole space.
 
-**Theorem 7** (`card_cliqueNum_cayleySumGraph_gt_le'`). If $\log_2 N \ge 2^{9000}$, then
+**Theorem 7** (`tendsto_card_cliqueNum_cayleySumGraph_le'` and
+`card_cliqueNum_cayleySumGraph_gt_le'`). As $N \to \infty$,
+
+$$\frac{\left|\lbrace A \subseteq \mathbb{Z}/N\mathbb{Z} : \omega(G_A) \le 160 \log_2 N \rbrace\right|}{2^N} \to 1.$$
+
+More precisely, if $\log_2 N \ge 2^{9000}$, then
 
 $$\left|\lbrace A \subseteq \mathbb{Z}/N\mathbb{Z} : \omega(G_A) > 160 \log_2 N \rbrace\right| \le \frac{2^N}{N}.$$
 
@@ -86,9 +91,9 @@ $$|S_k^m(\mathbb{F}_2^n)| \le N^{4m \log_2 k / k} \left(\frac{em}{k}\right)^k \e
 
 and for every $k \ge 2$ and every $m$, $|S_k^m(\mathbb{F}_2^n)| \le N^{4m \log_2 k / k} k^{4k}$.
 
-[Solution.lean](Solution.lean) proves these twelve statements. [Challenge.lean](Challenge.lean)
-contains them with `sorry` placeholders, together with the definitions they use, restated in
-terms of Mathlib: `Finset.affineDim`, `rationalVectorToReal`, `freimanModelDim` and `freimanDim` of
+[Solution.lean](Solution.lean) proves these thirteen statements. [Challenge.lean](Challenge.lean)
+imports Mathlib and contains them with `sorry` placeholders, together with the definitions they
+use, restated in terms of Mathlib: `Finset.affineDim`, `rationalVectorToReal`, `freimanModelDim` and `freimanDim` of
 SumOfSetsInSeveralDimensions, and `restrictedSumset`, `cayleySumGraph`,
 `restrictedSumsetCardSets`, `freimanHomSpace` and `freimanDimOver` of this library. The library and
 the solution contain no `sorry`, and the theorems depend on no axioms other than `propext`,
@@ -122,6 +127,7 @@ cites, and Proposition 29, which it states without proof, are not formalized.
 | `card_cliqueNum_addCayley_lt_le`, `tendsto_card_le_cliqueNum_addCayley` | Proposition 27, for $n \ge 2^{16}$: at most $2^N/n$ sets $A \subseteq \mathbb{F}_2^n$ have $\omega(G_A) < \frac{1}{4} n \log_2 n$ |
 | `card_finrank_inf_eq_le` | Lemma 28: at most $2^{n(2k - l)}$ pairs of $k$-dimensional subspaces of $\mathbb{F}_2^n$ meet in an $l$-dimensional subspace |
 | `cayleySumGraph_eq_addCayley` | In a group of exponent $2$, the Cayley sum graph is Mathlib's Cayley graph |
+| `tendsto_card_filter_div_two_pow_of_card_filter_not_le` | If at most $\varepsilon \cdot 2^{\lvert\Gamma\rvert}$ subsets of $\Gamma$ fail a property, with $\varepsilon \to 0$, the proportion of the subsets with the property tends to $1$ |
 | `card_boundedFreimanDimSets` | Not in the paper: at most $n^{r + 1} t^{4t}$ sets $X \subseteq \lbrace 1, \dots, n \rbrace$ have $t > 0$ elements and Freiman dimension at most $r$ |
 | `smallSumsetFreimanDimSets_ncard_le_of_class_cover` | Not in the paper: if $t \ge 2^{9000}$ and $s \le t^{31/30}/2$, at most $n^{r + 1} (2es/t)^t \exp(t^{31/32})$ sets $X \subseteq \lbrace 1, \dots, n \rbrace$ have $t$ elements, Freiman dimension at most $r$ and $\lvert X + X\rvert \le s$ |
 
@@ -133,6 +139,7 @@ cites, and Proposition 29, which it states without proof, are not formalized.
 | `RestrictedSumsetCardSets.lean` | Definition 3 |
 | `CayleySumGraph.lean` | Cayley sum graphs, their cliques, and the Cayley graph in exponent $2$ |
 | `RpowBounds.lean` | Inequalities for real powers of large numbers |
+| `AlmostAllSets.lean` | Proportions of subsets with a property |
 | `FreimanIsomorphismClasses/Covers.lean` | Freiman isomorphic sets and covers of a family by isomorphism classes |
 | `FreimanIsomorphismClasses/Relations.lean` | Additive relations of tuples |
 | `FreimanIsomorphismClasses/RelationCodes.lean` | Relation vectors over a field, Lemmas 10 and 11 |
@@ -158,7 +165,7 @@ cites, and Proposition 29, which it states without proof, are not formalized.
 | `CyclicGroups/Unfolding.lean` | Lemma 22 |
 | `CyclicGroups/RestrictedSumsetCardBounds.lean` | Proposition 23 |
 | `CyclicGroups/LargeRestrictedSumsetSum.lean` | The sum of Section 7 for $\mathbb{Z}/N\mathbb{Z}$ |
-| `CyclicGroups/CliqueNumber.lean` | Theorem 7 |
+| `CyclicGroups/CliqueNumber.lean` | Theorem 7, as a count and as a limit |
 | `CyclicGroups/RamseyGraph.lean` | Theorem 8 |
 | `CliqueCount.lean` | Cayley sum graphs with a large clique |
 | `BinaryGroups/Sumsets.lean` | Sumsets and restricted sumsets in characteristic $2$ |
@@ -190,5 +197,12 @@ lake build
 The default build includes the library, challenge, and solution. The `sorry` warnings from
 `Challenge.lean` are expected.
 
-CI also runs `scripts/check-lean-sources.py`, `scripts/validate-formalization.rb` and
-`scripts/verify-comparator.sh`. The last one needs Linux with `bwrap`.
+## Verification
+
+[Challenge.lean](Challenge.lean) imports only Mathlib. It contains the thirteen statements above
+with `sorry` placeholders and the definitions they use. [comparator.json](comparator.json) lists
+these statements and permits the axioms `propext`, `Quot.sound` and `Classical.choice`. With this
+configuration, `lake comparator` checks that `Solution.lean` proves the statements of
+`Challenge.lean`, with the same definitions, using no other axioms. `scripts/verify-comparator.sh`
+runs it with the kernels bundled in the toolchain, and needs Linux with `bwrap`. CI also runs
+`scripts/check-lean-sources.py` and `scripts/validate-formalization.rb`.
