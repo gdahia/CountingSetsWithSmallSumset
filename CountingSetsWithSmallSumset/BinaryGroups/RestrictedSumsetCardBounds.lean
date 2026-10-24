@@ -76,9 +76,8 @@ variable (n) in
 `N = 2 ^ n`. -/
 theorem card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow {k m : ℕ} (hk : 2 ^ 9000 ≤ k)
     (hm : m ≤ (k : ℝ) ^ ((31 : ℝ) / 30)) :
-    (#(restrictedSumsetCardSets (Fin n → ZMod 2) k m) : ℝ) ≤
-      ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) * (exp 1 * m / k) ^ k *
-        exp (k ^ ((31 : ℝ) / 32)) := by
+    #(restrictedSumsetCardSets (Fin n → ZMod 2) k m) ≤
+      (2 ^ n) ^ (4 * m * logb 2 k / k) * (exp 1 * m / k) ^ k * exp (k ^ ((31 : ℝ) / 32)) := by
   have ht : smallSumsetClassCountThreshold ≤ k := by rwa [smallSumsetClassCountThreshold_def]
   obtain ⟨representatives, hcover, hcard⟩ :=
     exists_coversFreimanIsoClasses_card_restrictedSumset_le (ZMod 2) (Fin n → ZMod 2) ht hm
@@ -91,7 +90,7 @@ variable (n) in
 /-- **Proposition 26 (ii)** of Green. If `k ≥ 2`, then
 `|S_k^m(𝔽₂ⁿ)| ≤ N ^ (4 * m * log₂ k / k) * k ^ (4 * k)`, where `N = 2 ^ n`. -/
 theorem card_restrictedSumsetCardSets_pi_zmod_two_le {k : ℕ} (hk : 2 ≤ k) (m : ℕ) :
-    (#(restrictedSumsetCardSets (Fin n → ZMod 2) k m) : ℝ) ≤
+    #(restrictedSumsetCardSets (Fin n → ZMod 2) k m) ≤
       ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) * k ^ (4 * k) := by
   obtain ⟨representatives, hcover, hcard⟩ :=
     exists_coversFreimanIsoClasses_card_le_pow (ZMod 2) (Fin n → ZMod 2) 2 k

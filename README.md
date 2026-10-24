@@ -91,14 +91,14 @@ $$|S_k^m(\mathbb{F}_2^n)| \le N^{4m \log_2 k / k} \left(\frac{em}{k}\right)^k \e
 
 and for every $k \ge 2$ and every $m$, $|S_k^m(\mathbb{F}_2^n)| \le N^{4m \log_2 k / k} k^{4k}$.
 
-[Solution.lean](Solution.lean) proves these thirteen statements. [Challenge.lean](Challenge.lean)
-imports Mathlib and contains them with `sorry` placeholders, together with the definitions they
-use, restated in terms of Mathlib: `Finset.affineDim`, `rationalVectorToReal`, `freimanModelDim` and `freimanDim` of
-SumOfSetsInSeveralDimensions, and `restrictedSumset`, `cayleySumGraph`,
-`restrictedSumsetCardSets`, `freimanHomSpace` and `freimanDimOver` of this library. The library and
-the solution contain no `sorry`, and the theorems depend on no axioms other than `propext`,
-`Classical.choice` and `Quot.sound`. The statements of the challenge carry a prime; the library
-proves them under the same names without it.
+[Challenge.lean](CountingSetsWithSmallSumsetPalomar/Challenge.lean) contains these thirteen
+statements, under the library names with a prime and with `sorry` placeholders, together with the
+definitions they use, restated in terms of Mathlib: `Finset.affineDim`, `rationalVectorToReal`,
+`freimanModelDim` and `freimanDim` of SumOfSetsInSeveralDimensions, and `restrictedSumset`,
+`cayleySumGraph`, `restrictedSumsetCardSets`, `freimanHomSpace` and `freimanDimOver` of this
+library. [Solution.lean](CountingSetsWithSmallSumsetPalomar/Solution.lean) proves each statement
+by the library theorem. The library and the solution contain no `sorry`, and the theorems depend
+on no axioms other than `propext`, `Classical.choice` and `Quot.sound`.
 
 The other results of the paper are proved in the library. Theorems 4, 5 and 6, which the paper
 cites, and Proposition 29, which it states without proof, are not formalized.
@@ -181,8 +181,8 @@ cites, and Proposition 29, which it states without proof, are not formalized.
 | `BinaryLowerBound/SubspaceDimension.lean` | The dimension of the subspaces in Proposition 27 |
 | `BinaryLowerBound/CliqueNumber.lean` | Proposition 27 |
 
-[formalization.yaml](formalization.yaml) records the differences from the paper, the scope, and
-the use of AI coding agents.
+[formalization.yaml](formalization.yaml) records the sources, the differences from them, the
+scope, and the use of AI coding agents.
 
 ## Build
 
@@ -199,10 +199,18 @@ The default build includes the library, challenge, and solution. The `sorry` war
 
 ## Verification
 
-[Challenge.lean](Challenge.lean) imports only Mathlib. It contains the thirteen statements above
-with `sorry` placeholders and the definitions they use. [comparator.json](comparator.json) lists
-these statements and permits the axioms `propext`, `Quot.sound` and `Classical.choice`. With this
-configuration, `lake comparator` checks that `Solution.lean` proves the statements of
-`Challenge.lean`, with the same definitions, using no other axioms. `scripts/verify-comparator.sh`
-runs it with the kernels bundled in the toolchain, and needs Linux with `bwrap`. CI also runs
-`scripts/check-lean-sources.py` and `scripts/validate-formalization.rb`.
+`Challenge.lean` imports only the Mathlib modules `Mathlib.Algebra.Field.ZMod`,
+`Mathlib.Algebra.Torsor.Basic`, `Mathlib.Analysis.SpecialFunctions.Log.Base`,
+`Mathlib.Combinatorics.Additive.FreimanHom`, `Mathlib.Combinatorics.SimpleGraph.Cayley`,
+`Mathlib.Combinatorics.SimpleGraph.Clique`, `Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Defs`
+and `Mathlib.LinearAlgebra.Dimension.Finrank`. It repeats the definitions listed under
+[Results](#results) and states the thirteen theorems above with `sorry`.
+[comparator.json](comparator.json) names these thirteen theorems,
+`CountingSetsWithSmallSumsetPalomar.Challenge` and `CountingSetsWithSmallSumsetPalomar.Solution`
+as the modules to compare, and `propext`, `Classical.choice` and `Quot.sound` as the permitted
+axioms. The two modules sit in `CountingSetsWithSmallSumsetPalomar/` rather than at the root, so
+that they do not clash with the `Challenge` and `Solution` modules of the projects this one
+requires or is required by.
+
+CI also runs `scripts/check-lean-sources.py`, `scripts/validate-formalization.rb` and
+`scripts/verify-comparator.sh`. The last one needs Linux with `bwrap`.

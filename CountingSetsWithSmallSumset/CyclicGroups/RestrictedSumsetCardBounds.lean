@@ -70,7 +70,7 @@ variable (N) in
 `|S_k^m(ℤ_N)| ≤ N ^ (1 + 4 * m / k) * (2 * e * m / k) ^ k * exp (k ^ (31 / 32))`. -/
 theorem card_restrictedSumsetCardSets_zmod_le_of_le_rpow {k m : ℕ} (hk : 2 ^ 9000 ≤ k)
     (hm : (m : ℝ) ≤ k ^ ((31 : ℝ) / 30) / 2) :
-    (#(restrictedSumsetCardSets (ZMod N) k m) : ℝ) ≤
+    #(restrictedSumsetCardSets (ZMod N) k m) ≤
       N ^ (1 + 4 * (m : ℝ) / k) * (2 * exp 1 * m / k) ^ k * exp (k ^ ((31 : ℝ) / 32)) := by
   have ht : smallSumsetClassCountThreshold ≤ k := by rwa [smallSumsetClassCountThreshold_def]
   have hk₀ := pos_of_smallSumsetClassCountThreshold_le ht

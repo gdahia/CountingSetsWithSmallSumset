@@ -42,7 +42,18 @@ sources:
       version, where theorems, propositions, lemmas and corollaries share one counter; the
       numbers were not compared with those of the published version. Theorems 4, 5 and 6,
       which the paper cites, and Proposition 29, which it states without proof, are not
-      formalized.
+      formalized. The proofs follow those of the paper. They differ in the following places.
+      In Proposition 15, a sum with at least Q representations has at least ⌊Q/2⌋ disjoint
+      ones, where the paper uses Q/3. In Proposition 19, the paper picks the elements of B
+      independently at random and uses a Chernoff bound. Here B has exactly ⌈2√k / ε⌉
+      elements, and averaging over all subsets of this size bounds the number of
+      nondegenerate summing quadruples of some B. Lemma 21 is proved from Freiman's lemma for
+      the full sumset, applied to a model of S in Q^r ⊆ R^r, and |S + S| ≤ |S ∔ S| + |S|. In
+      Lemma 25, the paper takes X ⊆ A maximal such that the sums of h distinct elements of X
+      are distinct, and argues that each a ∈ A \ X lies in hX - (h - 1)X. This step needs one
+      of two colliding sums of X ∪ {a} to avoid a, which the paper does not justify. Here
+      h = ⌊log_2 k⌋, and X is an affinely independent subset of a Freiman isomorphic copy of
+      A with the same affine span, so that its sums of h distinct elements are distinct.
     license: "unknown"
     author_endorsement: "not-contacted"
   - title: "Dense sets without large sumsets"
@@ -66,12 +77,13 @@ related_formalizations:
   - id: "https://github.com/leanprover-community/mathlib4"
     relationship: "builds-on"
     note: >-
-      Mathlib has Freiman homomorphisms and isomorphisms (IsAddFreimanHom, IsAddFreimanIso),
-      Module.finrank, vectorSpan and affine independence, the clique and independence numbers
-      of a simple graph, the Cayley graph SimpleGraph.addCayley, which is the Cayley sum graph
-      in F_2^n, and the Plünnecke–Ruzsa inequality, which is Theorem 24 of the paper and is
-      used for Lemma 25. It has no restricted sumset, no Cayley sum graph, no space of Freiman
-      homomorphisms and none of the results of the paper.
+      The statements use Freiman isomorphisms (IsAddFreimanIso), Module.finrank, vectorSpan,
+      kernels of linear maps, the clique and independence numbers of a simple graph and the
+      Cayley graph SimpleGraph.addCayley, which is the Cayley sum graph in F_2^n, from
+      Mathlib. The proofs use its Freiman homomorphisms, affine independence, finite
+      dimensional linear algebra and the Plünnecke–Ruzsa inequality, which is Theorem 24 of
+      the paper and is used for Lemma 25. Mathlib has no restricted sumset, no Cayley sum
+      graph, no space of Freiman homomorphisms and none of the results of the paper.
   - id: "https://github.com/gdahia/SumOfSetsInSeveralDimensions"
     relationship: "builds-on"
     note: >-
@@ -86,7 +98,12 @@ status:
     23, 26 and 27, Lemmas 16, 17, 21, 22, 25 and 28, Corollary 20 and the computations of
     Section 7, with explicit thresholds. Theorem 24 is the Plünnecke–Ruzsa inequality of
     Mathlib. Theorems 4, 5 and 6 and Proposition 29 are not formalized. The library also
-    proves two counts of sets of natural numbers that the paper does not state. The sorry
+    proves two counts of sets of natural numbers that the paper does not state,
+    card_boundedFreimanDimSets and smallSumsetFreimanDimSets_ncard_le_of_class_cover. They
+    count subsets of {1, ..., n} of given size and bounded Freiman dimension, the second
+    with |X + X| ≤ s, by combining Lemma 11 or Proposition 18 with the bound n^(r + 1) for
+    the members of an isomorphism class in {1, ..., n}, as the proof of Proposition 23
+    does. The sorry
     counts refer to the library and Solution.lean; Challenge.lean has one placeholder for
     each of its thirteen statements.
   sorry_count: 0
@@ -123,13 +140,18 @@ automation:
         review of other repositories. Claude Code split the work among subagents, one for
         each part of the paper, and merged and restyled their proofs. A later session added
         the limit form of Theorem 7 and restyled the library again, with subagents for groups
-        of files.
+        of files. Later, one instruction to adjust the repository to the Palomar submission
+        rules of the maintainer and to remove unnecessary casts in the statements.
   spend_usd: "not tracked"
   notes: >-
     The first proofs of Sections 3 and 4 were written by Codex agents in
     DenseSetsWithoutLargeSumsets. Claude Code, directed by Gabriel Dahia, rewrote them for
     vector spaces over a field and wrote the rest of the library, Challenge.lean,
-    Solution.lean, the README and this file.
+    Solution.lean, the README and this file. Later, Claude Code moved Challenge.lean and
+    Solution.lean to CountingSetsWithSmallSumsetPalomar/, replaced the import of all of
+    Mathlib in Challenge.lean by the modules its statements need, defined freimanHomSpace as
+    an intersection of kernels of linear maps so that the definitions of Challenge.lean
+    contain no proofs, and removed the casts that Lean inserts in the statements.
 
 fidelity:
   divergences: >-
@@ -164,8 +186,7 @@ fidelity:
     proved here as finrank_freimanHomSpace, is (r_F(A) + 1) dim W'.
 
     Proposition 15 holds for every m ≥ t with |A ∔ A| ≤ m, in a commutative monoid with
-    cancellation. A sum with at least Q representations has at least ⌊Q/2⌋ disjoint ones,
-    where the paper uses Q/3.
+    cancellation.
 
     Lemmas 16 and 17. The orders of the isomorphisms are 4 and 8 in place of 3 and 6, and
     Lemma 16 has the bound (1 + l^4)^((t + 1)^4) in place of l^(3 t^4).
@@ -174,29 +195,14 @@ fidelity:
     that contains a member of each class. The members of the family need not have small
     restricted sumset, and two of them may be isomorphic.
 
-    Proposition 19. The paper picks the elements of B independently at random and uses a
-    Chernoff bound. Here B has exactly ⌈2√k / ε⌉ elements, and averaging over all subsets of
-    this size bounds the number of nondegenerate summing quadruples of some B. This gives
-    the stronger bound |B| ≤ 3√k / ε.
+    Proposition 19. The library also proves the stronger bound |B| ≤ 3√|A| / ε
+    (exists_subset_card_le_sqrt_div_and_le_card_restrictedSumset).
 
-    Lemma 21 is stated with Freiman's dimension and proved from Freiman's lemma for the full
-    sumset, applied to a model of S in Q^r ⊆ R^r, and |S + S| ≤ |S ∔ S| + |S|.
+    Lemma 21 is stated with Freiman's dimension.
 
     Lemma 22. The lift of A ⊆ Z/NZ is {a.val + 1 : a ∈ A} ⊆ {1, ..., N}.
 
-    Lemma 25. The paper takes X ⊆ A maximal such that the sums of h distinct elements of X
-    are distinct, and argues that each a ∈ A \ X lies in hX - (h - 1)X. This step needs one
-    of two colliding sums of X ∪ {a} to avoid a, which the paper does not justify. Here
-    h = ⌊log_2 k⌋, and X is an affinely independent subset of a Freiman isomorphic copy of A
-    with the same affine span, so that its sums of h distinct elements are distinct.
-
     Section 7. For F_2^n the sum over j is taken over j ≥ 38 n log_2 n.
-
-    Counts not in the paper. card_boundedFreimanDimSets and
-    smallSumsetFreimanDimSets_ncard_le_of_class_cover count subsets of {1, ..., n} of given
-    size and bounded Freiman dimension, the second with |X + X| ≤ s. They combine Lemma 11
-    or Proposition 18 with the bound n^(r + 1) for the members of an isomorphism class in
-    {1, ..., n}, as the proof of Proposition 23 does.
 
 review:
   status: "unchecked"
@@ -208,67 +214,67 @@ alignment:
   statements:
     - source: "Theorem 7"
       lean: "CountingSetsWithSmallSumset.tendsto_card_cliqueNum_cayleySumGraph_le'"
-      module: "Challenge"
+      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
       status: "proved"
       note: "The limit over the positive integers N."
     - source: "Theorem 7, count"
       lean: "CountingSetsWithSmallSumset.card_cliqueNum_cayleySumGraph_gt_le'"
-      module: "Challenge"
+      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
       status: "proved"
       note: "At most 2^N / N exceptional sets, for log_2 N ≥ 2^9000."
     - source: "Theorem 8"
       lean: "CountingSetsWithSmallSumset.exists_cliqueNum_le_and_indepNum_le'"
-      module: "Challenge"
+      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
       status: "proved"
       note: "For log_2 N ≥ 2^9000, with clique and independence numbers at most 160 log_2 N."
     - source: "Theorem 9, count"
       lean: "CountingSetsWithSmallSumset.card_cliqueNum_addCayley_lt_or_gt_le'"
-      module: "Challenge"
+      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
       status: "proved"
       note: "C_1 = 1/4 and C_2 = 308, for n ≥ 2^9000."
     - source: "Theorem 9"
       lean: "CountingSetsWithSmallSumset.tendsto_card_le_cliqueNum_addCayley_le'"
-      module: "Challenge"
+      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
       status: "proved"
       note: "C_1 = 1/4 and C_2 = 308."
     - source: "Corollary 14"
       lean: "CountingSetsWithSmallSumset.isGreatest_freimanDimOver'"
-      module: "Challenge"
+      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
       status: "proved"
       note: "For a nonempty finite subset of a vector space over a field F."
     - source: "Corollary 14, sets of integers"
       lean: "CountingSetsWithSmallSumset.freimanDimOver_rat_eq_freimanDim_int'"
-      module: "Challenge"
+      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
       status: "proved"
       note: "Green's r_Q(X) equals Freiman's dimension freimanDim X."
     - source: "Proposition 18"
       lean: "CountingSetsWithSmallSumset.exists_coversFreimanIsoClasses_card_restrictedSumset_le'"
-      module: "Challenge"
+      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
       status: "proved"
       note: "For subsets of a vector space W over a field F, with t ≥ 2^9000."
     - source: "Proposition 19"
       lean: "CountingSetsWithSmallSumset.exists_subset_card_le_and_le_card_restrictedSumset'"
-      module: "Challenge"
+      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
       status: "proved"
       note: "For |A| ≥ 16/ε^2."
     - source: "Proposition 23 (i)"
       lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_zmod_le_of_le_rpow'"
-      module: "Challenge"
+      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
       status: "proved"
       note: "For k ≥ 2^9000."
     - source: "Proposition 23 (ii)"
       lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_zmod_le'"
-      module: "Challenge"
+      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
       status: "proved"
       note: "For k ≥ 1."
     - source: "Proposition 26 (i)"
       lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow'"
-      module: "Challenge"
+      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
       status: "proved"
       note: "For k ≥ 2^9000."
     - source: "Proposition 26 (ii)"
       lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_pi_zmod_two_le'"
-      module: "Challenge"
+      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
       status: "proved"
       note: "For k ≥ 2."
     - source: "Definition 3"

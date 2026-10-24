@@ -5,14 +5,18 @@ Authors: Gabriel Dahia
 -/
 module
 
+public import Mathlib.Algebra.Field.ZMod
+public import Mathlib.Algebra.Torsor.Basic
+public import Mathlib.Analysis.SpecialFunctions.Log.Base
+public import Mathlib.Combinatorics.Additive.FreimanHom
+public import Mathlib.Combinatorics.SimpleGraph.Cayley
+public import Mathlib.Combinatorics.SimpleGraph.Clique
+public import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Defs
+public import Mathlib.LinearAlgebra.Dimension.Finrank
 public import CountingSetsWithSmallSumset.CayleySumGraph
 public import CountingSetsWithSmallSumset.FreimanDimension.HomSpace
 public import CountingSetsWithSmallSumset.RestrictedSumsetCardSets
 public import SumOfSetsInSeveralDimensions.FreimanDimension
-public import Mathlib.Algebra.Field.ZMod
-public import Mathlib.Analysis.SpecialFunctions.Log.Base
-public import Mathlib.Analysis.SpecialFunctions.Pow.Real
-public import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Basic
 import CountingSetsWithSmallSumset.BinaryGroups.CliqueNumber
 import CountingSetsWithSmallSumset.BinaryGroups.RestrictedSumsetCardBounds
 import CountingSetsWithSmallSumset.CyclicGroups.CliqueNumber
@@ -86,7 +90,7 @@ theorem tendsto_card_le_cliqueNum_addCayley_le' :
 of affine dimension `d`. -/
 theorem isGreatest_freimanDimOver' (F : Type*) [Field F] {W : Type*} [AddCommGroup W]
     [Module F W] {A : Finset W} (hA : A.Nonempty) :
-    IsGreatest {d | ∃ f : W → (Fin d → F), IsAddFreimanIso 2 (A : Set W) (f '' A) f ∧
+    IsGreatest {d | ∃ f : W → (Fin d → F), IsAddFreimanIso 2 A (f '' A) f ∧
       Module.finrank F (vectorSpan F (f '' A)) = d} (freimanDimOver F A) :=
   isGreatest_freimanDimOver F hA
 
@@ -105,7 +109,7 @@ theorem exists_coversFreimanIsoClasses_card_restrictedSumset_le' (F W : Type*) [
     (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) :
     ∃ representatives : Finset (Finset W),
       (∀ A : Finset W, #A = t ∧ #(restrictedSumset A) ≤ m →
-        ∃ B ∈ representatives, ∃ f : W → W, IsAddFreimanIso 2 (A : Set W) (B : Set W) f) ∧
+        ∃ B ∈ representatives, ∃ f : W → W, IsAddFreimanIso 2 A B f) ∧
       #representatives ≤ (exp 1 * m / t) ^ t * exp (t ^ ((31 : ℝ) / 32)) :=
   exists_coversFreimanIsoClasses_card_restrictedSumset_le F W
     (smallSumsetClassCountThreshold_def ▸ ht) hm
@@ -123,7 +127,7 @@ theorem exists_subset_card_le_and_le_card_restrictedSumset' {G : Type*} [Decidab
 `|S_k^m(ℤ/Nℤ)| ≤ N ^ (1 + 4 * m / k) * (2 * e * m / k) ^ k * exp (k ^ (31 / 32))`. -/
 theorem card_restrictedSumsetCardSets_zmod_le_of_le_rpow' (N : ℕ) [NeZero N] {k m : ℕ}
     (hk : 2 ^ 9000 ≤ k) (hm : (m : ℝ) ≤ k ^ ((31 : ℝ) / 30) / 2) :
-    (#(restrictedSumsetCardSets (ZMod N) k m) : ℝ) ≤
+    #(restrictedSumsetCardSets (ZMod N) k m) ≤
       N ^ (1 + 4 * (m : ℝ) / k) * (2 * exp 1 * m / k) ^ k * exp (k ^ ((31 : ℝ) / 32)) :=
   card_restrictedSumsetCardSets_zmod_le_of_le_rpow N hk hm
 
@@ -137,15 +141,14 @@ theorem card_restrictedSumsetCardSets_zmod_le' (N : ℕ) [NeZero N] {k : ℕ} (h
 `|S_k^m(𝔽₂ⁿ)| ≤ (2 ^ n) ^ (4 * m * log₂ k / k) * (e * m / k) ^ k * exp (k ^ (31 / 32))`. -/
 theorem card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow' (n : ℕ) {k m : ℕ}
     (hk : 2 ^ 9000 ≤ k) (hm : m ≤ (k : ℝ) ^ ((31 : ℝ) / 30)) :
-    (#(restrictedSumsetCardSets (Fin n → ZMod 2) k m) : ℝ) ≤
-      ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) * (exp 1 * m / k) ^ k *
-        exp (k ^ ((31 : ℝ) / 32)) :=
+    #(restrictedSumsetCardSets (Fin n → ZMod 2) k m) ≤
+      (2 ^ n) ^ (4 * m * logb 2 k / k) * (exp 1 * m / k) ^ k * exp (k ^ ((31 : ℝ) / 32)) :=
   card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow n hk hm
 
 /-- **Proposition 26** (ii) of Green. For `k ≥ 2`,
 `|S_k^m(𝔽₂ⁿ)| ≤ (2 ^ n) ^ (4 * m * log₂ k / k) * k ^ (4 * k)`. -/
 theorem card_restrictedSumsetCardSets_pi_zmod_two_le' (n : ℕ) {k : ℕ} (hk : 2 ≤ k) (m : ℕ) :
-    (#(restrictedSumsetCardSets (Fin n → ZMod 2) k m) : ℝ) ≤
+    #(restrictedSumsetCardSets (Fin n → ZMod 2) k m) ≤
       ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) * k ^ (4 * k) :=
   card_restrictedSumsetCardSets_pi_zmod_two_le n hk m
 

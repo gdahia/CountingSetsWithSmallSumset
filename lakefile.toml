@@ -28,9 +28,9 @@ name = "CountingSetsWithSmallSumset"
 # The statement-only surface a reader audits.
 [[lean_lib]]
 name = "Challenge"
-roots = ["Challenge"]
+roots = ["CountingSetsWithSmallSumsetPalomar.Challenge"]
 
 # Proves the declarations stated in `Challenge.lean`; Comparator checks the two agree.
 [[lean_lib]]
 name = "Solution"
-roots = ["Solution"]
+roots = ["CountingSetsWithSmallSumsetPalomar.Solution"]

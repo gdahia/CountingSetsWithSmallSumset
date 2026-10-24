@@ -1,6 +1,6 @@
 {
-  "challenge_module": "Challenge",
-  "solution_module": "Solution",
+  "challenge_module": "CountingSetsWithSmallSumsetPalomar.Challenge",
+  "solution_module": "CountingSetsWithSmallSumsetPalomar.Solution",
   "theorem_names": [
     "CountingSetsWithSmallSumset.card_cliqueNum_cayleySumGraph_gt_le'",
     "CountingSetsWithSmallSumset.tendsto_card_cliqueNum_cayleySumGraph_le'",

@@ -7,6 +7,7 @@ module
 
 public import Mathlib.Combinatorics.Additive.FreimanHom
 public import Mathlib.LinearAlgebra.Dimension.Finrank
+public import Mathlib.LinearAlgebra.Pi
 import Mathlib.LinearAlgebra.Dimension.Finite
 import Mathlib.LinearAlgebra.FiniteDimensional.Defs
 
@@ -47,18 +48,11 @@ variable (F : Type*) [Field F] {G H : Type*} [AddCommMonoid G] [AddCommMonoid H]
   (M : Type*) [AddCommGroup M] [Module F M]
 
 /-- `Hom₂(A, M)`: the maps `φ : A → M` such that `φ a + φ b = φ c + φ d` whenever
-`a + b = c + d`. -/
-def freimanHomSpace (A : Finset G) : Submodule F (A → M) where
-  carrier := {φ | ∀ a b c d : A, (a : G) + b = c + d → φ a + φ b = φ c + φ d}
-  add_mem' := by
-    intro φ ψ hφ hψ a b c d h
-    simp only [Pi.add_apply]
-    rw [add_add_add_comm, hφ a b c d h, hψ a b c d h, add_add_add_comm]
-  zero_mem' _ _ _ _ _ := rfl
-  smul_mem' := by
-    intro r φ hφ a b c d h
-    simp only [Pi.smul_apply]
-    rw [← smul_add, ← smul_add, hφ a b c d h]
+`a + b = c + d`, that is, the intersection of the kernels of `φ ↦ φ a + φ b - φ c - φ d`. -/
+def freimanHomSpace (A : Finset G) : Submodule F (A → M) :=
+  ⨅ (a : A) (b : A) (c : A) (d : A) (_ : (a : G) + b = c + d),
+    LinearMap.ker ((LinearMap.proj a : (A → M) →ₗ[F] M) + LinearMap.proj b - LinearMap.proj c -
+      LinearMap.proj d)
 
 /-- Green's Freiman dimension `r_F(A) = dim Hom₂(A, F) - 1`. -/
 noncomputable def freimanDimOver (A : Finset G) : ℕ :=
@@ -68,8 +62,8 @@ variable {M}
 
 variable {F} in
 lemma mem_freimanHomSpace {A : Finset G} {φ : A → M} :
-    φ ∈ freimanHomSpace F M A ↔ ∀ a b c d : A, (a : G) + b = c + d → φ a + φ b = φ c + φ d :=
-  Iff.rfl
+    φ ∈ freimanHomSpace F M A ↔ ∀ a b c d : A, (a : G) + b = c + d → φ a + φ b = φ c + φ d := by
+  simp [freimanHomSpace, sub_sub, sub_eq_zero]
 
 variable {F} in
 /-- The restriction of `f` to `A` lies in `Hom₂(A, M)` if and only if `f` is a Freiman
@@ -95,6 +89,7 @@ variable {F} in
 lemma comp_mem_freimanHomSpace {N : Type*} [AddCommGroup N] [Module F N] {A : Finset G}
     {φ : A → M} (hφ : φ ∈ freimanHomSpace F M A) (L : M →ₗ[F] N) :
     L ∘ φ ∈ freimanHomSpace F N A := by
+  rw [mem_freimanHomSpace] at hφ ⊢
   intro a b c d h
   simp [← map_add, hφ a b c d h]
 
@@ -102,6 +97,7 @@ variable {F} in
 /-- If `ψ : A → F` is a Freiman homomorphism, then so is `x ↦ ψ(x) m` for every `m ∈ M`. -/
 lemma smul_const_mem_freimanHomSpace {A : Finset G} {ψ : A → F} (hψ : ψ ∈ freimanHomSpace F F A)
     (m : M) : (fun x ↦ ψ x • m) ∈ freimanHomSpace F M A := by
+  rw [mem_freimanHomSpace] at hψ ⊢
   intro a b c d h
   simp [← add_smul, hψ a b c d h]
 
@@ -129,7 +125,9 @@ lemma finrank_freimanHomSpace_le_of_isAddFreimanHom {A : Finset G} {B : Finset H
     finrank F (freimanHomSpace F F B) ≤ finrank F (freimanHomSpace F F A) := by
   refine LinearMap.finrank_le_finrank_of_injective
     (f := (LinearMap.funLeft F F (hf.mapsTo.restrict f A B)).restrict ?_) ?_
-  · intro φ hφ a b c d h
+  · intro φ hφ
+    rw [mem_freimanHomSpace] at hφ ⊢
+    intro a b c d h
     exact hφ _ _ _ _ (hf.add_eq_add a.prop b.prop c.prop d.prop h)
   · intro φ ψ h
     exact Subtype.ext ((hf.mapsTo.restrict_surjective_iff.2 hsurj).injective_comp_right

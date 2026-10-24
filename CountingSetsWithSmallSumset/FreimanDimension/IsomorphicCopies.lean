@@ -65,8 +65,8 @@ inclusion `ℕ → ℚ`, is a Freiman homomorphism into `ℚ`. -/
 private lemma natCast_comp_mem_freimanHomSpace {X : Finset ℕ} {B : Set ℕ} {f : ℕ → ℕ}
     (hf : IsAddFreimanHom 2 (X : Set ℕ) B f) :
     (fun x : X ↦ (f x : ℚ)) ∈ freimanHomSpace ℚ ℚ X := by
+  rw [mem_freimanHomSpace]
   intro a b c d h
-  dsimp only
   exact_mod_cast hf.add_eq_add a.prop b.prop c.prop d.prop h
 
 /-- Two Freiman homomorphisms of order `2` from a set `X` of natural numbers into `ℕ` that agree at

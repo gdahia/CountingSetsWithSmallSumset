@@ -5,7 +5,14 @@ Authors: Gabriel Dahia
 -/
 module
 
-public import Mathlib
+public import Mathlib.Algebra.Field.ZMod
+public import Mathlib.Algebra.Torsor.Basic
+public import Mathlib.Analysis.SpecialFunctions.Log.Base
+public import Mathlib.Combinatorics.Additive.FreimanHom
+public import Mathlib.Combinatorics.SimpleGraph.Cayley
+public import Mathlib.Combinatorics.SimpleGraph.Clique
+public import Mathlib.LinearAlgebra.AffineSpace.AffineSubspace.Defs
+public import Mathlib.LinearAlgebra.Dimension.Finrank
 
 /-!
 # Counting sets with small sumset
@@ -22,11 +29,6 @@ exceptional sets. The proofs are in `Solution.lean`.
 open Finset Real SimpleGraph Filter Topology
 open scoped Pointwise
 
--- A function space `ι → k` is an affine space over itself through `Pi.instAddTorsor` and
--- `AddGroup.instAddTorsor`, the instances that the library and SumOfSetsInSeveralDimensions use.
--- Mathlib has other, equal instances, through function spaces and through normed groups.
-attribute [-instance] Finset.instAddTorsorForall SeminormedAddCommGroup.toNormedAddTorsor
-
 namespace Finset
 
 /-- The affine dimension of a finite set `S ⊆ ℝ^D`: the dimension of the direction of the affine
@@ -39,20 +41,19 @@ end Finset
 namespace SumOfSetsInSeveralDimensions
 
 /-- The coordinatewise inclusion of rational vectors into real vectors. -/
-def rationalVectorToReal {d : ℕ} (v : Fin d → ℚ) : Fin d → ℝ := fun i ↦ (v i : ℝ)
+def rationalVectorToReal {d : ℕ} (v : Fin d → ℚ) : Fin d → ℝ := fun i ↦ v i
 
 /-- The set `X` has a Freiman model of dimension `d`: there is a Freiman isomorphism of order `2`
 from `X` onto a subset of `ℚ^d` of affine dimension `d`. -/
 def freimanModelDim {G : Type*} [DecidableEq G] [AddCommMonoid G] (X : Finset G) (d : ℕ) : Prop :=
-  ∃ f : G → (Fin d → ℚ),
-    IsAddFreimanIso 2 (X : Set G) ((X.image f : Finset (Fin d → ℚ)) : Set (Fin d → ℚ)) f ∧
-      ((X.image f).image rationalVectorToReal).affineDim = d
+  ∃ f : G → (Fin d → ℚ), IsAddFreimanIso 2 X (X.image f) f ∧
+    ((X.image f).image rationalVectorToReal).affineDim = d
 
+open scoped Classical in
 /-- Freiman's dimension of `X`: the largest `d ≤ |X|` such that `X` has a Freiman model of
 dimension `d`. -/
-noncomputable def freimanDim {G : Type*} [DecidableEq G] [AddCommMonoid G] (X : Finset G) : ℕ := by
-  classical
-  exact Nat.findGreatest (freimanModelDim X) X.card
+noncomputable def freimanDim {G : Type*} [DecidableEq G] [AddCommMonoid G] (X : Finset G) : ℕ :=
+  Nat.findGreatest (freimanModelDim X) X.card
 
 end SumOfSetsInSeveralDimensions
 
@@ -97,18 +98,11 @@ variable (F : Type*) [Field F] {G H : Type*} [AddCommMonoid G] [AddCommMonoid H]
   (M : Type*) [AddCommGroup M] [Module F M]
 
 /-- `Hom₂(A, M)`: the maps `φ : A → M` such that `φ a + φ b = φ c + φ d` whenever
-`a + b = c + d`. -/
-def freimanHomSpace (A : Finset G) : Submodule F (A → M) where
-  carrier := {φ | ∀ a b c d : A, (a : G) + b = c + d → φ a + φ b = φ c + φ d}
-  add_mem' := by
-    intro φ ψ hφ hψ a b c d h
-    simp only [Pi.add_apply]
-    rw [add_add_add_comm, hφ a b c d h, hψ a b c d h, add_add_add_comm]
-  zero_mem' _ _ _ _ _ := rfl
-  smul_mem' := by
-    intro r φ hφ a b c d h
-    simp only [Pi.smul_apply]
-    rw [← smul_add, ← smul_add, hφ a b c d h]
+`a + b = c + d`, that is, the intersection of the kernels of `φ ↦ φ a + φ b - φ c - φ d`. -/
+def freimanHomSpace (A : Finset G) : Submodule F (A → M) :=
+  ⨅ (a : A) (b : A) (c : A) (d : A) (_ : (a : G) + b = c + d),
+    LinearMap.ker ((LinearMap.proj a : (A → M) →ₗ[F] M) + LinearMap.proj b - LinearMap.proj c -
+      LinearMap.proj d)
 
 /-- Green's Freiman dimension `r_F(A) = dim Hom₂(A, F) - 1`. -/
 noncomputable def freimanDimOver (A : Finset G) : ℕ :=
@@ -162,7 +156,7 @@ theorem tendsto_card_le_cliqueNum_addCayley_le' :
 of affine dimension `d`. -/
 theorem isGreatest_freimanDimOver' (F : Type*) [Field F] {W : Type*} [AddCommGroup W]
     [Module F W] {A : Finset W} (hA : A.Nonempty) :
-    IsGreatest {d | ∃ f : W → (Fin d → F), IsAddFreimanIso 2 (A : Set W) (f '' A) f ∧
+    IsGreatest {d | ∃ f : W → (Fin d → F), IsAddFreimanIso 2 A (f '' A) f ∧
       Module.finrank F (vectorSpan F (f '' A)) = d} (freimanDimOver F A) :=
   sorry
 
@@ -181,7 +175,7 @@ theorem exists_coversFreimanIsoClasses_card_restrictedSumset_le' (F W : Type*) [
     (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) :
     ∃ representatives : Finset (Finset W),
       (∀ A : Finset W, #A = t ∧ #(restrictedSumset A) ≤ m →
-        ∃ B ∈ representatives, ∃ f : W → W, IsAddFreimanIso 2 (A : Set W) (B : Set W) f) ∧
+        ∃ B ∈ representatives, ∃ f : W → W, IsAddFreimanIso 2 A B f) ∧
       #representatives ≤ (exp 1 * m / t) ^ t * exp (t ^ ((31 : ℝ) / 32)) :=
   sorry
 
@@ -198,7 +192,7 @@ theorem exists_subset_card_le_and_le_card_restrictedSumset' {G : Type*} [Decidab
 `|S_k^m(ℤ/Nℤ)| ≤ N ^ (1 + 4 * m / k) * (2 * e * m / k) ^ k * exp (k ^ (31 / 32))`. -/
 theorem card_restrictedSumsetCardSets_zmod_le_of_le_rpow' (N : ℕ) [NeZero N] {k m : ℕ}
     (hk : 2 ^ 9000 ≤ k) (hm : (m : ℝ) ≤ k ^ ((31 : ℝ) / 30) / 2) :
-    (#(restrictedSumsetCardSets (ZMod N) k m) : ℝ) ≤
+    #(restrictedSumsetCardSets (ZMod N) k m) ≤
       N ^ (1 + 4 * (m : ℝ) / k) * (2 * exp 1 * m / k) ^ k * exp (k ^ ((31 : ℝ) / 32)) :=
   sorry
 
@@ -212,15 +206,14 @@ theorem card_restrictedSumsetCardSets_zmod_le' (N : ℕ) [NeZero N] {k : ℕ} (h
 `|S_k^m(𝔽₂ⁿ)| ≤ (2 ^ n) ^ (4 * m * log₂ k / k) * (e * m / k) ^ k * exp (k ^ (31 / 32))`. -/
 theorem card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow' (n : ℕ) {k m : ℕ}
     (hk : 2 ^ 9000 ≤ k) (hm : m ≤ (k : ℝ) ^ ((31 : ℝ) / 30)) :
-    (#(restrictedSumsetCardSets (Fin n → ZMod 2) k m) : ℝ) ≤
-      ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) * (exp 1 * m / k) ^ k *
-        exp (k ^ ((31 : ℝ) / 32)) :=
+    #(restrictedSumsetCardSets (Fin n → ZMod 2) k m) ≤
+      (2 ^ n) ^ (4 * m * logb 2 k / k) * (exp 1 * m / k) ^ k * exp (k ^ ((31 : ℝ) / 32)) :=
   sorry
 
 /-- **Proposition 26** (ii) of Green. For `k ≥ 2`,
 `|S_k^m(𝔽₂ⁿ)| ≤ (2 ^ n) ^ (4 * m * log₂ k / k) * k ^ (4 * k)`. -/
 theorem card_restrictedSumsetCardSets_pi_zmod_two_le' (n : ℕ) {k : ℕ} (hk : 2 ≤ k) (m : ℕ) :
-    (#(restrictedSumsetCardSets (Fin n → ZMod 2) k m) : ℝ) ≤
+    #(restrictedSumsetCardSets (Fin n → ZMod 2) k m) ≤
       ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) * k ^ (4 * k) :=
   sorry
 
