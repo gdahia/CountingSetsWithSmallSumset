@@ -90,7 +90,7 @@ private lemma log_natCast_le {t : ℕ} (ht : smallSumsetClassCountThreshold ≤ 
   linarith [log_two_lt_d9, le_two_pow_rpow]
 
 private lemma cast_choose_le_pow {t m k : ℕ} (ht : 0 < t) (htm : t ≤ m) (hk : k ≤ t) :
-    (m.choose k : ℝ) ≤ (exp 1 * m / t) ^ t := by
+    m.choose k ≤ (exp 1 * m / t) ^ t := by
   have ht₀ : (0 : ℝ) < t := mod_cast ht
   rw [mul_div_assoc, mul_pow, ← exp_nat_mul, mul_one, mul_comm]
   refine (Nat.choose_le_pow_div k m).trans ?_
@@ -100,19 +100,19 @@ private lemma cast_choose_le_pow {t m k : ℕ} (ht : 0 < t) (htm : t ≤ m) (hk 
 
 private lemma natCeil_four_mul_rpow_mul_le {t m : ℕ} (ht : smallSumsetClassCountThreshold ≤ t)
     (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) {a b : ℝ} (hab : a + 31 / 30 = b) :
-    (⌈4 * (t : ℝ) ^ a * m⌉₊ : ℝ) ≤ 4 * (t : ℝ) ^ b + 1 := by
+    ⌈4 * (t : ℝ) ^ a * m⌉₊ ≤ 4 * (t : ℝ) ^ b + 1 := by
   rw [← natCast_rpow_mul_rpow ht hab]
   refine (Nat.ceil_lt_add_one (by positivity)).le.trans ?_
   linarith [mul_le_mul_of_nonneg_left hm (rpow_nonneg (Nat.cast_nonneg t) a)]
 
 private lemma coreCardBound_cast_le {t m : ℕ} (ht : smallSumsetClassCountThreshold ≤ t)
     (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) :
-    (coreCardBound t m : ℝ) ≤ 4 * (t : ℝ) ^ ((29 : ℝ) / 30) + 1 :=
+    coreCardBound t m ≤ 4 * (t : ℝ) ^ ((29 : ℝ) / 30) + 1 :=
   natCeil_four_mul_rpow_mul_le ht hm (by norm_num)
 
 private lemma exceptionCardBound_cast_le {t m : ℕ} (ht : smallSumsetClassCountThreshold ≤ t)
     (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) :
-    (exceptionCardBound t m : ℝ) ≤ 4 * (t : ℝ) ^ ((7 : ℝ) / 30) + 1 :=
+    exceptionCardBound t m ≤ 4 * (t : ℝ) ^ ((7 : ℝ) / 30) + 1 :=
   natCeil_four_mul_rpow_mul_le ht hm (by norm_num)
 
 private lemma four_mul_rpow_add_two_le {t : ℕ} (ht : smallSumsetClassCountThreshold ≤ t) {a : ℝ}
@@ -173,7 +173,7 @@ private lemma five_mul_exceptionCardBound_add_one_pow_mul_log_le {t m : ℕ}
 
 private lemma cast_exceptionCardBound_add_one_mul_coreCardBound_le_exp {t m : ℕ}
     (ht : smallSumsetClassCountThreshold ≤ t) (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) :
-    (((exceptionCardBound t m + 1) * coreCardBound t m : ℕ) : ℝ) ≤
+    ((exceptionCardBound t m + 1) * coreCardBound t m : ℕ) ≤
       exp (1 / 100 * (t : ℝ) ^ ((31 : ℝ) / 32)) := by
   have ht₀ := natCast_pos ht
   refine (Nat.cast_le.2 (Nat.mul_le_mul (exceptionCardBound_add_one_le ht hm)
@@ -198,7 +198,7 @@ private lemma classCountTerm_le_pow {t m d l D L : ℕ} (ht : 2 ≤ t) (hd : d �
 private lemma freimanClassCountTerm_le {t m d l : ℕ} (ht : smallSumsetClassCountThreshold ≤ t)
     (htm : t ≤ m) (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) (hd : d ≤ exceptionCardBound t m)
     (hl : l ≤ coreCardBound t m) :
-    ((l ^ (16 * l) * m.choose (t - d) * (1 + (t - d) ^ 4) ^ ((d + 1) ^ 4) : ℕ) : ℝ) ≤
+    (l ^ (16 * l) * m.choose (t - d) * (1 + (t - d) ^ 4) ^ ((d + 1) ^ 4) : ℕ) ≤
       (exp 1 * m / t) ^ t * exp (98 / 100 * (t : ℝ) ^ ((31 : ℝ) / 32)) := by
   have ht₁ := one_lt_of_smallSumsetClassCountThreshold_le ht
   refine (Nat.cast_le.2 (classCountTerm_le_pow (m := m) ht₁ hd hl
@@ -216,7 +216,7 @@ private lemma freimanClassCountTerm_le {t m d l : ℕ} (ht : smallSumsetClassCou
 lemma freimanClassCountBound_le {t m : ℕ}
     (ht : smallSumsetClassCountThreshold ≤ t) (htm : t ≤ m)
     (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) :
-    (freimanClassCountBound t m : ℝ) ≤
+    freimanClassCountBound t m ≤
       (exp 1 * m / t) ^ t * exp (99 / 100 * (t : ℝ) ^ ((31 : ℝ) / 32)) := by
   rw [freimanClassCountBound, ← sum_product', Nat.cast_sum]
   refine (sum_le_sum (g := fun _ ↦ (exp 1 * m / t) ^ t *
@@ -267,7 +267,7 @@ private lemma exp_one_pow_mul_exp_le {t m : ℕ} (ht : smallSumsetClassCountThre
 and `m ≤ t ^ (31 / 30)`. There is a family of at most `(e * m / t) ^ t * exp (t ^ (31 / 32))` finite
 subsets of `W` such that every set of `t` elements of `W` whose restricted sumset has at most `m`
 elements is Freiman isomorphic of order `2` to a member of the family. -/
-theorem exists_coversFreimanIsoClasses_card_restrictedSumset_le (F W : Type*) [Field F]
+lemma exists_coversFreimanIsoClasses_card_restrictedSumset_le (F W : Type*) [Field F]
     [AddCommGroup W] [Module F W] [DecidableEq W] {t m : ℕ}
     (ht : smallSumsetClassCountThreshold ≤ t) (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) :
     ∃ representatives : Finset (Finset W),

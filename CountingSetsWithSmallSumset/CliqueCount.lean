@@ -83,7 +83,7 @@ private lemma sum_one_div_two_pow_le_sum_sum {s : Finset (Finset Γ)} {J : Finse
 than `L` is at most `2 ^ |Γ|` times the sum of `|S_j^m(Γ)| / 2 ^ m` over the `j ≤ |Γ|` with
 `L < 8 j` and over `7 j ≤ m ≤ |Γ|`. -/
 lemma card_lt_cliqueNum_cayleySumGraph_le {L : ℝ} (hL : 46656 ≤ L) :
-    (#{A : Finset Γ | L < (cayleySumGraph (A : Set Γ)).cliqueNum} : ℝ) ≤
+    #{A : Finset Γ | L < (cayleySumGraph (A : Set Γ)).cliqueNum} ≤
       2 ^ Fintype.card Γ * ∑ j ∈ Icc 1 (Fintype.card Γ) with L < 8 * (j : ℕ),
         ∑ m ∈ Icc (7 * j) (Fintype.card Γ), (#(restrictedSumsetCardSets Γ j m) : ℝ) / 2 ^ m := by
   set T : Finset (Finset Γ) := {C | L < 8 * #C ∧ 7 * #C ≤ #(restrictedSumset C)}

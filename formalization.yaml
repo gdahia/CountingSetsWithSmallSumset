@@ -103,9 +103,8 @@ status:
     count subsets of {1, ..., n} of given size and bounded Freiman dimension, the second
     with |X + X| ≤ s, by combining Lemma 11 or Proposition 18 with the bound n^(r + 1) for
     the members of an isomorphism class in {1, ..., n}, as the proof of Proposition 23
-    does. The sorry
-    counts refer to the library and Solution.lean; Challenge.lean has one placeholder for
-    each of its thirteen statements.
+    does. Challenge.lean states Theorems 7, 8 and 9. The sorry counts refer to the library
+    and Solution.lean; Challenge.lean has one placeholder for each of its five statements.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: ["propext", "Classical.choice", "Quot.sound"]
@@ -141,7 +140,10 @@ automation:
         each part of the paper, and merged and restyled their proofs. A later session added
         the limit form of Theorem 7 and restyled the library again, with subagents for groups
         of files. Later, one instruction to adjust the repository to the Palomar submission
-        rules of the maintainer and to remove unnecessary casts in the statements.
+        rules of the maintainer and to remove unnecessary casts in the statements. Later, one
+        instruction to make the repository follow these rules again, with Challenge.lean
+        stating only Theorems 7, 8 and 9. Later, one instruction to remove the casts on the
+        left of the inequalities in the other statements of the library.
   spend_usd: "not tracked"
   notes: >-
     The first proofs of Sections 3 and 4 were written by Codex agents in
@@ -151,7 +153,12 @@ automation:
     Solution.lean to CountingSetsWithSmallSumsetPalomar/, replaced the import of all of
     Mathlib in Challenge.lean by the modules its statements need, defined freimanHomSpace as
     an intersection of kernels of linear maps so that the definitions of Challenge.lean
-    contain no proofs, and removed the casts that Lean inserts in the statements.
+    contain no proofs, and removed the casts that Lean inserts in the statements. Later, the
+    agent reduced Challenge.lean and Solution.lean to Theorems 7, 8 and 9, removed the casts
+    of the counts in Theorems 7 and 9, left Challenge out of the default build targets, and
+    marked the other results of the paper as lemmas. Later, the agent moved the casts to the
+    real side of the inequalities in the other statements of the library, or removed them
+    where Lean inserts them. Every proof is checked by Lean.
 
 fidelity:
   divergences: >-
@@ -178,7 +185,7 @@ fidelity:
 
     Corollary 14. The condition that a subset S of F^d is not contained in a proper affine
     subspace is stated as finrank F (vectorSpan F S) = d, and the corollary as IsGreatest.
-    For a finite set X of integers, Challenge.lean states r_Q(X) = freimanDim X, where
+    For a finite set X of integers, the library states r_Q(X) = freimanDim X, where
     freimanDim is Freiman's dimension of SumOfSetsInSeveralDimensions, defined with the
     affine dimension over R of the image in R^d of a model in Q^d.
 
@@ -194,9 +201,6 @@ fidelity:
     Proposition 18. The number of isomorphism classes is bounded through a family of sets
     that contains a member of each class. The members of the family need not have small
     restricted sumset, and two of them may be isomorphic.
-
-    Proposition 19. The library also proves the stronger bound |B| ≤ 3√|A| / ε
-    (exists_subset_card_le_sqrt_div_and_le_card_restrictedSumset).
 
     Lemma 21 is stated with Freiman's dimension.
 
@@ -238,43 +242,43 @@ alignment:
       status: "proved"
       note: "C_1 = 1/4 and C_2 = 308."
     - source: "Corollary 14"
-      lean: "CountingSetsWithSmallSumset.isGreatest_freimanDimOver'"
-      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
+      lean: "CountingSetsWithSmallSumset.isGreatest_freimanDimOver"
+      module: "CountingSetsWithSmallSumset.FreimanDimension.AffineModel"
       status: "proved"
       note: "For a nonempty finite subset of a vector space over a field F."
     - source: "Corollary 14, sets of integers"
-      lean: "CountingSetsWithSmallSumset.freimanDimOver_rat_eq_freimanDim_int'"
-      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
+      lean: "CountingSetsWithSmallSumset.freimanDimOver_rat_eq_freimanDim_int"
+      module: "CountingSetsWithSmallSumset.FreimanDimension.Integers"
       status: "proved"
       note: "Green's r_Q(X) equals Freiman's dimension freimanDim X."
     - source: "Proposition 18"
-      lean: "CountingSetsWithSmallSumset.exists_coversFreimanIsoClasses_card_restrictedSumset_le'"
-      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
+      lean: "CountingSetsWithSmallSumset.exists_coversFreimanIsoClasses_card_restrictedSumset_le"
+      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ClassCountBounds"
       status: "proved"
       note: "For subsets of a vector space W over a field F, with t ≥ 2^9000."
     - source: "Proposition 19"
-      lean: "CountingSetsWithSmallSumset.exists_subset_card_le_and_le_card_restrictedSumset'"
-      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
+      lean: "CountingSetsWithSmallSumset.exists_subset_card_le_and_le_card_restrictedSumset"
+      module: "CountingSetsWithSmallSumset.LargeRestrictedSumset.SmallSubset"
       status: "proved"
       note: "For |A| ≥ 16/ε^2."
     - source: "Proposition 23 (i)"
-      lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_zmod_le_of_le_rpow'"
-      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
+      lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_zmod_le_of_le_rpow"
+      module: "CountingSetsWithSmallSumset.CyclicGroups.RestrictedSumsetCardBounds"
       status: "proved"
       note: "For k ≥ 2^9000."
     - source: "Proposition 23 (ii)"
-      lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_zmod_le'"
-      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
+      lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_zmod_le"
+      module: "CountingSetsWithSmallSumset.CyclicGroups.RestrictedSumsetCardBounds"
       status: "proved"
       note: "For k ≥ 1."
     - source: "Proposition 26 (i)"
-      lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow'"
-      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
+      lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow"
+      module: "CountingSetsWithSmallSumset.BinaryGroups.RestrictedSumsetCardBounds"
       status: "proved"
       note: "For k ≥ 2^9000."
     - source: "Proposition 26 (ii)"
-      lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_pi_zmod_two_le'"
-      module: "CountingSetsWithSmallSumsetPalomar.Challenge"
+      lean: "CountingSetsWithSmallSumset.card_restrictedSumsetCardSets_pi_zmod_two_le"
+      module: "CountingSetsWithSmallSumset.BinaryGroups.RestrictedSumsetCardBounds"
       status: "proved"
       note: "For k ≥ 2."
     - source: "Definition 3"

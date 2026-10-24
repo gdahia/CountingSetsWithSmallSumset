@@ -101,7 +101,7 @@ private lemma one_sub_mul_le_of_bounds {k b S N ε : ℝ} (hε₀ : 0 < ε) (hε
 `ε * n ≤ 3 * √k` and `4 * k ≤ ε ^ 2 * n ^ 2`. -/
 private lemma four_le_ceil_two_mul_sqrt_div_and_ceil_le {k ε : ℝ} (hε₀ : 0 < ε) (hε : ε ≤ 1 / 2)
     (hk₀ : 0 ≤ k) (hk : 16 ≤ k * ε ^ 2) :
-    4 ≤ (⌈2 * √k / ε⌉₊ : ℝ) ∧ (⌈2 * √k / ε⌉₊ : ℝ) ≤ k ∧ ε * ⌈2 * √k / ε⌉₊ ≤ 3 * √k ∧
+    (4 : ℝ) ≤ ⌈2 * √k / ε⌉₊ ∧ ⌈2 * √k / ε⌉₊ ≤ k ∧ ε * ⌈2 * √k / ε⌉₊ ≤ 3 * √k ∧
       4 * k ≤ ε ^ 2 * ⌈2 * √k / ε⌉₊ ^ 2 := by
   have hsq := sq_sqrt hk₀
   have hεk : 4 ≤ ε * √k := by nlinarith [mul_nonneg hε₀.le (sqrt_nonneg k)]
@@ -136,7 +136,7 @@ lemma exists_subset_card_le_sqrt_div_and_le_card_restrictedSumset {ε : ℝ} (h�
 
 /-- **Proposition 19** of Green. If `0 < ε ≤ 1 / 2` and `#A ≥ 16 / ε ^ 2`, then some `B ⊆ A` has
 `#B ≤ 3 * logb 2 (1 / ε) / ε * √(#A)` and `#(restrictedSumset B) ≥ (1 - ε) * #A`. -/
-theorem exists_subset_card_le_and_le_card_restrictedSumset {ε : ℝ} (hε₀ : 0 < ε)
+lemma exists_subset_card_le_and_le_card_restrictedSumset {ε : ℝ} (hε₀ : 0 < ε)
     (hε : ε ≤ 1 / 2) {A : Finset G} (hA : largeRestrictedSumsetThreshold ε ≤ #A) :
     ∃ B ⊆ A, #B ≤ 3 * logb 2 (1 / ε) / ε * √(#A) ∧ (1 - ε) * #A ≤ #(restrictedSumset B) := by
   obtain ⟨B, hBA, hB, hS⟩ := exists_subset_card_le_sqrt_div_and_le_card_restrictedSumset hε₀ hε hA

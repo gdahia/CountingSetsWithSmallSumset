@@ -100,7 +100,7 @@ lemma ncard_le_card_mul_pow_of_coversFreimanIsoClasses {n r : ℕ} {family : Set
 /-- There are at most `n ^ (r + 1) * t ^ (4 * t)` sets `X ⊆ [n]` with `t` elements and Freiman
 dimension at most `r`. -/
 lemma card_boundedFreimanDimSets (n r : ℕ) {t : ℕ} (ht : 0 < t) :
-    ((boundedFreimanDimSets n r t).ncard : ℝ) ≤ n ^ (r + 1) * t ^ (4 * t) := by
+    (boundedFreimanDimSets n r t).ncard ≤ (n : ℝ) ^ (r + 1) * t ^ (4 * t) := by
   obtain ⟨representatives, hcover, hcard⟩ := exists_coversFreimanIsoClasses_card_le_pow ℚ ℚ 2 t
   have hsub : image (Nat.castAddMonoidHom ℚ) '' boundedFreimanDimSets n r t ⊆ {A | #A = t} := by
     rintro _ ⟨X, ⟨-, hX, -⟩, rfl⟩

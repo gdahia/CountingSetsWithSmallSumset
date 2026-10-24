@@ -38,8 +38,8 @@ variable {N : ℕ} [NeZero N]
 /-- **Theorem 7** of Green, explicit form. If `log₂ N ≥ 2 ^ 9000`, then at most `2 ^ N / N` sets
 `A ⊆ ℤ_N` have a Cayley sum graph with clique number greater than `160 * log₂ N`. -/
 theorem card_cliqueNum_cayleySumGraph_gt_le (hN : 2 ^ 9000 ≤ logb 2 N) :
-    (#{A : Finset (ZMod N) | 160 * logb 2 N < (cayleySumGraph (A : Set (ZMod N))).cliqueNum} :
-      ℝ) ≤ 2 ^ N / N := by
+    #{A : Finset (ZMod N) | 160 * logb 2 N < (cayleySumGraph (A : Set (ZMod N))).cliqueNum} ≤
+      (2 : ℝ) ^ N / N := by
   have hL : (46656 : ℝ) ≤ 160 * logb 2 N :=
     ((by norm_num : (46656 : ℝ) ≤ 160 * 2 ^ 9).trans
       (by gcongr <;> norm_num : (160 : ℝ) * 2 ^ 9 ≤ 160 * 2 ^ 9000)).trans

@@ -65,7 +65,7 @@ lemma freimanDimOver_rat_eq_freimanDim_of_isAddFreimanIso {V : Type*} [AddCommGr
 
 /-- **Corollary 14** of Green, last part. For a finite set `X` of integers, `r_ℚ(X)` is Freiman's
 dimension of `X`. -/
-theorem freimanDimOver_rat_eq_freimanDim_int (X : Finset ℤ) :
+lemma freimanDimOver_rat_eq_freimanDim_int (X : Finset ℤ) :
     freimanDimOver ℚ X = freimanDim X := by
   apply freimanDimOver_rat_eq_freimanDim_of_isAddFreimanIso (g := ((↑) : ℤ → ℚ))
   simpa using isAddFreimanIso_image_of_injective 2 (φ := Int.castAddHom ℚ) Int.cast_injective X

@@ -40,7 +40,7 @@ terms, times `n * 2 ^ (2 * (k ^ 2 + k))`. -/
 private lemma mul_card_mul_two_pow_sub_one_le {n k l : ℕ} (hk : 2 * 2 ^ k ≤ n * k)
     (hkn : ((k + 1) * n) ^ 2 * 2 ^ (4 * (k ^ 2 + k)) ≤ 2 ^ n) (hl₀ : 0 < l) (hl : l ≤ k)
     {s : Finset (Submodule (ZMod 2) (Fin n → ZMod 2) × Submodule (ZMod 2) (Fin n → ZMod 2))}
-    (hs : (#s : ℝ) ≤ 2 ^ (n * (2 * k - l))) :
+    (hs : #s ≤ (2 : ℝ) ^ (n * (2 * k - l))) :
     (n : ℝ) * 2 ^ (2 * (k ^ 2 + k)) * (#s * ((2 : ℝ) ^ (2 ^ l - 1) - 1)) ≤
       2 ^ (2 * (n * k)) / (k + 1) := by
   rw [le_div_iff₀ (by positivity)]

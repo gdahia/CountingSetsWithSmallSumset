@@ -72,9 +72,9 @@ private lemma le_three_hundred_eight_mul_mul_logb (hn : 2 ^ 9000 ≤ n) :
 `2 ^ 2 ^ n / 2 ^ n` of the `2 ^ 2 ^ n` sets `A ⊆ 𝔽₂ⁿ` have a Cayley graph with clique number
 greater than `308 * n * log₂ n`. -/
 lemma card_cliqueNum_addCayley_gt_le (hn : 2 ^ 9000 ≤ n) :
-    (#{A : Finset (Fin n → ZMod 2) |
-      308 * n * logb 2 n < (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum} : ℝ) ≤
-      2 ^ 2 ^ n / 2 ^ n := by
+    #{A : Finset (Fin n → ZMod 2) |
+      308 * n * logb 2 n < (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum} ≤
+      (2 : ℝ) ^ 2 ^ n / 2 ^ n := by
   have hL : 0 ≤ n * logb 2 n := mul_nonneg (Nat.cast_nonneg n) (zero_le_one.trans (one_le_logb hn))
   simp_rw [← cayleySumGraph_eq_addCayley_pi_zmod_two]
   refine (card_lt_cliqueNum_cayleySumGraph_le (le_three_hundred_eight_mul_mul_logb hn)).trans ?_
@@ -96,10 +96,10 @@ lemma card_cliqueNum_addCayley_gt_le (hn : 2 ^ 9000 ≤ n) :
 `2 ^ 2 ^ n / n + 2 ^ 2 ^ n / 2 ^ n` of the `2 ^ 2 ^ n` sets `A ⊆ 𝔽₂ⁿ` have a Cayley graph with
 clique number less than `n * log₂ n / 4` or greater than `308 * n * log₂ n`. -/
 theorem card_cliqueNum_addCayley_lt_or_gt_le (hn : 2 ^ 9000 ≤ n) :
-    (#{A : Finset (Fin n → ZMod 2) |
+    #{A : Finset (Fin n → ZMod 2) |
       (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum < n * logb 2 n / 4 ∨
-        308 * n * logb 2 n < (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum} : ℝ) ≤
-      2 ^ 2 ^ n / n + 2 ^ 2 ^ n / 2 ^ n := by
+        308 * n * logb 2 n < (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum} ≤
+      (2 : ℝ) ^ 2 ^ n / n + 2 ^ 2 ^ n / 2 ^ n := by
   rw [filter_or]
   refine (Nat.cast_le.2 (card_union_le _ _)).trans ?_
   push_cast

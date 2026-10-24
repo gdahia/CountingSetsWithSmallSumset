@@ -37,7 +37,7 @@ to `1`. -/
 lemma tendsto_card_filter_div_two_pow_of_card_filter_not_le {ι : Type*} {l : Filter ι}
     {α : ι → Type*} [∀ i, Fintype (α i)] {n : ι → ℕ} (hn : ∀ i, Fintype.card (α i) = n i)
     (P : ∀ i, Finset (α i) → Prop) [∀ i, DecidablePred (P i)] {ε : ι → ℝ}
-    (hε : Tendsto ε l (𝓝 0)) (h : ∀ᶠ i in l, (#{A | ¬P i A} : ℝ) ≤ ε i * 2 ^ n i) :
+    (hε : Tendsto ε l (𝓝 0)) (h : ∀ᶠ i in l, #{A | ¬P i A} ≤ ε i * 2 ^ n i) :
     Tendsto (fun i ↦ (#{A | P i A} : ℝ) / 2 ^ n i) l (𝓝 1) := by
   have hcompl (i : ι) : (#{A | P i A} : ℝ) = 2 ^ n i - #{A | ¬P i A} := by
     rw [eq_sub_iff_add_eq]

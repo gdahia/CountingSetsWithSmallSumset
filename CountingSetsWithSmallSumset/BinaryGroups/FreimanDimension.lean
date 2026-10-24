@@ -60,7 +60,7 @@ private lemma two_rpow_le_two_mul {t : ℝ} (ht₁ : 1 ≤ t) (ht₂ : t ≤ 2) 
 
 /-- `k ≤ (2 log₂ k / h) ^ h` for `h = ⌊log₂ k⌋ ≥ 1`. -/
 private lemma le_two_mul_logb_div_log_pow {k : ℕ} (hk : 2 ≤ k) :
-    (k : ℝ) ≤ (2 * logb 2 k / Nat.log 2 k) ^ Nat.log 2 k := by
+    k ≤ (2 * logb 2 k / Nat.log 2 k) ^ Nat.log 2 k := by
   have hh : (1 : ℝ) ≤ Nat.log 2 k := by exact_mod_cast Nat.log_pos one_lt_two hk
   calc (k : ℝ) = ((2 : ℝ) ^ (logb 2 k / Nat.log 2 k)) ^ Nat.log 2 k := by
         rw [← rpow_mul_natCast zero_le_two, div_mul_cancel₀ _ (by linarith),
@@ -81,7 +81,7 @@ private lemma le_two_mul_logb_div_log_pow {k : ℕ} (hk : 2 ≤ k) :
 private lemma le_four_mul_logb_div {x k m : ℕ} (hk : 2 ≤ k) (hkm : k ≤ m + 1)
     (hx : Nat.log 2 k ≤ x →
       (x : ℝ) ^ Nat.log 2 k ≤ Nat.log 2 k ^ Nat.log 2 k * (((m + 1) / k) ^ Nat.log 2 k * k)) :
-    (x : ℝ) ≤ 4 * m * logb 2 k / k := by
+    x ≤ 4 * m * logb 2 k / k := by
   have hL : 1 ≤ logb 2 (k : ℝ) := by
     rw [le_logb_iff_rpow_le one_lt_two (by positivity), rpow_one]
     exact_mod_cast hk
@@ -112,7 +112,7 @@ variable {V : Type*} [AddCommGroup V] [Module (ZMod 2) V] [DecidableEq V]
 `d` with `d + 1 ≤ 4 m log₂ k / k`. -/
 lemma finrank_vectorSpan_add_one_le_of_card_restrictedSumset_le {A : Finset V} (hA : 2 ≤ #A)
     {m : ℕ} (hm : #(restrictedSumset A) ≤ m) :
-    (finrank (ZMod 2) (vectorSpan (ZMod 2) (A : Set V)) + 1 : ℝ) ≤ 4 * m * logb 2 #A / #A := by
+    finrank (ZMod 2) (vectorSpan (ZMod 2) (A : Set V)) + 1 ≤ 4 * m * logb 2 #A / #A := by
   have hne : A.Nonempty := card_pos.1 (by grind)
   obtain ⟨t, htA, hspan, hind⟩ := exists_affineIndependent (ZMod 2) V (A : Set V)
   obtain ⟨X, rfl⟩ := (A.finite_toSet.subset htA).exists_finset_coe
@@ -137,7 +137,7 @@ variable {W : Type*} [AddCommGroup W] [Module (ZMod 2) W] [DecidableEq W]
 `|A ∔ A| ≤ m`, then `r_{𝔽₂}(A) + 1 ≤ 4 m log₂ k / k`. -/
 lemma freimanDimOver_add_one_le_of_card_restrictedSumset_le {A : Finset W} (hA : 2 ≤ #A)
     {m : ℕ} (hm : #(restrictedSumset A) ≤ m) :
-    (freimanDimOver (ZMod 2) A + 1 : ℝ) ≤ 4 * m * logb 2 #A / #A := by
+    freimanDimOver (ZMod 2) A + 1 ≤ 4 * m * logb 2 #A / #A := by
   obtain ⟨⟨f, hf, hdim⟩, -⟩ := isGreatest_freimanDimOver (ZMod 2) (card_pos.1 (by grind : 0 < #A))
   rw [← coe_image] at hf hdim
   have hcard : #(A.image f) = #A := card_image_of_injOn hf.bijOn.injOn
@@ -149,8 +149,8 @@ lemma freimanDimOver_add_one_le_of_card_restrictedSumset_le {A : Finset W} (hA :
 `(2 ^ n) ^ (4 m log₂ k / k)` subsets of `𝔽₂^n` are Freiman isomorphic of order `2` to `A`. -/
 lemma ncard_isAddFreimanIso_le_of_card_restrictedSumset_le {A : Finset W} (hA : 2 ≤ #A) {m : ℕ}
     (hm : #(restrictedSumset A) ≤ m) (n : ℕ) :
-    ({B : Finset (Fin n → ZMod 2) | ∃ f : W → (Fin n → ZMod 2),
-      IsAddFreimanIso 2 (A : Set W) (B : Set (Fin n → ZMod 2)) f}.ncard : ℝ) ≤
+    {B : Finset (Fin n → ZMod 2) | ∃ f : W → (Fin n → ZMod 2),
+      IsAddFreimanIso 2 (A : Set W) (B : Set (Fin n → ZMod 2)) f}.ncard ≤
       ((2 : ℝ) ^ n) ^ (4 * m * logb 2 #A / #A) := by
   refine (Nat.cast_le.2 (ncard_isAddFreimanIso_le (ZMod 2) n (card_pos.1 (by grind)))).trans ?_
   push_cast [Nat.card_zmod]

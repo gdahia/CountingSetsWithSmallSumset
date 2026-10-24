@@ -40,7 +40,7 @@ variable {n : ℕ}
 private lemma card_le_of_forall_freimanIsomorphic {k m : ℕ} (hk : 2 ≤ k)
     {s : Finset (Finset (Fin n → ZMod 2))} (hs : s ⊆ restrictedSumsetCardSets (Fin n → ZMod 2) k m)
     {B : Finset (Fin n → ZMod 2)} (hB : ∀ A ∈ s, FreimanIsomorphic 2 A B) :
-    (#s : ℝ) ≤ ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) := by
+    #s ≤ ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) := by
   obtain rfl | ⟨A₀, hA₀⟩ := s.eq_empty_or_nonempty
   · rw [card_empty, Nat.cast_zero]
     positivity
@@ -58,7 +58,7 @@ private lemma card_restrictedSumsetCardSets_le_card_mul {k m : ℕ} (hk : 2 ≤ 
     {representatives : Finset (Finset (Fin n → ZMod 2))}
     (hcover : CoversFreimanIsoClasses 2
       {A : Finset (Fin n → ZMod 2) | #A = k ∧ #(restrictedSumset A) ≤ m} representatives) :
-    (#(restrictedSumsetCardSets (Fin n → ZMod 2) k m) : ℝ) ≤
+    #(restrictedSumsetCardSets (Fin n → ZMod 2) k m) ≤
       #representatives * ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) := by
   choose! r hr hrA using fun A (hA : A ∈ restrictedSumsetCardSets (Fin n → ZMod 2) k m) ↦
     hcover A (by grind [mem_restrictedSumsetCardSets])
@@ -74,7 +74,7 @@ variable (n) in
 /-- **Proposition 26 (i)** of Green. If `k ≥ 2 ^ 9000` and `m ≤ k ^ (31 / 30)`, then
 `|S_k^m(𝔽₂ⁿ)| ≤ N ^ (4 * m * log₂ k / k) * (e * m / k) ^ k * exp (k ^ (31 / 32))`, where
 `N = 2 ^ n`. -/
-theorem card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow {k m : ℕ} (hk : 2 ^ 9000 ≤ k)
+lemma card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow {k m : ℕ} (hk : 2 ^ 9000 ≤ k)
     (hm : m ≤ (k : ℝ) ^ ((31 : ℝ) / 30)) :
     #(restrictedSumsetCardSets (Fin n → ZMod 2) k m) ≤
       (2 ^ n) ^ (4 * m * logb 2 k / k) * (exp 1 * m / k) ^ k * exp (k ^ ((31 : ℝ) / 32)) := by
@@ -89,7 +89,7 @@ theorem card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow {k m : ℕ} (hk 
 variable (n) in
 /-- **Proposition 26 (ii)** of Green. If `k ≥ 2`, then
 `|S_k^m(𝔽₂ⁿ)| ≤ N ^ (4 * m * log₂ k / k) * k ^ (4 * k)`, where `N = 2 ^ n`. -/
-theorem card_restrictedSumsetCardSets_pi_zmod_two_le {k : ℕ} (hk : 2 ≤ k) (m : ℕ) :
+lemma card_restrictedSumsetCardSets_pi_zmod_two_le {k : ℕ} (hk : 2 ≤ k) (m : ℕ) :
     #(restrictedSumsetCardSets (Fin n → ZMod 2) k m) ≤
       ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) * k ^ (4 * k) := by
   obtain ⟨representatives, hcover, hcard⟩ :=

@@ -1,7 +1,7 @@
 name = "CountingSetsWithSmallSumset"
 version = "0.1.0"
 keywords = ["math"]
-defaultTargets = ["CountingSetsWithSmallSumset", "Challenge", "Solution"]
+defaultTargets = ["CountingSetsWithSmallSumset", "Solution"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
@@ -25,7 +25,8 @@ rev = "v4.35.0"
 [[lean_lib]]
 name = "CountingSetsWithSmallSumset"
 
-# The statement-only surface a reader audits.
+# The statement-only surface a reader audits. Not a default target, so that `lake build` does not
+# build its `sorry`s; the comparator job builds it by name.
 [[lean_lib]]
 name = "Challenge"
 roots = ["CountingSetsWithSmallSumsetPalomar.Challenge"]

@@ -55,9 +55,8 @@ private lemma natCast_pow_floor_add_one_le (k m : ℕ) :
 variable (N) in
 /-- **Proposition 23 (ii)** of Green. If `k > 0`, then
 `|S_k^m(ℤ_N)| ≤ N ^ (1 + 4 * m / k) * k ^ (4 * k)`. -/
-theorem card_restrictedSumsetCardSets_zmod_le {k : ℕ} (hk : 0 < k) (m : ℕ) :
-    (#(restrictedSumsetCardSets (ZMod N) k m) : ℝ) ≤
-      N ^ (1 + 4 * (m : ℝ) / k) * k ^ (4 * k) := by
+lemma card_restrictedSumsetCardSets_zmod_le {k : ℕ} (hk : 0 < k) (m : ℕ) :
+    #(restrictedSumsetCardSets (ZMod N) k m) ≤ (N : ℝ) ^ (1 + 4 * (m : ℝ) / k) * k ^ (4 * k) := by
   have h := Set.ncard_le_ncard_of_injOn zmodLift
     (fun A hA ↦ zmodLift_mem_boundedFreimanDimSets (m := m) hk hA) zmodLift_injective.injOn
     ((Icc 1 N).powerset.finite_toSet.subset fun _ ⟨hXN, _⟩ ↦ mem_powerset.2 hXN)
@@ -68,8 +67,8 @@ theorem card_restrictedSumsetCardSets_zmod_le {k : ℕ} (hk : 0 < k) (m : ℕ) :
 variable (N) in
 /-- **Proposition 23 (i)** of Green. If `k ≥ 2 ^ 9000` and `m ≤ k ^ (31 / 30) / 2`, then
 `|S_k^m(ℤ_N)| ≤ N ^ (1 + 4 * m / k) * (2 * e * m / k) ^ k * exp (k ^ (31 / 32))`. -/
-theorem card_restrictedSumsetCardSets_zmod_le_of_le_rpow {k m : ℕ} (hk : 2 ^ 9000 ≤ k)
-    (hm : (m : ℝ) ≤ k ^ ((31 : ℝ) / 30) / 2) :
+lemma card_restrictedSumsetCardSets_zmod_le_of_le_rpow {k m : ℕ} (hk : 2 ^ 9000 ≤ k)
+    (hm : m ≤ (k : ℝ) ^ ((31 : ℝ) / 30) / 2) :
     #(restrictedSumsetCardSets (ZMod N) k m) ≤
       N ^ (1 + 4 * (m : ℝ) / k) * (2 * exp 1 * m / k) ^ k * exp (k ^ ((31 : ℝ) / 32)) := by
   have ht : smallSumsetClassCountThreshold ≤ k := by rwa [smallSumsetClassCountThreshold_def]

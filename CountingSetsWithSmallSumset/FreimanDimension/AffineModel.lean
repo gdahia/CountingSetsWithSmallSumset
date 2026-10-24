@@ -124,7 +124,7 @@ lemma isGreatest_freimanDimOver_of_isAddFreimanIso {A : Finset G} (hA : A.Nonemp
 /-- **Corollary 14** of Green. For a finite nonempty subset `A` of an `F`-vector space, `r_F(A)`
 is the largest `d` such that `A` is Freiman isomorphic to a subset of `F^d` that is not contained
 in a proper affine subspace. -/
-theorem isGreatest_freimanDimOver {A : Finset W} (hA : A.Nonempty) :
+lemma isGreatest_freimanDimOver {A : Finset W} (hA : A.Nonempty) :
     IsGreatest {d | ∃ f : W → (Fin d → F), IsAddFreimanIso 2 A (f '' A) f ∧
       finrank F (vectorSpan F (f '' A)) = d} (freimanDimOver F A) :=
   isGreatest_freimanDimOver_of_isAddFreimanIso F hA (g := id) (by simpa using isAddFreimanIso_id)
