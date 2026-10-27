@@ -5,7 +5,6 @@ Authors: Gabriel Dahia
 -/
 module
 
-public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.BoundedFreimanDimSets
 public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.CoreAndRepresentatives
 import Mathlib.Analysis.Complex.ExponentialBounds
 import Mathlib.Analysis.SpecialFunctions.Log.Monotone
@@ -17,11 +16,8 @@ Let `t ≥ 2 ^ 9000` and `m ≤ t ^ (31 / 30)`. Following Section 4 of Green, *C
 small sumset, and the clique number of random Cayley graphs*, the sets of `t` elements of a vector
 space whose restricted sumset has at most `m` elements lie in at most
 `(e * m / t) ^ t * exp (t ^ (31 / 32))` Freiman isomorphism classes of order `2`. The same holds
-for a set with an injective additive map into a vector space, such as `ℕ` or `ℤ` in `ℚ`. A class
-of Freiman dimension at most `r` has at most `n ^ (r + 1)` members in `[n]`. So, for
-`s ≤ t ^ (31 / 30) / 2`, there are at most `n ^ (r + 1) * (2 * e * s / t) ^ t * exp (t ^ (31 / 32))`
-sets `X ⊆ [n]` with `|X| = t`, `freimanDim X ≤ r` and `|X + X| ≤ s`. The paper states
-Proposition 18 for `t` sufficiently large; here `t ≥ 2 ^ 9000`.
+for a set with an injective additive map into a vector space, such as `ℕ` or `ℤ` in `ℚ`. The paper
+states Proposition 18 for `t` sufficiently large; here `t ≥ 2 ^ 9000`.
 
 ## Main statements
 
@@ -31,15 +27,13 @@ Proposition 18 for `t` sufficiently large; here `t ≥ 2 ^ 9000`.
   of a vector space.
 * `exists_representsFreimanIsoClasses_card_restrictedSumset_le_of_injective`: Proposition 18 of
   Green for a set with an injective additive map into a vector space.
-* `smallSumsetFreimanDimSets_ncard_le`: the bound for the number of sets of natural numbers.
 -/
 
 @[expose] public section
 
 namespace CountingSetsWithSmallSumset
 
-open Finset Real SumOfSetsInSeveralDimensions
-open scoped Pointwise
+open Finset Real
 
 noncomputable section
 
@@ -322,33 +316,6 @@ lemma exists_representsFreimanIsoClasses_card_restrictedSumset_le_of_injective {
   obtain ⟨representatives', -, hrep', hcard'⟩ := exists_representsFreimanIsoClasses_card_le_of_image
     (isAddFreimanIso_image_of_injective 2 hφ) (hrep.subset hsub)
   exact ⟨representatives', hrep', (Nat.cast_le.2 hcard').trans hcard⟩
-
-/-- Let `t ≥ 2 ^ 9000` and `s ≤ t ^ (31 / 30) / 2`. There are at most
-`n ^ (r + 1) * (2 * e * s / t) ^ t * exp (t ^ (31 / 32))` sets `X ⊆ [n]` with `|X| = t`,
-`freimanDim X ≤ r` and `|X + X| ≤ s`. The paper does not state this bound. It follows from
-Proposition 18 and the bound `n ^ (r + 1)` for the number of members of a class in `[n]`. -/
-lemma smallSumsetFreimanDimSets_ncard_le (n r s t : ℕ)
-    (ht : smallSumsetClassCountThreshold ≤ t)
-    (hs : s ≤ (t : ℝ) ^ ((31 : ℝ) / 30) / 2) :
-    (smallSumsetFreimanDimSets n r s t).ncard ≤
-      n ^ (r + 1) * (2 * exp 1 * s / t) ^ t * exp (t ^ ((31 : ℝ) / 32)) := by
-  have hm : ((2 * s : ℕ) : ℝ) ≤ (t : ℝ) ^ ((31 : ℝ) / 30) := by
-    push_cast
-    linarith
-  obtain ⟨representatives, hrep, hcard⟩ :=
-    exists_representsFreimanIsoClasses_card_restrictedSumset_le_of_injective ℚ
-      (φ := Nat.castAddMonoidHom ℚ) Nat.cast_injective ht hm
-  have hsub : smallSumsetFreimanDimSets n r s t ⊆
-      {A : Finset ℕ | #A = t ∧ #(restrictedSumset A) ≤ 2 * s} := by
-    rintro X ⟨-, hX, -, hXs⟩
-    exact ⟨hX, (card_restrictedSumset_le_card_add X).trans (by grind)⟩
-  refine (Nat.cast_le.2 (ncard_le_card_mul_pow_of_representsFreimanIsoClasses (hrep.subset hsub)
-    fun X ⟨hXn, hX, hXr, _⟩ ↦ ⟨card_pos.1 (hX ▸ pos_of_smallSumsetClassCountThreshold_le ht),
-      hXn, hXr⟩)).trans ?_
-  rw [Nat.cast_mul, Nat.cast_pow, mul_comm, mul_assoc]
-  refine (mul_le_mul_of_nonneg_left hcard (by positivity)).trans_eq ?_
-  push_cast
-  ring
 
 end
 

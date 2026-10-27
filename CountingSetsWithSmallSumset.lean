@@ -32,9 +32,9 @@ public import CountingSetsWithSmallSumset.FreimanDimension.Integers
 public import CountingSetsWithSmallSumset.FreimanDimension.Interpolation
 public import CountingSetsWithSmallSumset.FreimanDimension.IsomorphicCopies
 public import CountingSetsWithSmallSumset.FreimanDimension.RationalVectors
-public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.BoundedFreimanDimSets
 public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Representatives
 public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.ExtensionReferences
+public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.MembersInInterval
 public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationSpaces
 public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Relations
 public import CountingSetsWithSmallSumset.FreimanLemma.RestrictedSumset
@@ -95,15 +95,4 @@ are also stated as limits, as in the paper.
   with the upper bound `card_cliqueNum_addCayley_gt_le`.
 * Proposition 27: `card_cliqueNum_addCayley_lt_le` and `tendsto_card_le_cliqueNum_addCayley`.
 * Lemma 28: `card_finrank_inf_eq_le`.
-
-The paper does not state the following counts of sets of natural numbers, which follow from
-Lemma 11, Proposition 18 and the bound `n ^ (r + 1)` for the number of members of a Freiman
-isomorphism class in `[n] = {1, …, n}`.
-
-* `card_boundedFreimanDimSets`: there are at most `n ^ (r + 1) * t ^ (4 * t)` sets `X ⊆ [n]` with
-  `t` elements and Freiman dimension at most `r`.
-* `smallSumsetFreimanDimSets_ncard_le`: if `t ≥ 2 ^ 9000` and
-  `s ≤ t ^ (31 / 30) / 2`, there are at most
-  `n ^ (r + 1) * (2 * e * s / t) ^ t * exp (t ^ (31 / 32))` sets `X ⊆ [n]` with `|X| = t`,
-  `freimanDim X ≤ r` and `|X + X| ≤ s`.
 -/

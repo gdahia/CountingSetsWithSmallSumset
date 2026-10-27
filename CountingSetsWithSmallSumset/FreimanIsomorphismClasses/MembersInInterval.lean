@@ -7,35 +7,22 @@ module
 
 public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Representatives
 public import SumOfSetsInSeveralDimensions.FreimanDimension
-public import Mathlib.Algebra.Group.Pointwise.Finset.Basic
 import CountingSetsWithSmallSumset.FreimanDimension.IsomorphicCopies
-import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationSpaces
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 
 /-!
-# Sets of natural numbers of bounded Freiman dimension
+# Members of a Freiman isomorphism class in an interval
 
-This file follows Section 3 of Green, *Counting sets with small sumset, and the clique number of
-random Cayley graphs*, for sets of natural numbers. A Freiman isomorphism class of order `2` of
-sets of Freiman dimension at most `r` has at most `n ^ (r + 1)` members in `[n] = {1, …, n}`. So a
-family of such sets that lies in `K` classes has at most `K * n ^ (r + 1)` members. By
-Lemma 11 of Green, applied in `ℚ`, the sets of `t` natural numbers lie in at most `t ^ (4 * t)`
-classes. Hence there are at most `n ^ (r + 1) * t ^ (4 * t)` sets `X ⊆ [n]` with `t` elements and
-Freiman dimension at most `r`.
-
-## Main definitions
-
-* `boundedFreimanDimSets n r t`: the sets `X ⊆ [n]` with `t` elements and Freiman dimension at
-  most `r`.
-* `smallSumsetFreimanDimSets n r s t`: the sets of `boundedFreimanDimSets n r t` with
-  `|X + X| ≤ s`.
+This file proves the counting step of the proof of Proposition 23 of Green, *Counting sets with
+small sumset, and the clique number of random Cayley graphs*. A Freiman isomorphism class of order
+`2` of sets of Freiman dimension at most `r` has at most `n ^ (r + 1)` members in
+`[n] = {1, …, n}`. So a family of such sets that lies in `K` classes has at most `K * n ^ (r + 1)`
+members.
 
 ## Main statements
 
 * `ncard_le_card_mul_pow_of_representsFreimanIsoClasses`: a family of nonempty sets `X ⊆ [n]` with
   `freimanDim X ≤ r` that lies in `K` classes has at most `K * n ^ (r + 1)` members.
-* `card_boundedFreimanDimSets`: there are at most `n ^ (r + 1) * t ^ (4 * t)` sets in
-  `boundedFreimanDimSets n r t`.
 -/
 
 @[expose] public section
@@ -43,15 +30,6 @@ Freiman dimension at most `r`.
 namespace CountingSetsWithSmallSumset
 
 open Finset SumOfSetsInSeveralDimensions
-open scoped Pointwise
-
-/-- The sets `X ⊆ [n]` with `t` elements and Freiman dimension at most `r`. -/
-def boundedFreimanDimSets (n r t : ℕ) : Set (Finset ℕ) :=
-  {X : Finset ℕ | X ⊆ Icc 1 n ∧ #X = t ∧ freimanDim X ≤ r}
-
-/-- The sets `X` of `boundedFreimanDimSets n r t` with `|X + X| ≤ s`. -/
-def smallSumsetFreimanDimSets (n r s t : ℕ) : Set (Finset ℕ) :=
-  {X : Finset ℕ | X ⊆ Icc 1 n ∧ #X = t ∧ freimanDim X ≤ r ∧ #(X + X) ≤ s}
 
 /-- A finite family of nonempty sets `X ⊆ [n]` with `freimanDim X ≤ r` that are all Freiman
 isomorphic of order `2` to `C` has at most `n ^ (r + 1)` members. -/
@@ -96,20 +74,5 @@ lemma ncard_le_card_mul_pow_of_representsFreimanIsoClasses {n r : ℕ} {family :
   rw [hfin.mem_toFinset] at hX
   obtain ⟨hXne, hXn, hXr⟩ := hfamily X hX
   exact ⟨hXne, hXn, hXr, hXB X hX⟩
-
-/-- There are at most `n ^ (r + 1) * t ^ (4 * t)` sets `X ⊆ [n]` with `t` elements and Freiman
-dimension at most `r`. -/
-lemma card_boundedFreimanDimSets (n r : ℕ) {t : ℕ} (ht : 0 < t) :
-    (boundedFreimanDimSets n r t).ncard ≤ (n : ℝ) ^ (r + 1) * t ^ (4 * t) := by
-  obtain ⟨representatives, hrep, hcard⟩ := exists_representsFreimanIsoClasses_card_le_pow ℚ ℚ 2 t
-  have hsub : image (Nat.castAddMonoidHom ℚ) '' boundedFreimanDimSets n r t ⊆ {A | #A = t} := by
-    rintro _ ⟨X, ⟨-, hX, -⟩, rfl⟩
-    simpa [card_image_of_injective _ Nat.cast_injective]
-  obtain ⟨representatives', -, hrep', hcard'⟩ := exists_representsFreimanIsoClasses_card_le_of_image
-    (isAddFreimanIso_image_of_injective 2 (φ := Nat.castAddMonoidHom ℚ) Nat.cast_injective)
-    (hrep.subset hsub)
-  rw [mul_comm]
-  exact_mod_cast (ncard_le_card_mul_pow_of_representsFreimanIsoClasses hrep' fun X ⟨hXn, hX, hXr⟩ ↦
-    ⟨card_pos.1 (hX ▸ ht), hXn, hXr⟩).trans (Nat.mul_le_mul_right _ (hcard'.trans hcard))
 
 end CountingSetsWithSmallSumset

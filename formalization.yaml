@@ -56,22 +56,6 @@ sources:
       A with the same affine span, so that its sums of h distinct elements are distinct.
     license: "unknown"
     author_endorsement: "not-contacted"
-  - title: "Dense sets without large sumsets"
-    authors:
-      - "Gabriel Dahia"
-      - "João Pedro Marciano"
-      - "Victor Souza"
-    id: "https://arxiv.org/abs/2607.15269"
-    type: "paper"
-    location: "https://arxiv.org/abs/2607.15269"
-    relationship: "background"
-    note: >-
-      Uses Proposition 18 and the count in the proof of Proposition 23 to count pairs of sets
-      with a sumset of moderate size. The two counts of sets of natural numbers in the library
-      that the paper of Green does not state, card_boundedFreimanDimSets and
-      smallSumsetFreimanDimSets_ncard_le, have the form needed there.
-    license: "unknown"
-    author_endorsement: "not-contacted"
 
 related_formalizations:
   - id: "https://github.com/leanprover-community/mathlib4"
@@ -97,13 +81,8 @@ status:
     Definition 3, Theorems 7, 8 and 9, Lemmas 10 to 13, Corollary 14, Propositions 15, 18, 19,
     23, 26 and 27, Lemmas 16, 17, 21, 22, 25 and 28, Corollary 20 and the computations of
     Section 7, with explicit thresholds. Theorem 24 is the Plünnecke–Ruzsa inequality of
-    Mathlib. Theorems 4, 5 and 6 and Proposition 29 are not formalized. The library also
-    proves two counts of sets of natural numbers that the paper does not state,
-    card_boundedFreimanDimSets and smallSumsetFreimanDimSets_ncard_le. They
-    count subsets of {1, ..., n} of given size and bounded Freiman dimension, the second
-    with |X + X| ≤ s, by combining Lemma 11 or Proposition 18 with the bound n^(r + 1) for
-    the members of an isomorphism class in {1, ..., n}, as the proof of Proposition 23
-    does. Challenge.lean states Theorems 7, 8 and 9. The sorry counts refer to the library
+    Mathlib. Theorems 4, 5 and 6 and Proposition 29 are not formalized. Challenge.lean
+    states Theorems 7, 8 and 9. The sorry counts refer to the library
     and Solution.lean; Challenge.lean has one placeholder for each of its five statements.
   sorry_count: 0
   sorry_in_definitions: 0
@@ -143,7 +122,9 @@ automation:
         rules of the maintainer and to remove unnecessary casts in the statements. Later, one
         instruction to make the repository follow these rules again, with Challenge.lean
         stating only Theorems 7, 8 and 9. Later, one instruction to remove the casts on the
-        left of the inequalities in the other statements of the library.
+        left of the inequalities in the other statements of the library. Later, one
+        instruction to move the two counts of sets of natural numbers that the paper does not
+        state to DenseSetsWithoutLargeSumsets, which uses them.
   spend_usd: "not tracked"
   notes: >-
     The first proofs of Sections 3 and 4 were written by Codex agents in
@@ -158,7 +139,9 @@ automation:
     of the counts in Theorems 7 and 9, left Challenge out of the default build targets, and
     marked the other results of the paper as lemmas. Later, the agent moved the casts to the
     real side of the inequalities in the other statements of the library, or removed them
-    where Lean inserts them. Every proof is checked by Lean.
+    where Lean inserts them. Later, the agent moved the counts card_boundedFreimanDimSets and
+    smallSumsetFreimanDimSets_ncard_le to DenseSetsWithoutLargeSumsets and proved
+    Proposition 23 (ii) from Lemma 11, as the paper does. Every proof is checked by Lean.
 
 fidelity:
   divergences: >-

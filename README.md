@@ -69,7 +69,7 @@ and `Quot.sound`.
 | `FreimanIsomorphismClasses/Relations.lean` | Additive relations of tuples |
 | `FreimanIsomorphismClasses/RelationSpaces.lean` | Relation vectors and relation spaces over a field, Lemmas 10 and 11 |
 | `FreimanIsomorphismClasses/ExtensionReferences.lean` | The extension references behind Lemma 16 |
-| `FreimanIsomorphismClasses/BoundedFreimanDimSets.lean` | Sets of natural numbers of bounded Freiman dimension |
+| `FreimanIsomorphismClasses/MembersInInterval.lean` | The members in $[n]$ of a Freiman isomorphism class, used for Proposition 23 |
 | `FreimanDimension/HomSpace.lean` | $\mathrm{Hom}_2(A, M)$ and $r_F(A)$ |
 | `FreimanDimension/Interpolation.lean` | Lemma 12 |
 | `FreimanDimension/Basis.lean` | Lemma 13 |
@@ -81,7 +81,7 @@ and `Quot.sound`.
 | `SmallSumsetIsomorphismClasses/CoreParameters.lean` | Proposition 15 |
 | `SmallSumsetIsomorphismClasses/ExtensionAndRemainderClasses.lean` | Lemmas 16 and 17 |
 | `SmallSumsetIsomorphismClasses/CoreAndRepresentatives.lean` | Representatives of the classes of the sets with small restricted sumset |
-| `SmallSumsetIsomorphismClasses/ClassCountBounds.lean` | Proposition 18 and the counts of sets of natural numbers |
+| `SmallSumsetIsomorphismClasses/ClassCountBounds.lean` | Proposition 18 |
 | `LargeRestrictedSumset/SummingQuadruples.lean` | Summing quadruples and the Cauchy–Schwarz bound |
 | `LargeRestrictedSumset/SubsetAveraging.lean` | Subsets with few non-degenerate summing quadruples |
 | `LargeRestrictedSumset/SmallSubset.lean` | Proposition 19 |
