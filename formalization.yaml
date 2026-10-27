@@ -69,7 +69,7 @@ sources:
       Uses Proposition 18 and the count in the proof of Proposition 23 to count pairs of sets
       with a sumset of moderate size. The two counts of sets of natural numbers in the library
       that the paper of Green does not state, card_boundedFreimanDimSets and
-      smallSumsetFreimanDimSets_ncard_le_of_class_cover, have the form needed there.
+      smallSumsetFreimanDimSets_ncard_le, have the form needed there.
     license: "unknown"
     author_endorsement: "not-contacted"
 
@@ -99,7 +99,7 @@ status:
     Section 7, with explicit thresholds. Theorem 24 is the Plünnecke–Ruzsa inequality of
     Mathlib. Theorems 4, 5 and 6 and Proposition 29 are not formalized. The library also
     proves two counts of sets of natural numbers that the paper does not state,
-    card_boundedFreimanDimSets and smallSumsetFreimanDimSets_ncard_le_of_class_cover. They
+    card_boundedFreimanDimSets and smallSumsetFreimanDimSets_ncard_le. They
     count subsets of {1, ..., n} of given size and bounded Freiman dimension, the second
     with |X + X| ≤ s, by combining Lemma 11 or Proposition 18 with the bound n^(r + 1) for
     the members of an isomorphism class in {1, ..., n}, as the proof of Proposition 23
@@ -252,7 +252,7 @@ alignment:
       status: "proved"
       note: "Green's r_Q(X) equals Freiman's dimension freimanDim X."
     - source: "Proposition 18"
-      lean: "CountingSetsWithSmallSumset.exists_coversFreimanIsoClasses_card_restrictedSumset_le"
+      lean: "CountingSetsWithSmallSumset.exists_representsFreimanIsoClasses_card_restrictedSumset_le"
       module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ClassCountBounds"
       status: "proved"
       note: "For subsets of a vector space W over a field F, with t ≥ 2^9000."
@@ -288,12 +288,12 @@ alignment:
       note: "The family S_k^m(Γ)."
     - source: "Lemma 10"
       lean: "CountingSetsWithSmallSumset.exists_isAddFreimanIso_range_of_freimanRelationSpace_eq"
-      module: "CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationCodes"
+      module: "CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationSpaces"
       status: "proved"
       note: "For tuples in vector spaces over a field F."
     - source: "Lemma 11"
-      lean: "CountingSetsWithSmallSumset.exists_coversFreimanIsoClasses_card_le_pow"
-      module: "CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationCodes"
+      lean: "CountingSetsWithSmallSumset.exists_representsFreimanIsoClasses_card_le_pow"
+      module: "CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationSpaces"
       status: "proved"
       note: "As a family of at most k^(2sk) sets that meets every class."
     - source: "Lemma 12"
@@ -311,13 +311,13 @@ alignment:
       status: "proved"
       note: "For t ≥ 2^9000 and m ≥ t."
     - source: "Lemma 16"
-      lean: "CountingSetsWithSmallSumset.exists_coversFreimanIsoClasses_extensionsOfFreimanClass_card_le"
-      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ExtensionAndRemainderCovers"
+      lean: "CountingSetsWithSmallSumset.exists_representsFreimanIsoClasses_extensionsOfFreimanClass_card_le"
+      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ExtensionAndRemainderClasses"
       status: "proved"
       note: "With order 4 in place of 3 and the bound (1 + l^4)^((t + 1)^4)."
     - source: "Lemma 17"
       lean: "CountingSetsWithSmallSumset.exists_subset_restrictedSumset_freimanIsomorphic"
-      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ExtensionAndRemainderCovers"
+      module: "CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ExtensionAndRemainderClasses"
       status: "proved"
       note: "With the orders 8 and 4 in place of 6 and 3."
     - source: "Corollary 20"

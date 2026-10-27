@@ -6,11 +6,11 @@ Authors: Gabriel Dahia
 module
 
 public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.CoreParameters
-public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ExtensionAndRemainderCovers
-import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationCodes
+public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ExtensionAndRemainderClasses
+import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationSpaces
 
 /-!
-# Covers by Freiman isomorphism classes of sets with small restricted sumset
+# Representatives of the Freiman isomorphism classes of sets with small restricted sumset
 
 This file follows Section 4 of Green, *Counting sets with small sumset, and the clique number of
 random Cayley graphs*. Let `A` be a set of `t` elements of a vector space whose restricted sumset
@@ -18,7 +18,7 @@ has at most `m ≥ t` elements. Proposition 15 gives a small core `A₀ ⊆ A` a
 few elements missing such that a translate of `A₁` lies in the restricted sumset of `A₀`. The
 Freiman isomorphism class of order `8` of `A₀` restricts the class of order `4` of `A₁`
 (Lemma 17), which restricts the class of order `2` of `A` (Lemma 16). Counting the possibilities
-at each step covers the family of all such `A` by few Freiman isomorphism classes of order `2`.
+at each step shows that all such `A` lie in few Freiman isomorphism classes of order `2`.
 
 ## Main definitions
 
@@ -28,9 +28,9 @@ at each step covers the family of all such `A` by few Freiman isomorphism classe
 
 ## Main statements
 
-* `exists_coversFreimanIsoClasses_card_le_freimanClassCountBound`: for `t ≤ m`, the sets of `t`
-  elements of a vector space whose restricted sumset has at most `m` elements are covered by at
-  most `freimanClassCountBound t m` classes of order `2`.
+* `exists_representsFreimanIsoClasses_card_le_freimanClassCountBound`: for `t ≤ m`, the sets of
+  `t` elements of a vector space whose restricted sumset has at most `m` elements lie in at most
+  `freimanClassCountBound t m` classes of order `2`.
 -/
 
 @[expose] public section
@@ -49,7 +49,7 @@ def coreCardBound (t m : ℕ) : ℕ :=
 def exceptionCardBound (t m : ℕ) : ℕ :=
   ⌈4 * (t : ℝ) ^ (-(4 : ℝ) / 5) * m⌉₊
 
-/-- The bound for the number of Freiman classes of order `2` that cover the `t`-sets whose
+/-- The bound for the number of Freiman classes of order `2` of the `t`-sets whose
 restricted sumset has at most `m` elements. It is a sum over the number `d` of exceptional
 elements and the size `l` of the core of the number of classes of the core, of the remainder and
 of the extension. -/
@@ -118,10 +118,10 @@ variable (F : Type*) {W : Type*} [Field F] [AddCommGroup W] [Module F W] [Decida
 include F in
 /-- The sets `A` of `t` elements of `W` whose restricted sumset has at most `m` elements, and that
 have a core of size `l` and a subset `A₁` missing `d` elements a translate of which lies in the
-restricted sumset of the core, are covered by few classes of order `2`. The class of order `8` of
+restricted sumset of the core, lie in few classes of order `2`. The class of order `8` of
 the core, then the class of order `4` of the translate of `A₁`, then the class of order `2` of `A`
 are chosen in turn. -/
-private lemma exists_freimanClassCover_of_card_core_of_card_exception (t m d l : ℕ) :
+private lemma exists_freimanClassRepresentatives_of_card_core_of_card_exception (t m d l : ℕ) :
     ∃ representatives : Finset (Finset W),
       #representatives ≤ l ^ (16 * l) * m.choose (t - d) * (1 + (t - d) ^ 4) ^ ((d + 1) ^ 4) ∧
       ∀ A : Finset W, #A = t → #(restrictedSumset A) ≤ m → ∀ a : W, ∀ A₀ ⊆ A, ∀ A₁ ⊆ A,
@@ -131,14 +131,14 @@ private lemma exists_freimanClassCover_of_card_core_of_card_exception (t m d l :
   · refine ⟨∅, by simp, ?_⟩
     rintro A hA - a A₀ - A₁ hA₁ - hA₁_nonempty - hd
     grind [card_sdiff_add_card_eq_card hA₁, hA₁_nonempty.card_pos]
-  obtain ⟨coreReps, hcore_mem, hcore_cover, hcore_card⟩ :=
-    exists_subset_coversFreimanIsoClasses_card_le_pow F 8
+  obtain ⟨coreReps, hcore_mem, hcore_rep, hcore_card⟩ :=
+    exists_subset_representsFreimanIsoClasses_card_le_pow F 8
       (family := {A : Finset W | #A = l ∧ #(restrictedSumset A) ≤ m}) fun _ ⟨hA, _⟩ ↦ hA
-  choose remainderReps hremainder_cover hremainder_spec hremainder_card using
-    fun C : Finset W ↦ exists_coversFreimanIsoClasses_remaindersFromCoreClass_card_le C (t - d)
-  choose! extensionReps hextension_mem hextension_cover hextension_card using
+  choose remainderReps hremainder_rep hremainder_spec hremainder_card using
+    fun C : Finset W ↦ exists_representsFreimanIsoClasses_remaindersFromCoreClass_card_le C (t - d)
+  choose! extensionReps hextension_mem hextension_rep hextension_card using
     fun (R : Finset W) (hR : #R = t - d) ↦
-      exists_coversFreimanIsoClasses_extensionsOfFreimanClass_card_le (card_pos.mp (hR ▸ hu)) d
+      exists_representsFreimanIsoClasses_extensionsOfFreimanClass_card_le (card_pos.mp (hR ▸ hu)) d
   refine ⟨coreReps.biUnion fun C ↦ (remainderReps C).biUnion extensionReps, ?_, ?_⟩
   · refine (card_biUnion_le_card_mul _ _
       (m.choose (t - d) * (1 + (t - d) ^ 4) ^ ((d + 1) ^ 4)) ?_).trans ?_
@@ -154,11 +154,11 @@ private lemma exists_freimanClassCover_of_card_core_of_card_exception (t m d l :
   · rintro A hA hm a A₀ hA₀ A₁ hA₁ htranslate - hl hd
     have hA₁_card : #A₁ = t - d := by grind [card_sdiff_add_card_eq_card hA₁]
     obtain ⟨C, hC, hA₀C⟩ :=
-      hcore_cover A₀ ⟨hl, (card_le_card (restrictedSumset_mono hA₀)).trans hm⟩
-    obtain ⟨R, hR, hBR⟩ := hremainder_cover C (A₁.image (a + ·))
+      hcore_rep A₀ ⟨hl, (card_le_card (restrictedSumset_mono hA₀)).trans hm⟩
+    obtain ⟨R, hR, hBR⟩ := hremainder_rep C (A₁.image (a + ·))
       ⟨(card_image_of_injective _ (add_right_injective a)).trans hA₁_card, A₀, hA₀C, htranslate⟩
     have hR_card := hremainder_spec C R hR
-    obtain ⟨Q, hQ, hAQ⟩ := hextension_cover R hR_card A
+    obtain ⟨Q, hQ, hAQ⟩ := hextension_rep R hR_card A
       ⟨A₁, hA₁, hA₁_card.trans hR_card.symm, by grind [card_sdiff_add_card_eq_card hA₁],
         (freimanIsomorphic_image_add 4 a A₁).trans hBR⟩
     exact ⟨Q, mem_biUnion.mpr ⟨C, hC, mem_biUnion.mpr ⟨R, hR, hQ⟩⟩, hAQ⟩
@@ -167,23 +167,23 @@ variable (W)
 
 include F in
 /-- Let `W` be a vector space over a field `F`, let `t ≥ 2 ^ 9000` and `t ≤ m`. The sets of `t`
-elements of `W` whose restricted sumset has at most `m` elements are covered by at most
+elements of `W` whose restricted sumset has at most `m` elements lie in at most
 `freimanClassCountBound t m` Freiman classes of order `2`. This is the combinatorial assembly of
-the three class covers, before the estimate of the sum. -/
-lemma exists_coversFreimanIsoClasses_card_le_freimanClassCountBound {t m : ℕ}
+the three families of representatives, before the estimate of the sum. -/
+lemma exists_representsFreimanIsoClasses_card_le_freimanClassCountBound {t m : ℕ}
     (ht : smallSumsetClassCountThreshold ≤ t) (htm : t ≤ m) :
     ∃ representatives : Finset (Finset W),
-      CoversFreimanIsoClasses 2 {A : Finset W | #A = t ∧ #(restrictedSumset A) ≤ m}
+      RepresentsFreimanIsoClasses 2 {A : Finset W | #A = t ∧ #(restrictedSumset A) ≤ m}
         representatives ∧
       #representatives ≤ freimanClassCountBound t m := by
-  choose reps hcard hcover using
-    exists_freimanClassCover_of_card_core_of_card_exception F (W := W) t m
+  choose reps hcard hrep using
+    exists_freimanClassRepresentatives_of_card_core_of_card_exception F (W := W) t m
   refine ⟨(range (exceptionCardBound t m + 1)).biUnion fun d ↦
     (Icc 1 (coreCardBound t m)).biUnion (reps d), ?_, ?_⟩
   · rintro A ⟨hA, hm⟩
     obtain ⟨a, -, A₀, hA₀, A₁, hA₁, htranslate, hA₀_nonempty, hA₁_nonempty, hcore, hexception⟩ :=
       exists_nonempty_image_add_subset_restrictedSumset hA ht htm hm
-    obtain ⟨Q, hQ, hAQ⟩ := hcover #(A \ A₁) #A₀ A hA hm a A₀ hA₀ A₁ hA₁ htranslate
+    obtain ⟨Q, hQ, hAQ⟩ := hrep #(A \ A₁) #A₀ A hA hm a A₀ hA₀ A₁ hA₁ htranslate
       hA₁_nonempty rfl rfl
     refine ⟨Q, ?_, hAQ⟩
     simp only [mem_biUnion, mem_range, mem_Icc]

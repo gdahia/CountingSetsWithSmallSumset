@@ -6,7 +6,7 @@ Authors: Gabriel Dahia
 module
 
 public import CountingSetsWithSmallSumset.FreimanDimension.HomSpace
-public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Covers
+public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Representatives
 public import SumOfSetsInSeveralDimensions.FreimanDimension
 import CountingSetsWithSmallSumset.FreimanDimension.Basis
 import CountingSetsWithSmallSumset.FreimanDimension.Integers

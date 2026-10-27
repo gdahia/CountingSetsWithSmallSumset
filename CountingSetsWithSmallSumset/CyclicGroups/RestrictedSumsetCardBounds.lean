@@ -73,8 +73,8 @@ lemma card_restrictedSumsetCardSets_zmod_le_of_le_rpow {k m : ℕ} (hk : 2 ^ 900
       N ^ (1 + 4 * (m : ℝ) / k) * (2 * exp 1 * m / k) ^ k * exp (k ^ ((31 : ℝ) / 32)) := by
   have ht : smallSumsetClassCountThreshold ≤ k := by rwa [smallSumsetClassCountThreshold_def]
   have hk₀ := pos_of_smallSumsetClassCountThreshold_le ht
-  obtain ⟨representatives, hcover, hcard⟩ :=
-    exists_coversFreimanIsoClasses_card_restrictedSumset_le_of_injective ℚ
+  obtain ⟨representatives, hrep, hcard⟩ :=
+    exists_representsFreimanIsoClasses_card_restrictedSumset_le_of_injective ℚ
       (φ := Nat.castAddMonoidHom ℚ) Nat.cast_injective (m := 2 * m) ht (by push_cast; linarith)
   have hsub : zmodLift '' (restrictedSumsetCardSets (ZMod N) k m : Set (Finset (ZMod N))) ⊆
       {A : Finset ℕ | #A = k ∧ #(restrictedSumset A) ≤ 2 * m} := by
@@ -82,7 +82,7 @@ lemma card_restrictedSumsetCardSets_zmod_le_of_le_rpow {k m : ℕ} (hk : 2 ^ 900
     obtain ⟨hAk, hAm⟩ := mem_restrictedSumsetCardSets.1 hA
     exact ⟨by simp [hAk], hAm ▸ card_restrictedSumset_zmodLift_le A⟩
   rw [← Set.ncard_coe_finset, ← Set.ncard_image_of_injective _ zmodLift_injective]
-  refine (Nat.cast_le.2 (ncard_le_card_mul_pow_of_coversFreimanIsoClasses (hcover.subset hsub)
+  refine (Nat.cast_le.2 (ncard_le_card_mul_pow_of_representsFreimanIsoClasses (hrep.subset hsub)
     (n := N) (r := ⌊4 * (m : ℝ) / k⌋₊) ?_)).trans ?_
   · rintro _ ⟨A, hA, rfl⟩
     obtain ⟨hXn, hXk, hXr⟩ := zmodLift_mem_boundedFreimanDimSets hk₀ hA

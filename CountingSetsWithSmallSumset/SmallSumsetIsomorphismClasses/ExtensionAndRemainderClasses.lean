@@ -5,22 +5,22 @@ Authors: Gabriel Dahia
 -/
 module
 
-public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Covers
+public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Representatives
 public import CountingSetsWithSmallSumset.RestrictedSumset
-import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.ExtensionCodes
+import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.ExtensionReferences
 
 /-!
 # The classes of extensions and of remainders
 
 This file contains Lemmas 16 and 17 of Green, *Counting sets with small sumset, and the clique
-number of random Cayley graphs*, in the form of covers by Freiman isomorphism classes, for finite
-subsets of a commutative monoid with cancellation.
+number of random Cayley graphs*, in the form of representatives of Freiman isomorphism classes,
+for finite subsets of a commutative monoid with cancellation.
 
 Lemma 16 bounds the number of classes of order `2` of the sets obtained by adding `d` elements to
-a set in a fixed class of order `4`, through extension codes. Lemma 17 states that a subset of the
-restricted sumset of a set `C` is Freiman isomorphic of order `4` to a subset of the restricted
-sumset of any set that is Freiman isomorphic to `C` of order `8`. The paper uses the orders `6`
-and `3` and the bound `l ^ (3 * t ^ 4)` in Lemma 16.
+a set in a fixed class of order `4`, through extension references. Lemma 17 states that a subset
+of the restricted sumset of a set `C` is Freiman isomorphic of order `4` to a subset of the
+restricted sumset of any set that is Freiman isomorphic to `C` of order `8`. The paper uses the
+orders `6` and `3` and the bound `l ^ (3 * t ^ 4)` in Lemma 16.
 
 ## Main definitions
 
@@ -31,11 +31,11 @@ and `3` and the bound `l ^ (3 * t ^ 4)` in Lemma 16.
 
 ## Main statements
 
-* `exists_coversFreimanIsoClasses_extensionsOfFreimanClass_card_le`: Lemma 16 of Green, at most
-  `(1 + |base| ^ 4) ^ ((d + 1) ^ 4)` classes of order `2`.
+* `exists_representsFreimanIsoClasses_extensionsOfFreimanClass_card_le`: Lemma 16 of Green, at
+  most `(1 + |base| ^ 4) ^ ((d + 1) ^ 4)` classes of order `2`.
 * `exists_subset_restrictedSumset_freimanIsomorphic`: Lemma 17 of Green.
-* `exists_coversFreimanIsoClasses_remaindersFromCoreClass_card_le`: the remainders lie in at most
-  `(|core ∔ core| choose u)` classes of order `4`.
+* `exists_representsFreimanIsoClasses_remaindersFromCoreClass_card_le`: the remainders lie in at
+  most `(|core ∔ core| choose u)` classes of order `4`.
 -/
 
 @[expose] public section
@@ -96,28 +96,28 @@ private lemma exists_extensionLabeling {base : Finset G} {b₀ : Fin #base → G
     rw [extensionBaseTuple_append]
     exact freimanRelationHolds_comp_iff hf.invFunOn hmem p
 
-/-- **Lemma 16** of Green, in the form of a cover. The sets obtained by adjoining `d` elements to
-a member of the class of order `4` of `base` lie in at most `(1 + |base| ^ 4) ^ ((d + 1) ^ 4)`
-classes of order `2`. -/
-lemma exists_coversFreimanIsoClasses_extensionsOfFreimanClass_card_le {base : Finset G}
+/-- **Lemma 16** of Green, in the form of representatives. The sets obtained by adjoining `d`
+elements to a member of the class of order `4` of `base` are represented by at most
+`(1 + |base| ^ 4) ^ ((d + 1) ^ 4)` of them up to Freiman isomorphism of order `2`. -/
+lemma exists_representsFreimanIsoClasses_extensionsOfFreimanClass_card_le {base : Finset G}
     (hbase : base.Nonempty) (d : ℕ) :
     ∃ representatives : Finset (Finset G),
       ↑representatives ⊆ extensionsOfFreimanClass base d ∧
-      CoversFreimanIsoClasses 2 (extensionsOfFreimanClass base d) representatives ∧
+      RepresentsFreimanIsoClasses 2 (extensionsOfFreimanClass base d) representatives ∧
       #representatives ≤ (1 + #base ^ 4) ^ ((d + 1) ^ 4) := by
   obtain ⟨b₀, hb₀, hb₀r⟩ := exists_injective_range_eq (rfl : #base = #base)
-  rw [← card_extensionCodeType]
-  refine exists_subset_coversFreimanIsoClasses_card_le_of_code
-    (fun A code ↦ ∃ a : Fin (#base + d) → G, Function.Injective a ∧ Set.range a = A ∧
+  rw [← card_extensionReferenceType]
+  refine exists_subset_representsFreimanIsoClasses_card_le_of_pattern
+    (fun A pattern ↦ ∃ a : Fin (#base + d) → G, Function.Injective a ∧ Set.range a = A ∧
       (∀ p : FreimanRelationIndex 4 #base,
         freimanRelationHolds (extensionBaseTuple a) p ↔ freimanRelationHolds b₀ p) ∧
-      extensionCode a = code) ?_ ?_
+      extensionReference a = pattern) ?_ ?_
   · intro A hA
     obtain ⟨a, ha, hrange, hrelations⟩ := exists_extensionLabeling hb₀ hb₀r hA
     exact ⟨_, a, ha, hrange, hrelations, rfl⟩
-  · rintro A - B - code ⟨a, ha, hA, hab₀, rfl⟩ ⟨b, hb, hB, hbb₀, hcode⟩
+  · rintro A - B - pattern ⟨a, ha, hA, hab₀, rfl⟩ ⟨b, hb, hB, hbb₀, hpattern⟩
     exact freimanIsomorphic_of_freimanRelationHolds_iff ha hA hb hB
-      (freimanRelationHolds_iff_of_extensionCode_eq ⟨0, hbase.card_pos⟩ hcode.symm
+      (freimanRelationHolds_iff_of_extensionReference_eq ⟨0, hbase.card_pos⟩ hpattern.symm
         fun p ↦ (hab₀ p).trans (hbb₀ p).symm)
 
 /-! ### Remainders in the restricted sumset of a class of order `8` -/
@@ -153,9 +153,9 @@ def remaindersFromCoreClass (core : Finset G) (u : ℕ) : Set (Finset G) :=
 
 /-- After fixing the class of order `8` of the core, the possible remainders lie in at most
 `(|core ∔ core| choose u)` classes of order `4`. -/
-lemma exists_coversFreimanIsoClasses_remaindersFromCoreClass_card_le (core : Finset G) (u : ℕ) :
+lemma exists_representsFreimanIsoClasses_remaindersFromCoreClass_card_le (core : Finset G) (u : ℕ) :
     ∃ representatives : Finset (Finset G),
-      CoversFreimanIsoClasses 4 (remaindersFromCoreClass core u) representatives ∧
+      RepresentsFreimanIsoClasses 4 (remaindersFromCoreClass core u) representatives ∧
       (∀ R ∈ representatives, #R = u) ∧ #representatives ≤ (#(restrictedSumset core)).choose u := by
   refine ⟨(restrictedSumset core).powersetCard u, ?_, ?_, (card_powersetCard _ _).le⟩
   · rintro B ⟨rfl, C, hC, hBC⟩

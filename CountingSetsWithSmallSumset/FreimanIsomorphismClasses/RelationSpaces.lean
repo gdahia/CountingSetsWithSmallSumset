@@ -11,7 +11,7 @@ public import Mathlib.LinearAlgebra.Finsupp.LinearCombination
 import Mathlib.LinearAlgebra.FiniteDimensional.Basic
 
 /-!
-# Relation codes and the number of Freiman isomorphism classes
+# Relation spaces and the number of Freiman isomorphism classes
 
 This file follows Section 3 of Green, *Counting sets with small sumset, and the clique number of
 random Cayley graphs*. Let `W` be a vector space over a field `F` and let `a : Fin t → W`. A
@@ -35,7 +35,7 @@ order `s`, which is Lemma 11.
 * `exists_isAddFreimanIso_range_of_freimanRelationSpace_eq`: Lemma 10 of Green.
 * `exists_span_freimanRelationVector_eq_freimanRelationSpace`: the span is spanned by the vectors
   of `t` relations.
-* `exists_coversFreimanIsoClasses_card_le_pow`: Lemma 11 of Green, at most `k ^ (2 * s * k)`
+* `exists_representsFreimanIsoClasses_card_le_pow`: Lemma 11 of Green, at most `k ^ (2 * s * k)`
   classes of order `s` of sets of `k` elements of `W`.
 -/
 
@@ -47,9 +47,9 @@ open Finset
 
 noncomputable section
 
-/-- There are `t ^ (2 * s * t)` tuples of `t` relations of order `s`. These tuples are the codes
-in Lemma 11 of Green. -/
-lemma card_freimanRelationCodes (s t : ℕ) :
+/-- There are `t ^ (2 * s * t)` tuples of `t` relations of order `s`. In Lemma 11 of Green, the
+class of a set is encoded by such a tuple whose relations span its relation space. -/
+lemma card_freimanRelationTuples (s t : ℕ) :
     Fintype.card (Fin t → FreimanRelationIndex s t) = t ^ (2 * s * t) := by
   simp only [Fintype.card_fun, Fintype.card_prod, Fintype.card_fin]
   ring
@@ -75,8 +75,8 @@ the vectors of `t` of these relations. The family is padded with trivial relatio
 exactly `t` entries. -/
 lemma exists_span_freimanRelationVector_eq_freimanRelationSpace (s : ℕ) {t : ℕ}
     (a : Fin t → W) :
-    ∃ code : Fin t → FreimanRelationIndex s t,
-      Submodule.span F (freimanRelationVector F '' Set.range code) =
+    ∃ rels : Fin t → FreimanRelationIndex s t,
+      Submodule.span F (freimanRelationVector F '' Set.range rels) =
         freimanRelationSpace F s a := by
   obtain ⟨basis, hmem, hspan, -⟩ := Submodule.exists_fun_fin_finrank_span_eq F
     (freimanRelationVector F '' {p : FreimanRelationIndex s t | freimanRelationHolds a p})
@@ -135,24 +135,25 @@ lemma exists_isAddFreimanIso_range_of_freimanRelationSpace_eq {s t : ℕ} {a : F
   exists_isAddFreimanIso_range ha hb (freimanRelationHolds_iff_of_freimanRelationSpace_eq h)
 
 include F in
-/-- A family of sets of `k` elements of a vector space over `F` is covered by at most
-`k ^ (2 * s * k)` of its members up to Freiman isomorphism of order `s`. -/
-lemma exists_subset_coversFreimanIsoClasses_card_le_pow (s : ℕ) {k : ℕ}
+/-- A family of sets of `k` elements of a vector space over `F` is represented by at
+most `k ^ (2 * s * k)` of its members up to Freiman isomorphism of order `s`. -/
+lemma exists_subset_representsFreimanIsoClasses_card_le_pow (s : ℕ) {k : ℕ}
     {family : Set (Finset W)} (hfamily : ∀ A ∈ family, #A = k) :
     ∃ representatives : Finset (Finset W), ↑representatives ⊆ family ∧
-      CoversFreimanIsoClasses s family representatives ∧ #representatives ≤ k ^ (2 * s * k) := by
-  rw [← card_freimanRelationCodes]
-  refine exists_subset_coversFreimanIsoClasses_card_le_of_code
-    (fun A code ↦ ∃ a : Fin k → W, Function.Injective a ∧ Set.range a = A ∧
-      Submodule.span F (freimanRelationVector F '' Set.range code) = freimanRelationSpace F s a)
+      RepresentsFreimanIsoClasses s family representatives ∧
+        #representatives ≤ k ^ (2 * s * k) := by
+  rw [← card_freimanRelationTuples]
+  refine exists_subset_representsFreimanIsoClasses_card_le_of_pattern
+    (fun A pattern ↦ ∃ a : Fin k → W, Function.Injective a ∧ Set.range a = A ∧
+      Submodule.span F (freimanRelationVector F '' Set.range pattern) = freimanRelationSpace F s a)
     ?_ ?_
   · intro A hA
     obtain ⟨a, ha, hrange⟩ := exists_injective_range_eq (hfamily A hA)
-    obtain ⟨code, hcode⟩ := exists_span_freimanRelationVector_eq_freimanRelationSpace F s a
-    exact ⟨code, a, ha, hrange, hcode⟩
-  · rintro A - B - code ⟨a, ha, hA, hacode⟩ ⟨b, hb, hB, hbcode⟩
+    obtain ⟨pattern, hpattern⟩ := exists_span_freimanRelationVector_eq_freimanRelationSpace F s a
+    exact ⟨pattern, a, ha, hrange, hpattern⟩
+  · rintro A - B - pattern ⟨a, ha, hA, hapattern⟩ ⟨b, hb, hB, hbpattern⟩
     exact freimanIsomorphic_of_freimanRelationHolds_iff ha hA hb hB
-      (freimanRelationHolds_iff_of_freimanRelationSpace_eq (hacode.symm.trans hbcode))
+      (freimanRelationHolds_iff_of_freimanRelationSpace_eq (hapattern.symm.trans hbpattern))
 
 variable (W)
 
@@ -160,13 +161,13 @@ include F in
 /-- **Lemma 11** of Green. Let `W` be a vector space over a field `F`. There is a family of at most
 `k ^ (2 * s * k)` sets of `k` elements of `W` such that every set of `k` elements of `W` is Freiman
 isomorphic of order `s` to a member of the family. -/
-lemma exists_coversFreimanIsoClasses_card_le_pow (s k : ℕ) :
+lemma exists_representsFreimanIsoClasses_card_le_pow (s k : ℕ) :
     ∃ representatives : Finset (Finset W),
-      CoversFreimanIsoClasses s {A : Finset W | #A = k} representatives ∧
+      RepresentsFreimanIsoClasses s {A : Finset W | #A = k} representatives ∧
         #representatives ≤ k ^ (2 * s * k) := by
-  obtain ⟨representatives, -, hcover, hcard⟩ :=
-    exists_subset_coversFreimanIsoClasses_card_le_pow F s fun (_ : Finset W) hA ↦ hA
-  exact ⟨representatives, hcover, hcard⟩
+  obtain ⟨representatives, -, hrep, hcard⟩ :=
+    exists_subset_representsFreimanIsoClasses_card_le_pow F s fun (_ : Finset W) hA ↦ hA
+  exact ⟨representatives, hrep, hcard⟩
 
 end
 

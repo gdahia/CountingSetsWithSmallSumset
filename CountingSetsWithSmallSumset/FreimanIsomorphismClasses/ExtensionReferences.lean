@@ -14,7 +14,7 @@ import Mathlib.Algebra.BigOperators.Fin
 import Mathlib.Tactic.Ring.RingNF
 
 /-!
-# Extension codes
+# Extension references
 
 This file contains the coding argument of Lemma 16 of Green, *Counting sets with small sumset,
 and the clique number of random Cayley graphs*. Let `a` be a tuple of length `l + d` in a
@@ -24,20 +24,22 @@ are. If two relations of the same shape hold, the difference of their parts on t
 coordinates is a relation with four terms on each side between the first `l` coordinates. So the
 relations with two terms on each side of `a` are determined by the relations with four terms on
 each side of its first `l` coordinates and by one relation of each shape, if there is one. This
-choice of one relation of each shape is the extension code of `a`.
+choice of one relation of each shape, the reference relation of that shape, is the extension
+reference of `a`.
 
 ## Main definitions
 
 * `ExtensionShape d`: the shape of a relation with two terms on each side.
 * `extensionBaseTuple a`: the first `l` coordinates of a tuple of length `l + d`.
-* `extensionCode a`: for each shape, a relation of that shape satisfied by `a`, if there is one.
+* `extensionReference a`: for each shape, a reference relation of that shape satisfied by `a`, if
+  there is one.
 
 ## Main statements
 
-* `freimanRelationHolds_iff_of_extensionCode_eq`: two tuples of length `l + d` with the same
-  extension code, whose first `l` coordinates satisfy the same relations with four terms on each
-  side, satisfy the same relations with two terms on each side.
-* `card_extensionCodeType`: there are `(1 + l ^ 4) ^ ((d + 1) ^ 4)` extension codes.
+* `freimanRelationHolds_iff_of_extensionReference_eq`: two tuples of length `l + d` with the same
+  extension reference, whose first `l` coordinates satisfy the same relations with four terms on
+  each side, satisfy the same relations with two terms on each side.
+* `card_extensionReferenceType`: there are `(1 + l ^ 4) ^ ((d + 1) ^ 4)` extension references.
 -/
 
 @[expose] public section
@@ -81,7 +83,7 @@ private lemma extensionSlot_extensionIndex (slot : ExtensionSlot d) (b : Fin l) 
 private def extensionShape : FreimanRelationIndex 2 (l + d) → ExtensionShape d :=
   fun (i, j) ↦ (extensionSlot ∘ i, extensionSlot ∘ j)
 
-private def extensionBaseWitness (i₀ : Fin l) :
+private def extensionBasePart (i₀ : Fin l) :
     FreimanRelationIndex 2 (l + d) → FreimanRelationIndex 2 l :=
   fun (i, j) ↦ (extensionBaseIndex i₀ ∘ i, extensionBaseIndex i₀ ∘ j)
 
@@ -89,56 +91,57 @@ private def extensionRelation :
     ExtensionShape d → FreimanRelationIndex 2 l → FreimanRelationIndex 2 (l + d) :=
   fun (u, v) (w₁, w₂) ↦ (fun k ↦ extensionIndex (u k) (w₁ k), fun k ↦ extensionIndex (v k) (w₂ k))
 
-private lemma extensionRelation_shape_witness (i₀ : Fin l) (p : FreimanRelationIndex 2 (l + d)) :
-    extensionRelation (extensionShape p) (extensionBaseWitness i₀ p) = p := by
+private lemma extensionRelation_shape_basePart (i₀ : Fin l) (p : FreimanRelationIndex 2 (l + d)) :
+    extensionRelation (extensionShape p) (extensionBasePart i₀ p) = p := by
   obtain ⟨i, j⟩ := p
-  simp [extensionRelation, extensionShape, extensionBaseWitness, extensionIndex_extensionSlot]
+  simp [extensionRelation, extensionShape, extensionBasePart, extensionIndex_extensionSlot]
 
 private lemma extensionShape_extensionRelation (shape : ExtensionShape d)
-    (witness : FreimanRelationIndex 2 l) :
-    extensionShape (extensionRelation shape witness) = shape := by
+    (part : FreimanRelationIndex 2 l) :
+    extensionShape (extensionRelation shape part) = shape := by
   obtain ⟨u, v⟩ := shape
-  obtain ⟨w₁, w₂⟩ := witness
+  obtain ⟨w₁, w₂⟩ := part
   simp [extensionShape, extensionRelation, Function.comp_def, extensionSlot_extensionIndex]
 
-private noncomputable instance extensionWitnessLinearOrder (l : ℕ) :
+private noncomputable instance extensionReferenceLinearOrder (l : ℕ) :
     LinearOrder (FreimanRelationIndex 2 l) :=
   LinearOrder.lift' (Fintype.equivFin _) (Fintype.equivFin _).injective
 
-private noncomputable def extensionWitnesses (a : Fin (l + d) → G) (shape : ExtensionShape d) :
+private noncomputable def extensionReferenceCandidates (a : Fin (l + d) → G)
+    (shape : ExtensionShape d) :
     Finset (FreimanRelationIndex 2 l) := by
   classical
-  exact univ.filter fun witness ↦ freimanRelationHolds a (extensionRelation shape witness)
+  exact univ.filter fun part ↦ freimanRelationHolds a (extensionRelation shape part)
 
 /-- For each shape, the least relation on the first `l` indices whose extension by the shape is
 a relation satisfied by `a`, if there is one. -/
-@[no_expose] noncomputable def extensionCode (a : Fin (l + d) → G) :
+@[no_expose] noncomputable def extensionReference (a : Fin (l + d) → G) :
     ExtensionShape d → Option (FreimanRelationIndex 2 l) :=
-  fun shape ↦ if h : (extensionWitnesses a shape).Nonempty then
-    some ((extensionWitnesses a shape).min' h) else none
+  fun shape ↦ if h : (extensionReferenceCandidates a shape).Nonempty then
+    some ((extensionReferenceCandidates a shape).min' h) else none
 
-private lemma mem_extensionWitnesses {a : Fin (l + d) → G} {shape : ExtensionShape d}
-    {witness : FreimanRelationIndex 2 l} :
-    witness ∈ extensionWitnesses a shape ↔
-      freimanRelationHolds a (extensionRelation shape witness) := by
-  simp [extensionWitnesses]
+private lemma mem_extensionReferenceCandidates {a : Fin (l + d) → G} {shape : ExtensionShape d}
+    {part : FreimanRelationIndex 2 l} :
+    part ∈ extensionReferenceCandidates a shape ↔
+      freimanRelationHolds a (extensionRelation shape part) := by
+  simp [extensionReferenceCandidates]
 
-private lemma freimanRelationHolds_of_extensionCode_eq_some {a : Fin (l + d) → G}
-    {shape : ExtensionShape d} {witness : FreimanRelationIndex 2 l}
-    (hcode : extensionCode a shape = some witness) :
-    freimanRelationHolds a (extensionRelation shape witness) := by
-  unfold extensionCode at hcode
-  split at hcode <;> cases hcode
-  exact mem_extensionWitnesses.mp (min'_mem _ _)
+private lemma freimanRelationHolds_of_extensionReference_eq_some {a : Fin (l + d) → G}
+    {shape : ExtensionShape d} {ref : FreimanRelationIndex 2 l}
+    (href : extensionReference a shape = some ref) :
+    freimanRelationHolds a (extensionRelation shape ref) := by
+  unfold extensionReference at href
+  split at href <;> cases href
+  exact mem_extensionReferenceCandidates.mp (min'_mem _ _)
 
-private lemma exists_extensionCode_eq_some (i₀ : Fin l) {a : Fin (l + d) → G}
+private lemma exists_extensionReference_eq_some (i₀ : Fin l) {a : Fin (l + d) → G}
     {p : FreimanRelationIndex 2 (l + d)} (hp : freimanRelationHolds a p) :
-    ∃ witness, extensionCode a (extensionShape p) = some witness := by
-  rw [← extensionRelation_shape_witness i₀ p, ← mem_extensionWitnesses] at hp
+    ∃ ref, extensionReference a (extensionShape p) = some ref := by
+  rw [← extensionRelation_shape_basePart i₀ p, ← mem_extensionReferenceCandidates] at hp
   exact ⟨_, dite_eq_left ⟨_, hp⟩⟩
 
-/-- There are `(1 + l ^ 4) ^ ((d + 1) ^ 4)` extension codes. -/
-lemma card_extensionCodeType (l d : ℕ) :
+/-- There are `(1 + l ^ 4) ^ ((d + 1) ^ 4)` extension references. -/
+lemma card_extensionReferenceType (l d : ℕ) :
     Fintype.card (ExtensionShape d → Option (FreimanRelationIndex 2 l)) =
       (1 + l ^ 4) ^ ((d + 1) ^ 4) := by
   simp only [Fintype.card_fun, Fintype.card_prod, Fintype.card_option, Fintype.card_sum,
@@ -184,18 +187,18 @@ private lemma freimanRelationHolds_extensionComparison_iff (i₀ : Fin l) (a : F
     Fin.sum_univ_two]
   grind
 
-private lemma freimanRelationHolds_of_extensionCode_eq (i₀ : Fin l) {a b : Fin (l + d) → G}
-    (hcode : extensionCode a = extensionCode b)
+private lemma freimanRelationHolds_of_extensionReference_eq (i₀ : Fin l) {a b : Fin (l + d) → G}
+    (hrefs : extensionReference a = extensionReference b)
     (hbase : ∀ r : FreimanRelationIndex 4 l,
       freimanRelationHolds (extensionBaseTuple a) r →
         freimanRelationHolds (extensionBaseTuple b) r)
     {p : FreimanRelationIndex 2 (l + d)} (hp : freimanRelationHolds a p) :
     freimanRelationHolds b p := by
-  obtain ⟨witness, hwitness⟩ := exists_extensionCode_eq_some i₀ hp
-  have hqa := freimanRelationHolds_of_extensionCode_eq_some hwitness
-  have hqb := freimanRelationHolds_of_extensionCode_eq_some (hcode ▸ hwitness)
-  have hshape := extensionShape_extensionRelation (extensionShape p) witness
-  generalize extensionRelation (extensionShape p) witness = q at hqa hqb hshape
+  obtain ⟨ref, href⟩ := exists_extensionReference_eq_some i₀ hp
+  have hqa := freimanRelationHolds_of_extensionReference_eq_some href
+  have hqb := freimanRelationHolds_of_extensionReference_eq_some (hrefs ▸ href)
+  have hshape := extensionShape_extensionRelation (extensionShape p) ref
+  generalize extensionRelation (extensionShape p) ref = q at hqa hqb hshape
   obtain ⟨p₁, p₂⟩ := p
   obtain ⟨q₁, q₂⟩ := q
   have hcomparison := hbase (extensionComparison i₀ (p₁, p₂) (q₁, q₂))
@@ -204,17 +207,17 @@ private lemma freimanRelationHolds_of_extensionCode_eq (i₀ : Fin l) {a b : Fin
   simp only [freimanRelationHolds, Fin.sum_univ_two] at hp hqa hqb ⊢
   grind
 
-/-- Two tuples of length `l + d` with the same extension code, whose first `l` coordinates
+/-- Two tuples of length `l + d` with the same extension reference, whose first `l` coordinates
 satisfy the same relations with four summands, satisfy the same relations with two summands. -/
-lemma freimanRelationHolds_iff_of_extensionCode_eq (i₀ : Fin l) {a b : Fin (l + d) → G}
-    (hcode : extensionCode a = extensionCode b)
+lemma freimanRelationHolds_iff_of_extensionReference_eq (i₀ : Fin l) {a b : Fin (l + d) → G}
+    (hrefs : extensionReference a = extensionReference b)
     (hbase : ∀ p : FreimanRelationIndex 4 l,
       freimanRelationHolds (extensionBaseTuple a) p ↔
         freimanRelationHolds (extensionBaseTuple b) p)
     (p : FreimanRelationIndex 2 (l + d)) :
     freimanRelationHolds a p ↔ freimanRelationHolds b p :=
-  ⟨freimanRelationHolds_of_extensionCode_eq i₀ hcode fun r ↦ (hbase r).mp,
-    freimanRelationHolds_of_extensionCode_eq i₀ hcode.symm fun r ↦ (hbase r).mpr⟩
+  ⟨freimanRelationHolds_of_extensionReference_eq i₀ hrefs fun r ↦ (hbase r).mp,
+    freimanRelationHolds_of_extensionReference_eq i₀ hrefs.symm fun r ↦ (hbase r).mpr⟩
 
 end
 

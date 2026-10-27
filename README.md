@@ -6,22 +6,15 @@ Combinatorica 25 (2005), 307–326. The paper bounds the number of sets of given
 size of restricted sumset in $\mathbb{Z}/N\mathbb{Z}$ and in $\mathbb{F}_2^n$. With these bounds
 it shows that a random Cayley sum graph on $\mathbb{Z}/N\mathbb{Z}$ almost surely has clique
 number $O(\log N)$, and that a random Cayley graph on $\mathbb{F}_2^n$, where $N = 2^n$, almost
-surely has clique number of order $\log N \log \log N$. Two sets are Freiman isomorphic of order
-$s$ if there is a bijection between them that preserves the equalities
-$a_1 + \dots + a_s = b_1 + \dots + b_s$ in both directions (`IsAddFreimanIso s` in Mathlib).
-
-The affine dimension of a finite set, Freiman's definition of the Freiman dimension and Freiman's
-lemma come from
-[SumOfSetsInSeveralDimensions](https://github.com/gdahia/SumOfSetsInSeveralDimensions), the proof
-of Ruzsa's lower bound for sumsets in several dimensions.
+surely has clique number of order $\log N \log \log N$.
 
 ## Results
 
 The results of the paper are numbered as in version 2 of the arXiv preprint, where theorems,
 propositions, lemmas and corollaries share one counter. Theorems 1 and 2 below are Theorem 7 of
-the paper, Theorem 3 is its Theorem 8, and Theorems 4 and 5 are its Theorem 9. The paper states
-them for sufficiently large parameters; here the thresholds are explicit. Theorems 7 and 9 of the
-paper are proved as limits, as in the paper, and as bounds for the number of exceptional sets.
+the paper, Theorem 3 is its Theorem 8, and Theorems 4 and 5 are its Theorem 9. Theorems 7 and 9
+of the paper are proved as limits, as in the paper, and as bounds for the number of exceptional
+sets.
 
 **Theorem 1** (`card_cliqueNum_cayleySumGraph_gt_le'`). Let $N$ be a positive integer. If
 $\log_2 N \ge 2^{9000}$, then
@@ -72,10 +65,10 @@ and `Quot.sound`.
 | `CayleySumGraph.lean` | Cayley sum graphs, their cliques, and the Cayley graph in exponent $2$ |
 | `RpowBounds.lean` | Inequalities for real powers of large numbers |
 | `AlmostAllSets.lean` | Proportions of subsets with a property |
-| `FreimanIsomorphismClasses/Covers.lean` | Freiman isomorphic sets and covers of a family by isomorphism classes |
+| `FreimanIsomorphismClasses/Representatives.lean` | Freiman isomorphic sets and representatives of the isomorphism classes of a family |
 | `FreimanIsomorphismClasses/Relations.lean` | Additive relations of tuples |
-| `FreimanIsomorphismClasses/RelationCodes.lean` | Relation vectors over a field, Lemmas 10 and 11 |
-| `FreimanIsomorphismClasses/ExtensionCodes.lean` | The extension codes behind Lemma 16 |
+| `FreimanIsomorphismClasses/RelationSpaces.lean` | Relation vectors and relation spaces over a field, Lemmas 10 and 11 |
+| `FreimanIsomorphismClasses/ExtensionReferences.lean` | The extension references behind Lemma 16 |
 | `FreimanIsomorphismClasses/BoundedFreimanDimSets.lean` | Sets of natural numbers of bounded Freiman dimension |
 | `FreimanDimension/HomSpace.lean` | $\mathrm{Hom}_2(A, M)$ and $r_F(A)$ |
 | `FreimanDimension/Interpolation.lean` | Lemma 12 |
@@ -86,8 +79,8 @@ and `Quot.sound`.
 | `FreimanDimension/Integers.lean` | Corollary 14 for sets of integers and of natural numbers |
 | `SmallSumsetIsomorphismClasses/CoreDecomposition.lean` | The random choice of the core in Proposition 15 |
 | `SmallSumsetIsomorphismClasses/CoreParameters.lean` | Proposition 15 |
-| `SmallSumsetIsomorphismClasses/ExtensionAndRemainderCovers.lean` | Lemmas 16 and 17 |
-| `SmallSumsetIsomorphismClasses/CoreAndCovers.lean` | The cover of the sets with small restricted sumset by classes |
+| `SmallSumsetIsomorphismClasses/ExtensionAndRemainderClasses.lean` | Lemmas 16 and 17 |
+| `SmallSumsetIsomorphismClasses/CoreAndRepresentatives.lean` | Representatives of the classes of the sets with small restricted sumset |
 | `SmallSumsetIsomorphismClasses/ClassCountBounds.lean` | Proposition 18 and the counts of sets of natural numbers |
 | `LargeRestrictedSumset/SummingQuadruples.lean` | Summing quadruples and the Cauchy–Schwarz bound |
 | `LargeRestrictedSumset/SubsetAveraging.lean` | Subsets with few non-degenerate summing quadruples |
@@ -127,7 +120,7 @@ lake build
 ```
 
 The default build includes the library and the solution. `lake build Challenge` builds the
-challenge; its five `sorry` warnings are expected.
+challenge, and its five `sorry` warnings are expected.
 
 ## Verification
 

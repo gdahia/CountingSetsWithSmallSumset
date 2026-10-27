@@ -8,7 +8,7 @@ module
 public import CountingSetsWithSmallSumset.RestrictedSumsetCardSets
 public import Mathlib.Analysis.SpecialFunctions.Log.Base
 import CountingSetsWithSmallSumset.BinaryGroups.FreimanDimension
-import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationCodes
+import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationSpaces
 import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ClassCountBounds
 
 /-!
@@ -56,12 +56,12 @@ Freiman isomorphic to a member of `representatives`, then
 `|S_k^m(𝔽₂ⁿ)| ≤ |representatives| * (2 ^ n) ^ (4 * m * log₂ k / k)`. -/
 private lemma card_restrictedSumsetCardSets_le_card_mul {k m : ℕ} (hk : 2 ≤ k)
     {representatives : Finset (Finset (Fin n → ZMod 2))}
-    (hcover : CoversFreimanIsoClasses 2
+    (hrep : RepresentsFreimanIsoClasses 2
       {A : Finset (Fin n → ZMod 2) | #A = k ∧ #(restrictedSumset A) ≤ m} representatives) :
     #(restrictedSumsetCardSets (Fin n → ZMod 2) k m) ≤
       #representatives * ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) := by
   choose! r hr hrA using fun A (hA : A ∈ restrictedSumsetCardSets (Fin n → ZMod 2) k m) ↦
-    hcover A (by grind [mem_restrictedSumsetCardSets])
+    hrep A (by grind [mem_restrictedSumsetCardSets])
   rw [card_eq_sum_card_fiberwise hr, Nat.cast_sum, ← nsmul_eq_mul]
   refine sum_le_card_nsmul _ _ _ ?_
   intro B _
@@ -79,10 +79,10 @@ lemma card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow {k m : ℕ} (hk : 
     #(restrictedSumsetCardSets (Fin n → ZMod 2) k m) ≤
       (2 ^ n) ^ (4 * m * logb 2 k / k) * (exp 1 * m / k) ^ k * exp (k ^ ((31 : ℝ) / 32)) := by
   have ht : smallSumsetClassCountThreshold ≤ k := by rwa [smallSumsetClassCountThreshold_def]
-  obtain ⟨representatives, hcover, hcard⟩ :=
-    exists_coversFreimanIsoClasses_card_restrictedSumset_le (ZMod 2) (Fin n → ZMod 2) ht hm
+  obtain ⟨representatives, hrep, hcard⟩ :=
+    exists_representsFreimanIsoClasses_card_restrictedSumset_le (ZMod 2) (Fin n → ZMod 2) ht hm
   refine (card_restrictedSumsetCardSets_le_card_mul
-    (one_lt_of_smallSumsetClassCountThreshold_le ht) hcover).trans ?_
+    (one_lt_of_smallSumsetClassCountThreshold_le ht) hrep).trans ?_
   refine (mul_le_mul_of_nonneg_right hcard (by positivity)).trans_eq ?_
   ring
 
@@ -92,9 +92,9 @@ variable (n) in
 lemma card_restrictedSumsetCardSets_pi_zmod_two_le {k : ℕ} (hk : 2 ≤ k) (m : ℕ) :
     #(restrictedSumsetCardSets (Fin n → ZMod 2) k m) ≤
       ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) * k ^ (4 * k) := by
-  obtain ⟨representatives, hcover, hcard⟩ :=
-    exists_coversFreimanIsoClasses_card_le_pow (ZMod 2) (Fin n → ZMod 2) 2 k
-  refine (card_restrictedSumsetCardSets_le_card_mul hk (hcover.subset fun A ⟨hA, _⟩ ↦ hA)).trans ?_
+  obtain ⟨representatives, hrep, hcard⟩ :=
+    exists_representsFreimanIsoClasses_card_le_pow (ZMod 2) (Fin n → ZMod 2) 2 k
+  refine (card_restrictedSumsetCardSets_le_card_mul hk (hrep.subset fun A ⟨hA, _⟩ ↦ hA)).trans ?_
   rw [mul_comm]
   gcongr
   exact_mod_cast (hcard : #representatives ≤ k ^ (4 * k))

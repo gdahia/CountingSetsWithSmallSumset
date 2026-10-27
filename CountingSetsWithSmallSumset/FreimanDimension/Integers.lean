@@ -9,7 +9,7 @@ public import CountingSetsWithSmallSumset.FreimanDimension.HomSpace
 public import SumOfSetsInSeveralDimensions.FreimanDimension
 import CountingSetsWithSmallSumset.FreimanDimension.AffineModel
 import CountingSetsWithSmallSumset.FreimanDimension.RationalVectors
-import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Covers
+import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Representatives
 
 /-!
 # Green's Freiman dimension of a set of integers

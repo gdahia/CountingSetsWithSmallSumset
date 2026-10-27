@@ -5,11 +5,11 @@ Authors: Gabriel Dahia
 -/
 module
 
-public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Covers
+public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Representatives
 public import SumOfSetsInSeveralDimensions.FreimanDimension
 public import Mathlib.Algebra.Group.Pointwise.Finset.Basic
 import CountingSetsWithSmallSumset.FreimanDimension.IsomorphicCopies
-import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationCodes
+import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationSpaces
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 
 /-!
@@ -18,7 +18,7 @@ import Mathlib.Algebra.Order.BigOperators.Group.Finset
 This file follows Section 3 of Green, *Counting sets with small sumset, and the clique number of
 random Cayley graphs*, for sets of natural numbers. A Freiman isomorphism class of order `2` of
 sets of Freiman dimension at most `r` has at most `n ^ (r + 1)` members in `[n] = {1, …, n}`. So a
-family of such sets that is covered by `K` classes has at most `K * n ^ (r + 1)` members. By
+family of such sets that lies in `K` classes has at most `K * n ^ (r + 1)` members. By
 Lemma 11 of Green, applied in `ℚ`, the sets of `t` natural numbers lie in at most `t ^ (4 * t)`
 classes. Hence there are at most `n ^ (r + 1) * t ^ (4 * t)` sets `X ⊆ [n]` with `t` elements and
 Freiman dimension at most `r`.
@@ -32,8 +32,8 @@ Freiman dimension at most `r`.
 
 ## Main statements
 
-* `ncard_le_card_mul_pow_of_coversFreimanIsoClasses`: a family of nonempty sets `X ⊆ [n]` with
-  `freimanDim X ≤ r` that is covered by `K` classes has at most `K * n ^ (r + 1)` members.
+* `ncard_le_card_mul_pow_of_representsFreimanIsoClasses`: a family of nonempty sets `X ⊆ [n]` with
+  `freimanDim X ≤ r` that lies in `K` classes has at most `K * n ^ (r + 1)` members.
 * `card_boundedFreimanDimSets`: there are at most `n ^ (r + 1) * t ^ (4 * t)` sets in
   `boundedFreimanDimSets n r t`.
 -/
@@ -72,12 +72,12 @@ private lemma card_le_pow_of_forall_freimanIsomorphic {n r : ℕ} {s : Finset (F
   rw [Nat.card_Icc, Nat.add_sub_cancel]
   exact Nat.pow_le_pow_right (by grind [mem_Icc.1 (hXn hx)]) (by grind)
 
-/-- If `representatives` covers the classes of order `2` of a family of nonempty sets `X ⊆ [n]`
-with `freimanDim X ≤ r`, then the family has at most `|representatives| * n ^ (r + 1)`
-members. -/
-lemma ncard_le_card_mul_pow_of_coversFreimanIsoClasses {n r : ℕ} {family : Set (Finset ℕ)}
+/-- If a family of nonempty sets `X ⊆ [n]` with `freimanDim X ≤ r` is represented by
+`representatives` up to Freiman isomorphism of order `2`, then the family has at most
+`|representatives| * n ^ (r + 1)` members. -/
+lemma ncard_le_card_mul_pow_of_representsFreimanIsoClasses {n r : ℕ} {family : Set (Finset ℕ)}
     {representatives : Finset (Finset ℕ)}
-    (hcover : CoversFreimanIsoClasses 2 family representatives)
+    (hrep : RepresentsFreimanIsoClasses 2 family representatives)
     (hfamily : ∀ X ∈ family, X.Nonempty ∧ X ⊆ Icc 1 n ∧ freimanDim X ≤ r) :
     family.ncard ≤ #representatives * n ^ (r + 1) := by
   classical
@@ -86,7 +86,7 @@ lemma ncard_le_card_mul_pow_of_coversFreimanIsoClasses {n r : ℕ} {family : Set
     intro X hX
     obtain ⟨-, hXn, -⟩ := hfamily X hX
     exact mem_powerset.2 hXn
-  choose! B hB hXB using hcover
+  choose! B hB hXB using hrep
   rw [Set.ncard_eq_toFinset_card _ hfin, mul_comm]
   refine card_le_mul_card_image_of_maps_to (fun X hX ↦ hB X (hfin.mem_toFinset.1 hX)) _ ?_
   intro C _
@@ -101,15 +101,15 @@ lemma ncard_le_card_mul_pow_of_coversFreimanIsoClasses {n r : ℕ} {family : Set
 dimension at most `r`. -/
 lemma card_boundedFreimanDimSets (n r : ℕ) {t : ℕ} (ht : 0 < t) :
     (boundedFreimanDimSets n r t).ncard ≤ (n : ℝ) ^ (r + 1) * t ^ (4 * t) := by
-  obtain ⟨representatives, hcover, hcard⟩ := exists_coversFreimanIsoClasses_card_le_pow ℚ ℚ 2 t
+  obtain ⟨representatives, hrep, hcard⟩ := exists_representsFreimanIsoClasses_card_le_pow ℚ ℚ 2 t
   have hsub : image (Nat.castAddMonoidHom ℚ) '' boundedFreimanDimSets n r t ⊆ {A | #A = t} := by
     rintro _ ⟨X, ⟨-, hX, -⟩, rfl⟩
     simpa [card_image_of_injective _ Nat.cast_injective]
-  obtain ⟨representatives', -, hcover', hcard'⟩ := exists_coversFreimanIsoClasses_card_le_of_image
+  obtain ⟨representatives', -, hrep', hcard'⟩ := exists_representsFreimanIsoClasses_card_le_of_image
     (isAddFreimanIso_image_of_injective 2 (φ := Nat.castAddMonoidHom ℚ) Nat.cast_injective)
-    (hcover.subset hsub)
+    (hrep.subset hsub)
   rw [mul_comm]
-  exact_mod_cast (ncard_le_card_mul_pow_of_coversFreimanIsoClasses hcover' fun X ⟨hXn, hX, hXr⟩ ↦
+  exact_mod_cast (ncard_le_card_mul_pow_of_representsFreimanIsoClasses hrep' fun X ⟨hXn, hX, hXr⟩ ↦
     ⟨card_pos.1 (hX ▸ ht), hXn, hXr⟩).trans (Nat.mul_le_mul_right _ (hcard'.trans hcard))
 
 end CountingSetsWithSmallSumset

@@ -6,7 +6,7 @@ Authors: Gabriel Dahia
 module
 
 public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.BoundedFreimanDimSets
-public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.CoreAndCovers
+public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.CoreAndRepresentatives
 import Mathlib.Analysis.Complex.ExponentialBounds
 import Mathlib.Analysis.SpecialFunctions.Log.Monotone
 
@@ -27,12 +27,11 @@ Proposition 18 for `t` sufficiently large; here `t ≥ 2 ^ 9000`.
 
 * `freimanClassCountBound_le`: the bound
   `freimanClassCountBound t m ≤ (e * m / t) ^ t * exp (99 / 100 * t ^ (31 / 32))`.
-* `exists_coversFreimanIsoClasses_card_restrictedSumset_le`: Proposition 18 of Green for subsets
+* `exists_representsFreimanIsoClasses_card_restrictedSumset_le`: Proposition 18 of Green for subsets
   of a vector space.
-* `exists_coversFreimanIsoClasses_card_restrictedSumset_le_of_injective`: Proposition 18 of Green
-  for a set with an injective additive map into a vector space.
-* `smallSumsetFreimanDimSets_ncard_le_of_class_cover`: the bound for the number of sets of natural
-  numbers.
+* `exists_representsFreimanIsoClasses_card_restrictedSumset_le_of_injective`: Proposition 18 of
+  Green for a set with an injective additive map into a vector space.
+* `smallSumsetFreimanDimSets_ncard_le`: the bound for the number of sets of natural numbers.
 -/
 
 @[expose] public section
@@ -267,23 +266,23 @@ private lemma exp_one_pow_mul_exp_le {t m : ℕ} (ht : smallSumsetClassCountThre
 and `m ≤ t ^ (31 / 30)`. There is a family of at most `(e * m / t) ^ t * exp (t ^ (31 / 32))` finite
 subsets of `W` such that every set of `t` elements of `W` whose restricted sumset has at most `m`
 elements is Freiman isomorphic of order `2` to a member of the family. -/
-lemma exists_coversFreimanIsoClasses_card_restrictedSumset_le (F W : Type*) [Field F]
+lemma exists_representsFreimanIsoClasses_card_restrictedSumset_le (F W : Type*) [Field F]
     [AddCommGroup W] [Module F W] [DecidableEq W] {t m : ℕ}
     (ht : smallSumsetClassCountThreshold ≤ t) (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) :
     ∃ representatives : Finset (Finset W),
-      CoversFreimanIsoClasses 2 {A : Finset W | #A = t ∧ #(restrictedSumset A) ≤ m}
+      RepresentsFreimanIsoClasses 2 {A : Finset W | #A = t ∧ #(restrictedSumset A) ≤ m}
         representatives ∧
       #representatives ≤ (exp 1 * m / t) ^ t * exp (t ^ ((31 : ℝ) / 32)) := by
   obtain htm | hmt | hmt : t ≤ m ∨ m + 1 = t ∨ m + 1 < t := by grind
-  · obtain ⟨representatives, hcover, hcard⟩ :=
-      exists_coversFreimanIsoClasses_card_le_freimanClassCountBound F W ht htm
-    refine ⟨representatives, hcover,
+  · obtain ⟨representatives, hrep, hcard⟩ :=
+      exists_representsFreimanIsoClasses_card_le_freimanClassCountBound F W ht htm
+    refine ⟨representatives, hrep,
       (Nat.cast_le.2 hcard).trans ((freimanClassCountBound_le ht htm hm).trans ?_)⟩
     gcongr
     linarith [rpow_nonneg (Nat.cast_nonneg t) ((31 : ℝ) / 32)]
-  · obtain ⟨representatives, hcover, hcard⟩ :=
-      exists_coversFreimanIsoClasses_card_le_freimanClassCountBound F W ht le_rfl
-    refine ⟨representatives, hcover.subset fun A ⟨hA, hAm⟩ ↦ ⟨hA, by grind⟩,
+  · obtain ⟨representatives, hrep, hcard⟩ :=
+      exists_representsFreimanIsoClasses_card_le_freimanClassCountBound F W ht le_rfl
+    refine ⟨representatives, hrep.subset fun A ⟨hA, hAm⟩ ↦ ⟨hA, by grind⟩,
       (Nat.cast_le.2 hcard).trans
         ((freimanClassCountBound_le ht le_rfl ?_).trans (exp_one_pow_mul_exp_le ht hmt))⟩
     simpa using rpow_le_rpow_of_exponent_le (one_le_natCast ht) (by norm_num : (1 : ℝ) ≤ 31 / 30)
@@ -304,31 +303,31 @@ space `W` over a field `F`, such as `ℕ` or `ℤ` with the inclusion into `ℚ`
 `m ≤ t ^ (31 / 30)`. There is a family of at most `(e * m / t) ^ t * exp (t ^ (31 / 32))` finite
 subsets of `G` such that every set of `t` elements of `G` whose restricted sumset has at most `m`
 elements is Freiman isomorphic of order `2` to a member of the family. -/
-lemma exists_coversFreimanIsoClasses_card_restrictedSumset_le_of_injective {G : Type*}
+lemma exists_representsFreimanIsoClasses_card_restrictedSumset_le_of_injective {G : Type*}
     [AddCommMonoid G] [DecidableEq G] (F : Type*) {W : Type*} [Field F] [AddCommGroup W]
     [Module F W] {φ : G →+ W} (hφ : Function.Injective φ) {t m : ℕ}
     (ht : smallSumsetClassCountThreshold ≤ t) (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) :
     ∃ representatives : Finset (Finset G),
-      CoversFreimanIsoClasses 2 {A : Finset G | #A = t ∧ #(restrictedSumset A) ≤ m}
+      RepresentsFreimanIsoClasses 2 {A : Finset G | #A = t ∧ #(restrictedSumset A) ≤ m}
         representatives ∧
       #representatives ≤ (exp 1 * m / t) ^ t * exp (t ^ ((31 : ℝ) / 32)) := by
   classical
-  obtain ⟨representatives, hcover, hcard⟩ :=
-    exists_coversFreimanIsoClasses_card_restrictedSumset_le F W ht hm
+  obtain ⟨representatives, hrep, hcard⟩ :=
+    exists_representsFreimanIsoClasses_card_restrictedSumset_le F W ht hm
   have hsub : image φ '' {A : Finset G | #A = t ∧ #(restrictedSumset A) ≤ m} ⊆
       {A : Finset W | #A = t ∧ #(restrictedSumset A) ≤ m} := by
     rintro _ ⟨A, ⟨hA, hAm⟩, rfl⟩
     exact ⟨(card_image_of_injective _ hφ).trans hA, (card_le_card
       (restrictedSumset_image_subset φ.toAddHom A)).trans (card_image_le.trans hAm)⟩
-  obtain ⟨representatives', -, hcover', hcard'⟩ := exists_coversFreimanIsoClasses_card_le_of_image
-    (isAddFreimanIso_image_of_injective 2 hφ) (hcover.subset hsub)
-  exact ⟨representatives', hcover', (Nat.cast_le.2 hcard').trans hcard⟩
+  obtain ⟨representatives', -, hrep', hcard'⟩ := exists_representsFreimanIsoClasses_card_le_of_image
+    (isAddFreimanIso_image_of_injective 2 hφ) (hrep.subset hsub)
+  exact ⟨representatives', hrep', (Nat.cast_le.2 hcard').trans hcard⟩
 
 /-- Let `t ≥ 2 ^ 9000` and `s ≤ t ^ (31 / 30) / 2`. There are at most
 `n ^ (r + 1) * (2 * e * s / t) ^ t * exp (t ^ (31 / 32))` sets `X ⊆ [n]` with `|X| = t`,
 `freimanDim X ≤ r` and `|X + X| ≤ s`. The paper does not state this bound. It follows from
 Proposition 18 and the bound `n ^ (r + 1)` for the number of members of a class in `[n]`. -/
-lemma smallSumsetFreimanDimSets_ncard_le_of_class_cover (n r s t : ℕ)
+lemma smallSumsetFreimanDimSets_ncard_le (n r s t : ℕ)
     (ht : smallSumsetClassCountThreshold ≤ t)
     (hs : s ≤ (t : ℝ) ^ ((31 : ℝ) / 30) / 2) :
     (smallSumsetFreimanDimSets n r s t).ncard ≤
@@ -336,14 +335,14 @@ lemma smallSumsetFreimanDimSets_ncard_le_of_class_cover (n r s t : ℕ)
   have hm : ((2 * s : ℕ) : ℝ) ≤ (t : ℝ) ^ ((31 : ℝ) / 30) := by
     push_cast
     linarith
-  obtain ⟨representatives, hcover, hcard⟩ :=
-    exists_coversFreimanIsoClasses_card_restrictedSumset_le_of_injective ℚ
+  obtain ⟨representatives, hrep, hcard⟩ :=
+    exists_representsFreimanIsoClasses_card_restrictedSumset_le_of_injective ℚ
       (φ := Nat.castAddMonoidHom ℚ) Nat.cast_injective ht hm
   have hsub : smallSumsetFreimanDimSets n r s t ⊆
       {A : Finset ℕ | #A = t ∧ #(restrictedSumset A) ≤ 2 * s} := by
     rintro X ⟨-, hX, -, hXs⟩
     exact ⟨hX, (card_restrictedSumset_le_card_add X).trans (by grind)⟩
-  refine (Nat.cast_le.2 (ncard_le_card_mul_pow_of_coversFreimanIsoClasses (hcover.subset hsub)
+  refine (Nat.cast_le.2 (ncard_le_card_mul_pow_of_representsFreimanIsoClasses (hrep.subset hsub)
     fun X ⟨hXn, hX, hXr, _⟩ ↦ ⟨card_pos.1 (hX ▸ pos_of_smallSumsetClassCountThreshold_le ht),
       hXn, hXr⟩)).trans ?_
   rw [Nat.cast_mul, Nat.cast_pow, mul_comm, mul_assoc]

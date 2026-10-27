@@ -33,9 +33,9 @@ public import CountingSetsWithSmallSumset.FreimanDimension.Interpolation
 public import CountingSetsWithSmallSumset.FreimanDimension.IsomorphicCopies
 public import CountingSetsWithSmallSumset.FreimanDimension.RationalVectors
 public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.BoundedFreimanDimSets
-public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Covers
-public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.ExtensionCodes
-public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationCodes
+public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Representatives
+public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.ExtensionReferences
+public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.RelationSpaces
 public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Relations
 public import CountingSetsWithSmallSumset.FreimanLemma.RestrictedSumset
 public import CountingSetsWithSmallSumset.LargeRestrictedSumset.LargeSubset
@@ -46,10 +46,10 @@ public import CountingSetsWithSmallSumset.RestrictedSumset
 public import CountingSetsWithSmallSumset.RestrictedSumsetCardSets
 public import CountingSetsWithSmallSumset.RpowBounds
 public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ClassCountBounds
-public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.CoreAndCovers
+public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.CoreAndRepresentatives
 public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.CoreDecomposition
 public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.CoreParameters
-public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ExtensionAndRemainderCovers
+public import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.ExtensionAndRemainderClasses
 
 /-!
 # Counting sets with small sumset
@@ -66,18 +66,18 @@ are also stated as limits, as in the paper.
 
 * Definition 3: `restrictedSumsetCardSets`, the family `S_k^m(Γ)`.
 * Lemma 10: `exists_isAddFreimanIso_range_of_freimanRelationSpace_eq`.
-* Lemma 11: `exists_coversFreimanIsoClasses_card_le_pow`.
+* Lemma 11: `exists_representsFreimanIsoClasses_card_le_pow`.
 * Lemma 12: `exists_interpolation_points`.
 * Lemma 13: `exists_freimanBasis_of_module`.
 * Corollary 14: `isGreatest_freimanDimOver`, `isGreatest_freimanDimOver_of_isAddFreimanIso`, and,
   for Freiman's dimension `freimanDim`, `freimanDimOver_rat_eq_freimanDim_int` and
   `freimanDimOver_rat_eq_freimanDim_nat`.
 * Proposition 15: `exists_image_add_subset_restrictedSumset`.
-* Lemma 16: `exists_coversFreimanIsoClasses_extensionsOfFreimanClass_card_le`.
+* Lemma 16: `exists_representsFreimanIsoClasses_extensionsOfFreimanClass_card_le`.
 * Lemma 17: `exists_subset_restrictedSumset_freimanIsomorphic`.
-* Proposition 18: `exists_coversFreimanIsoClasses_card_restrictedSumset_le`, and
-  `exists_coversFreimanIsoClasses_card_restrictedSumset_le_of_injective` for sets with an injective
-  additive map into a vector space, such as sets of natural numbers.
+* Proposition 18: `exists_representsFreimanIsoClasses_card_restrictedSumset_le`, and
+  `exists_representsFreimanIsoClasses_card_restrictedSumset_le_of_injective` for sets with an
+  injective additive map into a vector space, such as sets of natural numbers.
 * Proposition 19: `exists_subset_card_le_and_le_card_restrictedSumset`.
 * Corollary 20: `exists_subset_seven_mul_card_le_card_restrictedSumset`.
 * Lemma 21: `freimanDim_mul_le_card_restrictedSumset`.
@@ -102,7 +102,7 @@ isomorphism class in `[n] = {1, …, n}`.
 
 * `card_boundedFreimanDimSets`: there are at most `n ^ (r + 1) * t ^ (4 * t)` sets `X ⊆ [n]` with
   `t` elements and Freiman dimension at most `r`.
-* `smallSumsetFreimanDimSets_ncard_le_of_class_cover`: if `t ≥ 2 ^ 9000` and
+* `smallSumsetFreimanDimSets_ncard_le`: if `t ≥ 2 ^ 9000` and
   `s ≤ t ^ (31 / 30) / 2`, there are at most
   `n ^ (r + 1) * (2 * e * s / t) ^ t * exp (t ^ (31 / 32))` sets `X ⊆ [n]` with `|X| = t`,
   `freimanDim X ≤ r` and `|X + X| ≤ s`.

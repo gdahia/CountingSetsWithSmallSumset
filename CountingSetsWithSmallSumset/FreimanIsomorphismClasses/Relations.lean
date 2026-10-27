@@ -5,7 +5,7 @@ Authors: Gabriel Dahia
 -/
 module
 
-public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Covers
+public import CountingSetsWithSmallSumset.FreimanIsomorphismClasses.Representatives
 import Mathlib.Algebra.BigOperators.Fin
 
 /-!
