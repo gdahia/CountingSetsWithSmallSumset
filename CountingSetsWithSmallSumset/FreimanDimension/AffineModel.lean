@@ -25,13 +25,13 @@ graphs*.
 
 ## Main statements
 
-* `finrank_vectorSpan_image_le_freimanDimOver`: the image of `A` under a Freiman homomorphism has
+* `finrank_vectorSpan_image_le_freimanDim'`: the image of `A` under a Freiman homomorphism has
   affine dimension at most `r_F(A)`.
-* `finrank_vectorSpan_le_freimanDimOver`: a set in an `F`-vector space has affine dimension at
+* `finrank_vectorSpan_le_freimanDim'`: a set in an `F`-vector space has affine dimension at
   most `r_F(A)`.
 * `exists_isAddFreimanIso_finrank_vectorSpan_eq`: `A` is Freiman isomorphic to a subset of `F^r`
   of affine dimension `r = r_F(A)`.
-* `isGreatest_freimanDimOver_of_isAddFreimanIso`, `isGreatest_freimanDimOver`: Corollary 14 of
+* `isGreatest_freimanDim'_of_isAddFreimanIso`, `isGreatest_freimanDim'`: Corollary 14 of
   Green.
 -/
 
@@ -46,9 +46,9 @@ variable (F : Type*) [Field F] {G : Type*} [AddCommMonoid G] {V : Type*} [AddCom
 
 /-- The image of `A` under a Freiman homomorphism into an `F`-vector space has affine dimension at
 most `r_F(A)`. -/
-lemma finrank_vectorSpan_image_le_freimanDimOver {A : Finset G} {f : G → V}
+lemma finrank_vectorSpan_image_le_freimanDim' {A : Finset G} {f : G → V}
     (hf : IsAddFreimanHom 2 (A : Set G) Set.univ f) :
-    finrank F (vectorSpan F (f '' A)) ≤ freimanDimOver F A := by
+    finrank F (vectorSpan F (f '' A)) ≤ freimanDim' F A := by
   rcases A.eq_empty_or_nonempty with rfl | hA
   · rw [Finset.coe_empty, Set.image_empty, vectorSpan_empty, finrank_bot]
     exact Nat.zero_le _
@@ -64,10 +64,10 @@ lemma finrank_vectorSpan_image_le_freimanDimOver {A : Finset G} {f : G → V}
   simpa [direction_affineSpan] using AffineSubspace.direction_le (affineSpan_le.2 hsub)
 
 /-- A finite set `A` in an `F`-vector space has affine dimension at most `r_F(A)`. -/
-lemma finrank_vectorSpan_le_freimanDimOver (A : Finset W) :
-    finrank F (vectorSpan F (A : Set W)) ≤ freimanDimOver F A := by
+lemma finrank_vectorSpan_le_freimanDim' (A : Finset W) :
+    finrank F (vectorSpan F (A : Set W)) ≤ freimanDim' F A := by
   rw [← Set.image_id (A : Set W)]
-  exact finrank_vectorSpan_image_le_freimanDimOver F
+  exact finrank_vectorSpan_image_le_freimanDim' F
     (isAddFreimanHom_id (Set.subset_univ (A : Set W)))
 
 /-- The vertices `0, e₁, …, e_r` of the standard simplex of `F^r` are affinely independent. -/
@@ -86,19 +86,19 @@ private lemma affineIndependent_cons_zero_single (r : ℕ) :
 Freiman isomorphic to a subset of `F^r` of affine dimension `r = r_F(A)`. -/
 lemma exists_isAddFreimanIso_finrank_vectorSpan_eq {A : Finset G} (hA : A.Nonempty) {g : G → V}
     (hg : IsAddFreimanIso 2 (A : Set G) (g '' A) g) :
-    ∃ f : G → (Fin (freimanDimOver F A) → F), IsAddFreimanIso 2 (A : Set G) (f '' A) f ∧
-      finrank F (vectorSpan F (f '' A)) = freimanDimOver F A := by
+    ∃ f : G → (Fin (freimanDim' F A) → F), IsAddFreimanIso 2 (A : Set G) (f '' A) f ∧
+      finrank F (vectorSpan F (f '' A)) = freimanDim' F A := by
   classical
   obtain ⟨a, ha⟩ := exists_isFreimanBasis F hA
-  let w : Fin (freimanDimOver F A + 1) → Fin (freimanDimOver F A) → F :=
+  let w : Fin (freimanDim' F A + 1) → Fin (freimanDim' F A) → F :=
     Fin.cons 0 fun j ↦ Pi.single j 1
-  obtain ⟨φ, hφ⟩ := (ha.bijective (Fin (freimanDimOver F A) → F)).surjective w
-  let f : G → Fin (freimanDimOver F A) → F := fun x ↦
-    if h : x ∈ A then (φ : A → Fin (freimanDimOver F A) → F) ⟨x, h⟩ else 0
+  obtain ⟨φ, hφ⟩ := (ha.bijective (Fin (freimanDim' F A) → F)).surjective w
+  let f : G → Fin (freimanDim' F A) → F := fun x ↦
+    if h : x ∈ A then (φ : A → Fin (freimanDim' F A) → F) ⟨x, h⟩ else 0
   have hfφ : (fun x : A ↦ f x) = φ := funext fun x ↦ dite_eq_left x.prop
   have hfa (i) : f (a i) = w i := (dite_eq_left (a i).prop).trans (congrFun hφ i)
   have hind : AffineIndependent F fun i ↦ f (a i) := by
-    simpa [hfa] using affineIndependent_cons_zero_single F (freimanDimOver F A)
+    simpa [hfa] using affineIndependent_cons_zero_single F (freimanDim' F A)
   refine ⟨f, ha.isAddFreimanIso_of_affineIndependent hg
     (mem_freimanHomSpace_iff_isAddFreimanHom.1 (hfφ ▸ φ.prop)) hind, le_antisymm ?_ ?_⟩
   · simpa using (vectorSpan F (f '' A)).finrank_le
@@ -110,22 +110,22 @@ lemma exists_isAddFreimanIso_finrank_vectorSpan_eq {A : Finset G} (hA : A.Nonemp
 /-- **Corollary 14** of Green, for a set whose additive relations are those of a subset of an
 `F`-vector space: `r_F(A)` is the largest `d` such that `A` is Freiman isomorphic to a subset of
 `F^d` of affine dimension `d`. -/
-lemma isGreatest_freimanDimOver_of_isAddFreimanIso {A : Finset G} (hA : A.Nonempty)
+lemma isGreatest_freimanDim'_of_isAddFreimanIso {A : Finset G} (hA : A.Nonempty)
     {g : G → V} (hg : IsAddFreimanIso 2 (A : Set G) (g '' A) g) :
     IsGreatest {d | ∃ f : G → (Fin d → F), IsAddFreimanIso 2 (A : Set G) (f '' A) f ∧
-      finrank F (vectorSpan F (f '' A)) = d} (freimanDimOver F A) := by
+      finrank F (vectorSpan F (f '' A)) = d} (freimanDim' F A) := by
   refine ⟨exists_isAddFreimanIso_finrank_vectorSpan_eq F hA hg, ?_⟩
   rintro d ⟨f, hf, hd⟩
   rw [← hd]
-  exact finrank_vectorSpan_image_le_freimanDimOver F
+  exact finrank_vectorSpan_image_le_freimanDim' F
     (hf.isAddFreimanHom.superset (Set.subset_univ _))
 
 /-- **Corollary 14** of Green. For a finite nonempty subset `A` of an `F`-vector space, `r_F(A)`
 is the largest `d` such that `A` is Freiman isomorphic to a subset of `F^d` that is not contained
 in a proper affine subspace. -/
-lemma isGreatest_freimanDimOver {A : Finset W} (hA : A.Nonempty) :
+lemma isGreatest_freimanDim' {A : Finset W} (hA : A.Nonempty) :
     IsGreatest {d | ∃ f : W → (Fin d → F), IsAddFreimanIso 2 A (f '' A) f ∧
-      finrank F (vectorSpan F (f '' A)) = d} (freimanDimOver F A) :=
-  isGreatest_freimanDimOver_of_isAddFreimanIso F hA (g := id) (by simpa using isAddFreimanIso_id)
+      finrank F (vectorSpan F (f '' A)) = d} (freimanDim' F A) :=
+  isGreatest_freimanDim'_of_isAddFreimanIso F hA (g := id) (by simpa using isAddFreimanIso_id)
 
 end CountingSetsWithSmallSumset

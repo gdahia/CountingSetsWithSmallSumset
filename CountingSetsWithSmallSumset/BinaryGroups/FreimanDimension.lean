@@ -38,7 +38,7 @@ of `𝔽₂^n` are Freiman isomorphic to `A`.
 * `finrank_vectorSpan_add_one_le_of_card_restrictedSumset_le`: the affine dimension `d` of a set
   `A` of `k ≥ 2` elements of an `𝔽₂`-vector space with `|A ∔ A| ≤ m` satisfies
   `d + 1 ≤ 4 m log₂ k / k`.
-* `freimanDimOver_add_one_le_of_card_restrictedSumset_le`: Lemma 25 of Green,
+* `freimanDim'_add_one_le_of_card_restrictedSumset_le`: Lemma 25 of Green,
   `r_{𝔽₂}(A) + 1 ≤ 4 m log₂ k / k`.
 * `ncard_isAddFreimanIso_le_of_card_restrictedSumset_le`: at most `(2 ^ n) ^ (4 m log₂ k / k)`
   subsets of `𝔽₂^n` are Freiman isomorphic of order `2` to such a set `A`.
@@ -135,10 +135,10 @@ variable {W : Type*} [AddCommGroup W] [Module (ZMod 2) W] [DecidableEq W]
 
 /-- **Lemma 25** of Green. If `A` is a set of `k ≥ 2` elements of an `𝔽₂`-vector space with
 `|A ∔ A| ≤ m`, then `r_{𝔽₂}(A) + 1 ≤ 4 m log₂ k / k`. -/
-lemma freimanDimOver_add_one_le_of_card_restrictedSumset_le {A : Finset W} (hA : 2 ≤ #A)
+lemma freimanDim'_add_one_le_of_card_restrictedSumset_le {A : Finset W} (hA : 2 ≤ #A)
     {m : ℕ} (hm : #(restrictedSumset A) ≤ m) :
-    freimanDimOver (ZMod 2) A + 1 ≤ 4 * m * logb 2 #A / #A := by
-  obtain ⟨⟨f, hf, hdim⟩, -⟩ := isGreatest_freimanDimOver (ZMod 2) (card_pos.1 (by grind : 0 < #A))
+    freimanDim' (ZMod 2) A + 1 ≤ 4 * m * logb 2 #A / #A := by
+  obtain ⟨⟨f, hf, hdim⟩, -⟩ := isGreatest_freimanDim' (ZMod 2) (card_pos.1 (by grind : 0 < #A))
   rw [← coe_image] at hf hdim
   have hcard : #(A.image f) = #A := card_image_of_injOn hf.bijOn.injOn
   rw [← hdim, ← hcard]
@@ -156,6 +156,6 @@ lemma ncard_isAddFreimanIso_le_of_card_restrictedSumset_le {A : Finset W} (hA : 
   push_cast [Nat.card_zmod]
   rw [← rpow_natCast]
   exact_mod_cast rpow_le_rpow_of_exponent_le (one_le_pow₀ one_le_two)
-    (freimanDimOver_add_one_le_of_card_restrictedSumset_le hA hm)
+    (freimanDim'_add_one_le_of_card_restrictedSumset_le hA hm)
 
 end CountingSetsWithSmallSumset

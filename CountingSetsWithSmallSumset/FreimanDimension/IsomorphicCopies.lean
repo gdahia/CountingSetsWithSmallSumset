@@ -44,7 +44,7 @@ lemma ncard_isAddFreimanIso_le (F : Type*) [Field F] [Finite F] (n : ℕ) {X : F
     (hX : X.Nonempty) :
     {B : Finset (Fin n → F) | ∃ f : G → (Fin n → F),
       IsAddFreimanIso 2 (X : Set G) (B : Set (Fin n → F)) f}.ncard ≤
-      (Nat.card F ^ n) ^ (freimanDimOver F X + 1) := by
+      (Nat.card F ^ n) ^ (freimanDim' F X + 1) := by
   classical
   let g : freimanHomSpace F (Fin n → F) X → Finset (Fin n → F) :=
     fun φ ↦ univ.image (φ : X → Fin n → F)
@@ -87,7 +87,7 @@ lemma ncard_freimanIsomorphic_subset_le {X : Finset ℕ} (hX : X.Nonempty) (S : 
   classical
   obtain ⟨a, ha⟩ := exists_isFreimanBasis ℚ hX
   choose! f hf using fun (Y : Finset ℕ) (h : FreimanIsomorphic 2 X Y) ↦ h
-  rw [← freimanDimOver_rat_eq_freimanDim_nat, ← Fintype.card_piFinset_const, ← Set.ncard_coe_finset]
+  rw [← freimanDim'_rat_eq_freimanDim_nat, ← Fintype.card_piFinset_const, ← Set.ncard_coe_finset]
   refine Set.ncard_le_ncard_of_injOn (fun Y i ↦ f Y (a i)) ?_ ?_
   · rintro Y ⟨hYS, hY⟩
     rw [mem_coe, Fintype.mem_piFinset]

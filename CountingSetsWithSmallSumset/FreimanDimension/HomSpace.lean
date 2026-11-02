@@ -26,15 +26,15 @@ Freiman dimension is invariant under such isomorphisms.
 
 * `freimanHomSpace F M A`: the space `Hom₂(A, M)` of Freiman homomorphisms of order `2` from `A`
   to `M`.
-* `freimanDimOver F A`: the Freiman dimension `r_F(A) = dim Hom₂(A, F) - 1`.
+* `freimanDim' F A`: the Freiman dimension `r_F(A) = dim Hom₂(A, F) - 1`.
 
 ## Main statements
 
 * `mem_freimanHomSpace_iff_isAddFreimanHom`: the restriction of `f` to `A` lies in `Hom₂(A, M)`
   if and only if `f` is a Freiman homomorphism of order `2` on `A`.
-* `freimanDimOver_add_one`: `r_F(A) + 1 = dim Hom₂(A, F)` for nonempty `A`.
-* `freimanDimOver_le_card_sub_one`: `r_F(A) ≤ |A| - 1`.
-* `freimanDimOver_eq_of_isAddFreimanIso`: Freiman isomorphic sets have the same Freiman
+* `freimanDim'_add_one`: `r_F(A) + 1 = dim Hom₂(A, F)` for nonempty `A`.
+* `freimanDim'_le_card_sub_one`: `r_F(A) ≤ |A| - 1`.
+* `freimanDim'_eq_of_isAddFreimanIso`: Freiman isomorphic sets have the same Freiman
   dimension.
 -/
 
@@ -55,7 +55,7 @@ def freimanHomSpace (A : Finset G) : Submodule F (A → M) :=
       LinearMap.proj d)
 
 /-- Green's Freiman dimension `r_F(A) = dim Hom₂(A, F) - 1`. -/
-noncomputable def freimanDimOver (A : Finset G) : ℕ :=
+noncomputable def freimanDim' (A : Finset G) : ℕ :=
   finrank F (freimanHomSpace F F A) - 1
 
 variable {M}
@@ -107,15 +107,15 @@ lemma one_le_finrank_freimanHomSpace {A : Finset G} (hA : A.Nonempty) :
   rw [Submodule.one_le_finrank_iff, Submodule.ne_bot_iff]
   exact ⟨1, one_mem_freimanHomSpace F A, fun h ↦ by simpa using congrFun h ⟨x, hx⟩⟩
 
-lemma freimanDimOver_add_one {A : Finset G} (hA : A.Nonempty) :
-    freimanDimOver F A + 1 = finrank F (freimanHomSpace F F A) :=
+lemma freimanDim'_add_one {A : Finset G} (hA : A.Nonempty) :
+    freimanDim' F A + 1 = finrank F (freimanHomSpace F F A) :=
   Nat.sub_add_cancel (one_le_finrank_freimanHomSpace F hA)
 
 lemma finrank_freimanHomSpace_le_card (A : Finset G) :
     finrank F (freimanHomSpace F F A) ≤ #A := by
   simpa using (freimanHomSpace F F A).finrank_le
 
-lemma freimanDimOver_le_card_sub_one (A : Finset G) : freimanDimOver F A ≤ #A - 1 :=
+lemma freimanDim'_le_card_sub_one (A : Finset G) : freimanDim' F A ≤ #A - 1 :=
   Nat.sub_le_sub_right (finrank_freimanHomSpace_le_card F A) 1
 
 /-- Composition with a Freiman homomorphism from `A` onto `B` embeds `Hom₂(B, F)` into
@@ -134,9 +134,9 @@ lemma finrank_freimanHomSpace_le_of_isAddFreimanHom {A : Finset G} {B : Finset H
       (congrArg Subtype.val h))
 
 /-- The Freiman dimension is invariant under Freiman isomorphisms of order `2`. -/
-lemma freimanDimOver_eq_of_isAddFreimanIso {A : Finset G} {B : Finset H} {f : G → H}
-    (hf : IsAddFreimanIso 2 (A : Set G) B f) : freimanDimOver F A = freimanDimOver F B := by
-  rw [freimanDimOver, freimanDimOver, le_antisymm
+lemma freimanDim'_eq_of_isAddFreimanIso {A : Finset G} {B : Finset H} {f : G → H}
+    (hf : IsAddFreimanIso 2 (A : Set G) B f) : freimanDim' F A = freimanDim' F B := by
+  rw [freimanDim', freimanDim', le_antisymm
     (finrank_freimanHomSpace_le_of_isAddFreimanHom F hf.invFunOn.isAddFreimanHom
       hf.invFunOn.bijOn.surjOn)
     (finrank_freimanHomSpace_le_of_isAddFreimanHom F hf.isAddFreimanHom hf.bijOn.surjOn)]

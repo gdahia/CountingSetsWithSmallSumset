@@ -61,9 +61,9 @@ def IsFreimanBasis (A : Finset G) {k : ℕ} (a : Fin k → A) : Prop :=
 variable (F) in
 /-- A nonempty set `A` has a Freiman basis of `r_F(A) + 1` points. -/
 lemma exists_isFreimanBasis {A : Finset G} (hA : A.Nonempty) :
-    ∃ a : Fin (freimanDimOver F A + 1) → A, IsFreimanBasis F A a := by
+    ∃ a : Fin (freimanDim' F A + 1) → A, IsFreimanBasis F A a := by
   obtain ⟨a, -, ha, -⟩ :=
-    exists_interpolation_points (freimanHomSpace F F A) (freimanDimOver_add_one F hA).symm
+    exists_interpolation_points (freimanHomSpace F F A) (freimanDim'_add_one F hA).symm
   exact ⟨a, ha⟩
 
 namespace IsFreimanBasis
@@ -195,12 +195,12 @@ of `A`;
 `F`-module. -/
 lemma exists_freimanBasis_of_module {W : Type*} [AddCommGroup W] [Module F W] {A : Finset W}
     (hA : A.Nonempty) :
-    ∃ a : Fin (freimanDimOver F A + 1) → A,
+    ∃ a : Fin (freimanDim' F A + 1) → A,
       (∀ (M : Type*) [AddCommGroup M] [Module F M],
         Function.Bijective (fun φ : freimanHomSpace F M A ↦ fun i ↦ (φ : A → M) (a i)) ∧
         ∀ φ ∈ freimanHomSpace F M A, LinearIndependent F (fun i ↦ φ (a i)) →
           ∀ x y z w : A, φ x + φ y = φ z + φ w → (x : W) + y = z + w) ∧
-      ∀ x : A, ∃ c : Fin (freimanDimOver F A + 1) → F, ∑ i, c i = 1 ∧
+      ∀ x : A, ∃ c : Fin (freimanDim' F A + 1) → F, ∑ i, c i = 1 ∧
         ∀ (M : Type*) [AddCommGroup M] [Module F M], ∀ φ ∈ freimanHomSpace F M A,
           φ x = ∑ i, c i • φ (a i) := by
   obtain ⟨a, ha⟩ := exists_isFreimanBasis F hA
@@ -215,7 +215,7 @@ variable (F) in
 /-- `dim Hom₂(A, M) = (r_F(A) + 1) dim M` for a nonempty set `A` and a finite-dimensional `M`. -/
 lemma finrank_freimanHomSpace (M : Type*) [AddCommGroup M] [Module F M] [FiniteDimensional F M]
     {A : Finset G} (hA : A.Nonempty) :
-    finrank F (freimanHomSpace F M A) = (freimanDimOver F A + 1) * finrank F M := by
+    finrank F (freimanHomSpace F M A) = (freimanDim' F A + 1) * finrank F M := by
   obtain ⟨a, ha⟩ := exists_isFreimanBasis F hA
   rw [(LinearEquiv.ofBijective (LinearMap.pi fun i ↦
       (LinearMap.proj (a i)).comp (freimanHomSpace F M A).subtype) (ha.bijective M)).finrank_eq,
@@ -226,7 +226,7 @@ variable (F) in
 /-- `|Hom₂(A, M)| = |M| ^ (r_F(A) + 1)` for a nonempty set `A`. -/
 lemma card_freimanHomSpace (M : Type*) [AddCommGroup M] [Module F M] {A : Finset G}
     (hA : A.Nonempty) :
-    Nat.card (freimanHomSpace F M A) = Nat.card M ^ (freimanDimOver F A + 1) := by
+    Nat.card (freimanHomSpace F M A) = Nat.card M ^ (freimanDim' F A + 1) := by
   obtain ⟨a, ha⟩ := exists_isFreimanBasis F hA
   rw [Nat.card_congr (Equiv.ofBijective _ (ha.bijective M)), Nat.card_fun]
   simp

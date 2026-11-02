@@ -69,9 +69,9 @@ are also stated as limits, as in the paper.
 * Lemma 11: `exists_representsFreimanIsoClasses_card_le_pow`.
 * Lemma 12: `exists_interpolation_points`.
 * Lemma 13: `exists_freimanBasis_of_module`.
-* Corollary 14: `isGreatest_freimanDimOver`, `isGreatest_freimanDimOver_of_isAddFreimanIso`, and,
-  for Freiman's dimension `freimanDim`, `freimanDimOver_rat_eq_freimanDim_int` and
-  `freimanDimOver_rat_eq_freimanDim_nat`.
+* Corollary 14: `isGreatest_freimanDim'`, `isGreatest_freimanDim'_of_isAddFreimanIso`, and,
+  for Freiman's dimension `freimanDim`, `freimanDim'_rat_eq_freimanDim_int` and
+  `freimanDim'_rat_eq_freimanDim_nat`.
 * Proposition 15: `exists_image_add_subset_restrictedSumset`.
 * Lemma 16: `exists_representsFreimanIsoClasses_extensionsOfFreimanClass_card_le`.
 * Lemma 17: `exists_subset_restrictedSumset_freimanIsomorphic`.
@@ -86,7 +86,7 @@ are also stated as limits, as in the paper.
   `card_restrictedSumsetCardSets_zmod_le` (ii).
 * Theorem 24 is the Plünnecke–Ruzsa inequality of Mathlib,
   `Finset.pluennecke_ruzsa_inequality_nsmul_add`.
-* Lemma 25: `freimanDimOver_add_one_le_of_card_restrictedSumset_le`.
+* Lemma 25: `freimanDim'_add_one_le_of_card_restrictedSumset_le`.
 * Proposition 26: `card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow` (i) and
   `card_restrictedSumsetCardSets_pi_zmod_two_le` (ii).
 * Theorem 7: `card_cliqueNum_cayleySumGraph_gt_le` and `tendsto_card_cliqueNum_cayleySumGraph_le`.
