@@ -57,7 +57,7 @@ def freimanClassCountBound (t m : ℕ) : ℕ :=
   ∑ d ∈ range (exceptionCardBound t m + 1), ∑ l ∈ Icc 1 (coreCardBound t m),
     l ^ (16 * l) * m.choose (t - d) * (1 + (t - d) ^ 4) ^ ((d + 1) ^ 4)
 
-section Cancel
+section AddCancelCommMonoid
 
 variable {G : Type*} [AddCancelCommMonoid G] [DecidableEq G]
 
@@ -111,7 +111,7 @@ private lemma exists_nonempty_image_add_subset_restrictedSumset {A : Finset G} {
     · exact Nat.cast_le (α := ℝ).mp (hcore.trans (Nat.le_ceil _))
     · exact Nat.cast_le (α := ℝ).mp (hexception.trans (Nat.le_ceil _))
 
-end Cancel
+end AddCancelCommMonoid
 
 variable (F : Type*) {W : Type*} [Field F] [AddCommGroup W] [Module F W] [DecidableEq W]
 
