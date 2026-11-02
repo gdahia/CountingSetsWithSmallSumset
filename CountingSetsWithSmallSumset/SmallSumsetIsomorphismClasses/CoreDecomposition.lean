@@ -7,7 +7,9 @@ module
 
 public import CountingSetsWithSmallSumset.RestrictedSumset
 public import Mathlib.Basic.Real.Basic
+import CountingSetsWithSmallSumset.Probability.Distributions.SetBernoulli
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.MeasureTheory.Integral.Average
 
 /-!
 # The core of a set with small restricted sumset
@@ -16,12 +18,10 @@ This file contains the combinatorial part of Proposition 15 of Green, *Counting 
 sumset, and the clique number of random Cayley graphs*. Let `A` be a set of `t` elements of a
 commutative monoid with cancellation whose restricted sumset has at most `m` elements. There is
 `a ∈ A` such that few sums `a + b` have fewer than `Q` representations as a sum of two distinct
-elements of `A`. A random subset `A₀ ⊆ A`, which contains every element independently with
-probability `q`, then contains both summands of one representation of most of the sums `a + b`.
-The paper uses `Q / 3` disjoint representations of each popular sum. Here the representations
-`b + c` with `b` before `c` in a fixed well-order are used: they are pairwise disjoint and there
-are at least `Q / 2` of them. The expectation is a finite sum over the functions from `A` to
-`Bool` with product weights.
+elements of `A`. A random subset `A₀ ⊆ A`, drawn from `setBer(A, q)`, then contains both summands
+of one representation of most of the sums `a + b`. The paper uses `Q / 3` disjoint representations
+of each popular sum. Here the representations `b + c` with `b` before `c` in a fixed well-order
+are used: they are pairwise disjoint and there are at least `Q / 2` of them.
 
 ## Main statements
 
@@ -34,7 +34,7 @@ are at least `Q / 2` of them. The expectation is a finite sum over the functions
 
 namespace CountingSetsWithSmallSumset
 
-open Finset
+open Finset Function MeasureTheory ProbabilityTheory unitInterval
 
 noncomputable section
 
@@ -143,175 +143,91 @@ private lemma exists_mul_card_unpopularNeighbors_le {A : Finset G} {t m Q : ℕ}
   exact Nat.mul_le_mul_left t
     ((card_unpopularOrderedPairs_le A Q).trans (Nat.mul_le_mul_left Q hm))
 
-/-! ### A finite Bernoulli alteration -/
+/-! ### The random subset -/
 
-/-- The probability of the assignment `ω` when each index is selected independently with
-probability `q`. -/
-private def assignmentWeight {ι : Type*} [Fintype ι] (q : ℝ) (ω : ι → Bool) : ℝ :=
-  ∏ i, if ω i then q else 1 - q
+/-- The representations `b + c` of `x` in `increasingRestrictedRepresentationPairs`, as pairs of
+elements of `A`. -/
+private def representationBlock (A : Finset G) (x : G)
+    (r : increasingRestrictedRepresentationPairs A x) : Finset A :=
+  {⟨r.1.1, (mem_increasingRestrictedRepresentationPairs.mp r.2).1⟩,
+    ⟨r.1.2, (mem_increasingRestrictedRepresentationPairs.mp r.2).2.1⟩}
 
-private def selectedIndices {ι : Type*} [Fintype ι] (ω : ι → Bool) : Finset ι :=
-  univ.filter fun i ↦ ω i
+private lemma card_representationBlock (A : Finset G) (x : G)
+    (r : increasingRestrictedRepresentationPairs A x) : #(representationBlock A x r) = 2 := by
+  obtain ⟨-, -, hr, -⟩ := mem_increasingRestrictedRepresentationPairs.mp r.2
+  exact card_pair fun h ↦ ne_of_irrefl hr (congr_arg Subtype.val h)
 
-private lemma sum_assignmentWeight {ι : Type*} [Fintype ι] [DecidableEq ι] (q : ℝ) :
-    ∑ ω : ι → Bool, assignmentWeight q ω = 1 := by
-  unfold assignmentWeight
-  rw [← Fintype.prod_sum (f := fun (_ : ι) (b : Bool) ↦ if b then q else 1 - q)]
-  simp
-
-private lemma sum_assignmentWeight_selectedIndicator {ι : Type*} [Fintype ι]
-    [DecidableEq ι] (q : ℝ) (i : ι) :
-    ∑ ω : ι → Bool, assignmentWeight q ω * (if ω i then 1 else 0) = q := by
-  unfold assignmentWeight
-  conv_lhs =>
-    enter [2, ω]
-    rw [← Fintype.prod_ite_eq' i (fun j ↦ if ω j then 1 else 0), ← prod_mul_distrib]
-  rw [← Fintype.prod_sum (f := fun j (b : Bool) ↦
-    (if b then q else 1 - q) * if j = i then (if b then 1 else 0) else 1)]
-  simp
-
-private lemma sum_assignmentWeight_selectedCard {ι : Type*} [Fintype ι]
-    [DecidableEq ι] (q : ℝ) :
-    ∑ ω : ι → Bool, assignmentWeight q ω * #(selectedIndices ω) = q * Fintype.card ι := by
-  simp_rw [selectedIndices, natCast_card_filter, mul_sum]
-  rw [sum_comm]
-  simp_rw [sum_assignmentWeight_selectedIndicator]
-  simp [mul_comm]
-
-/-- The weight of an assignment on `κ ⊕ C` is the product of the weights of its two parts, so
-summing over the part on `C` leaves the weight of the part on `κ`. -/
-private lemma sum_assignmentWeight_comp_inl {κ C : Type*} [Fintype κ] [Fintype C]
-    [DecidableEq κ] [DecidableEq C] (q : ℝ) (F : (κ → Bool) → ℝ) :
-    ∑ ω : κ ⊕ C → Bool, assignmentWeight q ω * F (fun x ↦ ω (Sum.inl x)) =
-      ∑ v : κ → Bool, assignmentWeight q v * F v := by
-  have hweight (v : κ → Bool) (y : C → Bool) :
-      assignmentWeight q ((Equiv.sumArrowEquivProdArrow κ C Bool).symm (v, y)) =
-        assignmentWeight q v * assignmentWeight q y :=
-    Fintype.prod_sum_type _
-  rw [← (Equiv.sumArrowEquivProdArrow κ C Bool).symm.sum_comp, Fintype.sum_prod_type]
-  simp [hweight, mul_right_comm, ← mul_sum, sum_assignmentWeight]
-
-/-- For an injective `f : κ → ι`, the restriction along `f` of a random assignment on `ι` is a
-random assignment on `κ`. -/
-private lemma sum_assignmentWeight_marginal {κ ι : Type*} [Fintype κ] [Fintype ι]
-    [DecidableEq κ] [DecidableEq ι] (q : ℝ) (f : κ → ι)
-    (hf : Function.Injective f) (F : (κ → Bool) → ℝ) :
-    ∑ ω : ι → Bool, assignmentWeight q ω * F (ω ∘ f) =
-      ∑ v : κ → Bool, assignmentWeight q v * F v := by
-  classical
-  let e : κ ⊕ ((Set.range f)ᶜ : Set ι) ≃ ι :=
-    ((Equiv.ofInjective f hf).sumCongr (Equiv.refl _)).trans (Equiv.Set.sumCompl (Set.range f))
-  rw [← sum_assignmentWeight_comp_inl (C := ((Set.range f)ᶜ : Set ι)) q F,
-    ← (e.arrowCongr (Equiv.refl Bool)).symm.sum_comp]
-  congr with ω
-  congr 1
-  exact (e.prod_comp _).symm
-
-private lemma left_mem_of_mem_increasingRestrictedRepresentationPairs {A : Finset G} {x b c : G}
-    (h : (b, c) ∈ increasingRestrictedRepresentationPairs A x) : b ∈ A := by
-  obtain ⟨hb, -⟩ := mem_increasingRestrictedRepresentationPairs.mp h
-  exact hb
-
-private lemma right_mem_of_mem_increasingRestrictedRepresentationPairs {A : Finset G} {x b c : G}
-    (h : (b, c) ∈ increasingRestrictedRepresentationPairs A x) : c ∈ A := by
-  obtain ⟨-, hc, -⟩ := mem_increasingRestrictedRepresentationPairs.mp h
-  exact hc
-
-/-- The two endpoints of the increasing representations of `x`, as elements of `A`. -/
-private def increasingRepresentationEndpoint (A : Finset G) (x : G) :
-    (increasingRestrictedRepresentationPairs A x) × Fin 2 → A
-  | (⟨(b, c), h⟩, i) =>
-    if i = 0 then ⟨b, left_mem_of_mem_increasingRestrictedRepresentationPairs h⟩
-    else ⟨c, right_mem_of_mem_increasingRestrictedRepresentationPairs h⟩
-
-private lemma increasingRepresentationEndpoint_injective (A : Finset G) (x : G) :
-    Function.Injective (increasingRepresentationEndpoint A x) := by
-  rintro ⟨⟨⟨p₁, p₂⟩, hp⟩, i⟩ ⟨⟨⟨q₁, q₂⟩, hq⟩, j⟩ h
-  obtain ⟨-, -, hpr, hpx⟩ := mem_increasingRestrictedRepresentationPairs.mp hp
-  obtain ⟨-, -, hqr, hqx⟩ := mem_increasingRestrictedRepresentationPairs.mp hq
+private lemma pairwise_disjoint_representationBlock (A : Finset G) (x : G) :
+    Pairwise (Disjoint on representationBlock A x) := by
+  rintro ⟨⟨b, c⟩, hr⟩ ⟨⟨b', c'⟩, hr'⟩ hne
+  obtain ⟨-, -, hbc, hx⟩ := mem_increasingRestrictedRepresentationPairs.mp hr
+  obtain ⟨-, -, hbc', hx'⟩ := mem_increasingRestrictedRepresentationPairs.mp hr'
   have hcancel (u v w : G) (huv : u + v = x) (huw : u + w = x) : v = w :=
     add_left_cancel (huv.trans huw.symm)
-  fin_cases i <;> fin_cases j <;> simp [increasingRepresentationEndpoint] at h ⊢ <;>
-    grind [add_comm, asymm (r := WellOrderingRel) hpr]
+  simp only [Function.onFun, representationBlock, disjoint_insert_left, disjoint_insert_right,
+    disjoint_singleton, mem_insert, mem_singleton, ne_eq, Subtype.ext_iff]
+  grind [add_comm, asymm (r := WellOrderingRel) hbc]
 
-private abbrev pairAssignmentAvoids (v : Fin 2 → Bool) : Prop :=
-  ¬(v 0 ∧ v 1)
+/-- The elements of `A` selected by `S : Set A`. -/
+private def selectedElements (A : Finset G) (S : Set A) : Finset G := by
+  classical
+  exact (univ.filter (· ∈ S)).map (Function.Embedding.subtype _)
 
-private lemma sum_assignmentWeight_pairAssignmentAvoids (q : ℝ) :
-    ∑ v : Fin 2 → Bool, assignmentWeight q v *
-      (if pairAssignmentAvoids v then 1 else 0) = 1 - q ^ 2 := by
-  rw [← (finTwoArrowEquiv Bool).symm.sum_comp, Fintype.sum_prod_type]
-  simp [assignmentWeight, pairAssignmentAvoids, finTwoArrowEquiv, piFinTwoEquiv]
-  ring
+omit [AddCancelCommMonoid G] [DecidableEq G] in
+private lemma mem_selectedElements {A : Finset G} {S : Set A} {a : G} :
+    a ∈ selectedElements A S ↔ ∃ h : a ∈ A, ⟨a, h⟩ ∈ S := by
+  simp [selectedElements]
 
-private def allPairAssignmentsAvoidIndicator {ρ : Type*} [Fintype ρ]
-    (v : ρ × Fin 2 → Bool) : ℝ :=
-  ∏ p : ρ, if pairAssignmentAvoids (fun i ↦ v (p, i)) then 1 else 0
+omit [AddCancelCommMonoid G] [DecidableEq G] in
+private lemma selectedElements_subset (A : Finset G) (S : Set A) : selectedElements A S ⊆ A :=
+  fun _ ha ↦ (mem_selectedElements.mp ha).1
 
-private lemma sum_assignmentWeight_allPairAssignmentsAvoid {ρ : Type*}
-    [Fintype ρ] [DecidableEq ρ] (q : ℝ) :
-    ∑ v : ρ × Fin 2 → Bool, assignmentWeight q v * allPairAssignmentsAvoidIndicator v =
-      (1 - q ^ 2) ^ Fintype.card ρ := by
-  rw [← card_univ, ← prod_const, ← sum_assignmentWeight_pairAssignmentAvoids q,
-    Fintype.prod_sum, ← (Equiv.curry ρ (Fin 2) Bool).symm.sum_comp]
-  congr with g
-  rw [assignmentWeight, Fintype.prod_prod_type, allPairAssignmentsAvoidIndicator,
-    ← prod_mul_distrib]
-  rfl
+omit [AddCancelCommMonoid G] [DecidableEq G] in
+private lemma card_selectedElements (A : Finset G) (S : Set A) :
+    #(selectedElements A S) = S.ncard := by
+  classical
+  rw [selectedElements, card_map, ← Set.ncard_coe_finset]
+  congr
+  ext
+  simp
 
-private def representationAvoidanceIndicator (A : Finset G) (x : G)
-    (ω : A → Bool) : ℝ :=
-  allPairAssignmentsAvoidIndicator fun u ↦
-    ω (increasingRepresentationEndpoint A x u)
+private def missedTranslateElements (A : Finset G) (a : G) (S : Set A) : Finset G :=
+  A.filter fun b ↦ a + b ∉ restrictedSumset (selectedElements A S)
 
-private lemma sum_assignmentWeight_representationAvoidanceIndicator
-    (A : Finset G) (x : G) (q : ℝ) :
-    ∑ ω : A → Bool, assignmentWeight q ω * representationAvoidanceIndicator A x ω =
-      (1 - q ^ 2) ^ #(increasingRestrictedRepresentationPairs A x) := by
-  rw [← Fintype.card_coe, ← sum_assignmentWeight_allPairAssignmentsAvoid]
-  exact sum_assignmentWeight_marginal q _ (increasingRepresentationEndpoint_injective A x) _
+omit [AddCancelCommMonoid G] [DecidableEq G] in
+private lemma integral_card_selectedElements (A : Finset G) (p : I) :
+    ∫ S, (#(selectedElements A S) : ℝ) ∂setBer((Set.univ : Set A), p) = p * #A := by
+  have h := integral_ncard_inter_setBernoulli (u := Set.univ) (p := p) (t := (univ : Finset A))
+    (Set.subset_univ _)
+  rw [coe_univ, card_univ, Fintype.card_coe] at h
+  simp_rw [Set.inter_univ] at h
+  simp_rw [card_selectedElements]
+  exact h
 
-private def selectedElements (A : Finset G) (ω : A → Bool) : Finset G :=
-  (selectedIndices ω).image Subtype.val
+private lemma setBernoulli_real_notMem_restrictedSumset (A : Finset G) (x : G) (p : I) :
+    setBer((Set.univ : Set A), p).real {S | x ∉ restrictedSumset (selectedElements A S)} =
+      (1 - (p : ℝ) ^ 2) ^ #(increasingRestrictedRepresentationPairs A x) := by
+  have : {S : Set A | x ∉ restrictedSumset (selectedElements A S)} =
+      {S | ∀ r, ¬↑(representationBlock A x r) ⊆ S} := by
+    ext S
+    simp only [mem_restrictedSumset_iff_exists_increasing (selectedElements_subset A S),
+      mem_selectedElements, representationBlock, coe_insert, coe_singleton,
+      Set.insert_subset_iff, Set.singleton_subset_iff, Set.mem_ofPred_eq, Subtype.forall,
+      Prod.forall]
+    grind [mem_increasingRestrictedRepresentationPairs]
+  rw [this, setBernoulli_real_setOf_forall_not_subset (pairwise_disjoint_representationBlock A x)
+    fun _ ↦ by simp]
+  simp [card_representationBlock]
 
-omit [AddCancelCommMonoid G] in
-private lemma card_selectedElements (A : Finset G) (ω : A → Bool) :
-    #(selectedElements A ω) = #(selectedIndices ω) :=
-  card_image_of_injective _ Subtype.val_injective
-
-omit [AddCancelCommMonoid G] in
-private lemma selectedElements_subset (A : Finset G) (ω : A → Bool) :
-    selectedElements A ω ⊆ A :=
-  image_subset_iff.mpr fun a _ ↦ a.prop
-
-omit [AddCancelCommMonoid G] in
-private lemma mem_selectedElements {A : Finset G} {ω : A → Bool} {a : G} :
-    a ∈ selectedElements A ω ↔ ∃ h : a ∈ A, ω ⟨a, h⟩ := by
-  simp [selectedElements, selectedIndices]
-
-private lemma representationAvoidanceIndicator_eq_boole
-    (A : Finset G) (x : G) (ω : A → Bool) :
-    representationAvoidanceIndicator A x ω =
-      if x ∉ restrictedSumset (selectedElements A ω) then 1 else 0 := by
-  rw [representationAvoidanceIndicator, allPairAssignmentsAvoidIndicator, Fintype.prod_boole]
-  refine if_congr ?_ rfl rfl
-  simp only [mem_restrictedSumset_iff_exists_increasing (selectedElements_subset A ω),
-    mem_selectedElements]
-  simp [increasingRepresentationEndpoint]
-  grind
-
-private def missedTranslateElements (A : Finset G) (a : G)
-    (ω : A → Bool) : Finset G :=
-  A.filter fun b ↦ a + b ∉ restrictedSumset (selectedElements A ω)
-
-private lemma sum_assignmentWeight_missedTranslateCard (A : Finset G)
-    (a : G) (q : ℝ) :
-    ∑ ω : A → Bool, assignmentWeight q ω * #(missedTranslateElements A a ω) =
-      ∑ b ∈ A, (1 - q ^ 2) ^ #(increasingRestrictedRepresentationPairs A (a + b)) := by
-  simp_rw [missedTranslateElements, natCast_card_filter, mul_sum]
-  rw [sum_comm]
-  simp_rw [← representationAvoidanceIndicator_eq_boole,
-    sum_assignmentWeight_representationAvoidanceIndicator]
+private lemma integral_card_missedTranslateElements (A : Finset G) (a : G) (p : I) :
+    ∫ S, (#(missedTranslateElements A a S) : ℝ) ∂setBer((Set.univ : Set A), p) =
+      ∑ b ∈ A, (1 - (p : ℝ) ^ 2) ^ #(increasingRestrictedRepresentationPairs A (a + b)) := by
+  simp_rw [missedTranslateElements, natCast_card_filter]
+  rw [integral_finsetSum _ fun _ _ ↦ .of_finite]
+  congr with b
+  rw [← setBernoulli_real_notMem_restrictedSumset, ← integral_indicator_one .of_discrete]
+  congr with S
+  simp [Set.indicator_apply]
 
 private lemma one_sub_sq_pow_card_increasingRestrictedRepresentationPairs_le {A : Finset G}
     {a b : G} (hb : b ∈ A) (Q : ℕ) {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q ≤ 1) :
@@ -335,38 +251,22 @@ private lemma sum_one_sub_sq_pow_card_increasingRestrictedRepresentationPairs_le
     one_sub_sq_pow_card_increasingRestrictedRepresentationPairs_le hb Q hq0 hq1).trans_eq
   simp [sum_add_distrib, ha, inter_eq_right.mpr (unpopularNeighbors_subset A Q a)]
 
-private lemma assignmentWeight_pos {ι : Type*} [Fintype ι]
-    {q : ℝ} (hq0 : 0 < q) (hq1 : q < 1) (ω : ι → Bool) :
-    0 < assignmentWeight q ω := by
-  apply prod_pos
-  intro i _
-  split <;> linarith
-
-private lemma exists_le_of_sum_assignmentWeight_mul_le {ι : Type*} [Fintype ι]
-    [DecidableEq ι] {q B : ℝ} (hq0 : 0 < q) (hq1 : q < 1)
-    (F : (ι → Bool) → ℝ)
-    (hsum : ∑ ω : ι → Bool, assignmentWeight q ω * F ω ≤ B) :
-    ∃ ω, F ω ≤ B := by
-  rw [← one_mul B, ← sum_assignmentWeight (ι := ι) q, sum_mul] at hsum
-  obtain ⟨ω, -, hω⟩ := exists_le_of_sum_le univ_nonempty hsum
-  exact ⟨ω, le_of_mul_le_mul_left hω (assignmentWeight_pos hq0 hq1 ω)⟩
-
 private lemma exists_card_selectedElements_add_mul_card_missedTranslateElements_le {A : Finset G}
-    {a : G} (ha : a ∈ A) (Q : ℕ) {q R : ℝ} (hq0 : 0 < q) (hq1 : q < 1) (hR : 0 ≤ R) :
-    ∃ ω : A → Bool,
-      (#(selectedElements A ω) : ℝ) + R * #(missedTranslateElements A a ω) ≤
+    {a : G} (ha : a ∈ A) (Q : ℕ) {q R : ℝ} (hq0 : 0 ≤ q) (hq1 : q ≤ 1) (hR : 0 ≤ R) :
+    ∃ S : Set A,
+      (#(selectedElements A S) : ℝ) + R * #(missedTranslateElements A a S) ≤
         q * #A + R * (1 + #(unpopularNeighbors A Q a) + #A * (1 - q ^ 2) ^ (Q / 2)) := by
-  apply exists_le_of_sum_assignmentWeight_mul_le hq0 hq1
-  simp_rw [mul_add (assignmentWeight q _), sum_add_distrib, mul_left_comm _ R, ← mul_sum,
-    card_selectedElements, sum_assignmentWeight_selectedCard,
-    sum_assignmentWeight_missedTranslateCard, Fintype.card_coe]
+  obtain ⟨S, hS⟩ := exists_le_integral (μ := setBer((Set.univ : Set A), ⟨q, hq0, hq1⟩))
+    (f := fun S ↦ (#(selectedElements A S) : ℝ) + R * #(missedTranslateElements A a S)) .of_finite
+  refine ⟨S, hS.trans ?_⟩
+  rw [integral_add .of_finite .of_finite, integral_const_mul, integral_card_selectedElements,
+    integral_card_missedTranslateElements]
   gcongr
-  exact sum_one_sub_sq_pow_card_increasingRestrictedRepresentationPairs_le ha Q hq0.le hq1.le
+  exact sum_one_sub_sq_pow_card_increasingRestrictedRepresentationPairs_le ha Q hq0 hq1
 
-private lemma missedTranslateElements_compl_image_subset (A : Finset G) (a : G)
-    (ω : A → Bool) :
-    (A \ missedTranslateElements A a ω).image (a + ·) ⊆
-      restrictedSumset (selectedElements A ω) := by
+private lemma missedTranslateElements_compl_image_subset (A : Finset G) (a : G) (S : Set A) :
+    (A \ missedTranslateElements A a S).image (a + ·) ⊆
+      restrictedSumset (selectedElements A S) := by
   rw [image_subset_iff]
   intro b hb
   rw [missedTranslateElements, mem_sdiff, mem_filter] at hb
@@ -383,11 +283,11 @@ lemma exists_image_add_subset_restrictedSumset_card_add_mul_le {A : Finset G} {t
     ∃ a ∈ A, ∃ A₀ ⊆ A, ∃ Z ⊆ A, (A \ Z).image (a + ·) ⊆ restrictedSumset A₀ ∧
       #A₀ + R * #Z ≤ q * t + R * (1 + Q * m / t + t * (1 - q ^ 2) ^ (Q / 2)) := by
   obtain ⟨a, ha, hdegree⟩ := exists_mul_card_unpopularNeighbors_le hA hA0 hm (Q := Q)
-  obtain ⟨ω, hω⟩ :=
-    exists_card_selectedElements_add_mul_card_missedTranslateElements_le ha Q hq0 hq1 hR
-  refine ⟨a, ha, selectedElements A ω, selectedElements_subset A ω,
-    missedTranslateElements A a ω, filter_subset _ _,
-    missedTranslateElements_compl_image_subset A a ω, hω.trans ?_⟩
+  obtain ⟨S, hS⟩ :=
+    exists_card_selectedElements_add_mul_card_missedTranslateElements_le ha Q hq0.le hq1.le hR
+  refine ⟨a, ha, selectedElements A S, selectedElements_subset A S,
+    missedTranslateElements A a S, filter_subset _ _,
+    missedTranslateElements_compl_image_subset A a S, hS.trans ?_⟩
   have hunpopular : (#(unpopularNeighbors A Q a) : ℝ) ≤ Q * m / t := by
     rw [le_div_iff₀' (mod_cast hA0.card_pos.trans_eq hA)]
     exact_mod_cast hdegree
