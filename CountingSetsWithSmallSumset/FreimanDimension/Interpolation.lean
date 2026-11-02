@@ -31,8 +31,9 @@ open Module
 
 variable {F : Type*} [Field F] {ι : Type*} [Finite ι]
 
-/-- Some `finrank F Φ` points of `ι` determine every `φ ∈ Φ`, and every vector of values at them
-is attained. -/
+/-- There are `d = finrank F Φ` points `a₁, …, a_d` of `ι` at which restriction
+`φ ↦ (φ(a₁), …, φ(a_d))` is a bijection from `Φ` to `F^d`: each `φ ∈ Φ` is determined by its
+values at the `aᵢ`, and every vector of `F^d` is such a vector of values. -/
 private lemma exists_bijective_eval (Φ : Submodule F (ι → F)) :
     ∃ a : Fin (finrank F Φ) → ι, Function.Bijective fun φ : Φ ↦ fun i ↦ (φ : ι → F) (a i) := by
   let t : ι → Dual F Φ := fun x ↦ (LinearMap.proj x).comp Φ.subtype
