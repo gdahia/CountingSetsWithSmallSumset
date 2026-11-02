@@ -125,9 +125,9 @@ lemma finrank_vectorSpan_add_one_le_of_card_restrictedSumset_le {A : Finset V} (
       ← Subtype.range_coe (s := (X : Set V)), hind.finrank_vectorSpan_add_one]
     simp
   rw [← Nat.cast_add_one, hX]
-  refine le_four_mul_logb_div hA (by grind [card_sub_one_le_card_restrictedSumset hne]) ?_
+  apply le_four_mul_logb_div hA (by grind [card_sub_one_le_card_restrictedSumset hne])
   intro hh
-  refine (card_pow_le_of_affineIndependent hne (coe_subset.1 htA) hind hh).trans ?_
+  apply (card_pow_le_of_affineIndependent hne (coe_subset.1 htA) hind hh).trans
   gcongr
   exact_mod_cast (card_add_le_card_restrictedSumset_add_one A).trans (by grind)
 
@@ -152,7 +152,7 @@ lemma ncard_isAddFreimanIso_le_of_card_restrictedSumset_le {A : Finset W} (hA : 
     {B : Finset (Fin n → ZMod 2) | ∃ f : W → (Fin n → ZMod 2),
       IsAddFreimanIso 2 (A : Set W) (B : Set (Fin n → ZMod 2)) f}.ncard ≤
       ((2 : ℝ) ^ n) ^ (4 * m * logb 2 #A / #A) := by
-  refine (Nat.cast_le.2 (ncard_isAddFreimanIso_le (ZMod 2) n (card_pos.1 (by grind)))).trans ?_
+  apply (Nat.cast_le.2 (ncard_isAddFreimanIso_le (ZMod 2) n (card_pos.1 (by grind)))).trans
   push_cast [Nat.card_zmod]
   rw [← rpow_natCast]
   exact_mod_cast rpow_le_rpow_of_exponent_le (one_le_pow₀ one_le_two)

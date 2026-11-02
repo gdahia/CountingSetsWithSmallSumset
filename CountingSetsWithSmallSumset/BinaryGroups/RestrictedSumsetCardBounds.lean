@@ -63,9 +63,9 @@ private lemma card_restrictedSumsetCardSets_le_card_mul {k m : ℕ} (hk : 2 ≤ 
   choose! r hr hrA using fun A (hA : A ∈ restrictedSumsetCardSets (Fin n → ZMod 2) k m) ↦
     hrep A (by grind [mem_restrictedSumsetCardSets])
   rw [card_eq_sum_card_fiberwise hr, Nat.cast_sum, ← nsmul_eq_mul]
-  refine sum_le_card_nsmul _ _ _ ?_
+  apply sum_le_card_nsmul _ _ _
   intro B _
-  refine card_le_of_forall_freimanIsomorphic (B := B) hk (filter_subset _ _) ?_
+  apply card_le_of_forall_freimanIsomorphic (B := B) hk (filter_subset _ _)
   intro A hA
   obtain ⟨hAS, rfl⟩ := mem_filter.1 hA
   exact hrA A hAS
@@ -81,9 +81,9 @@ lemma card_restrictedSumsetCardSets_pi_zmod_two_le_of_le_rpow {k m : ℕ} (hk : 
   have ht : smallSumsetClassCountThreshold ≤ k := by rwa [smallSumsetClassCountThreshold_def]
   obtain ⟨representatives, hrep, hcard⟩ :=
     exists_representsFreimanIsoClasses_card_restrictedSumset_le (ZMod 2) (Fin n → ZMod 2) ht hm
-  refine (card_restrictedSumsetCardSets_le_card_mul
-    (one_lt_of_smallSumsetClassCountThreshold_le ht) hrep).trans ?_
-  refine (mul_le_mul_of_nonneg_right hcard (by positivity)).trans_eq ?_
+  apply (card_restrictedSumsetCardSets_le_card_mul
+    (one_lt_of_smallSumsetClassCountThreshold_le ht) hrep).trans
+  apply (mul_le_mul_of_nonneg_right hcard (by positivity)).trans_eq
   ring
 
 variable (n) in

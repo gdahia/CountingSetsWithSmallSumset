@@ -68,16 +68,16 @@ private lemma le_three_hundred_eight_mul_mul_logb (hn : 2 ^ 9000 ≤ n) :
     exact_mod_cast (by norm_num : 46656 ≤ 2 ^ 16).trans (two_pow_sixteen_le hn)
   nlinarith [mul_le_mul_of_nonneg_left (one_le_logb hn) (Nat.cast_nonneg (α := ℝ) n)]
 
-/-- **Theorem 9** of Green, upper bound, explicit form. If `n ≥ 2 ^ 9000`, then at most
-`2 ^ 2 ^ n / 2 ^ n` of the `2 ^ 2 ^ n` sets `A ⊆ 𝔽₂ⁿ` have a Cayley graph with clique number
-greater than `308 * n * log₂ n`. -/
+/-- **Theorem 9** of Green, upper bound. If `n ≥ 2 ^ 9000`, then at most `2 ^ 2 ^ n / 2 ^ n` of the
+`2 ^ 2 ^ n` sets `A ⊆ 𝔽₂ⁿ` have a Cayley graph with clique number greater than
+`308 * n * log₂ n`. -/
 lemma card_cliqueNum_addCayley_gt_le (hn : 2 ^ 9000 ≤ n) :
     #{A : Finset (Fin n → ZMod 2) |
       308 * n * logb 2 n < (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum} ≤
       (2 : ℝ) ^ 2 ^ n / 2 ^ n := by
   have hL : 0 ≤ n * logb 2 n := mul_nonneg (Nat.cast_nonneg n) (zero_le_one.trans (one_le_logb hn))
   simp_rw [← cayleySumGraph_eq_addCayley_pi_zmod_two]
-  refine (card_lt_cliqueNum_cayleySumGraph_le (le_three_hundred_eight_mul_mul_logb hn)).trans ?_
+  apply (card_lt_cliqueNum_cayleySumGraph_le (le_three_hundred_eight_mul_mul_logb hn)).trans
   rw [card_univ_pi_zmod_two]
   refine (mul_le_mul_of_nonneg_left (sum_le_card_nsmul _ _ (1 / ((2 : ℝ) ^ n) ^ 2) ?_)
     (by positivity)).trans ?_
@@ -86,22 +86,22 @@ lemma card_cliqueNum_addCayley_gt_le (hn : 2 ^ 9000 ≤ n) :
     exact sum_card_restrictedSumsetCardSets_pi_zmod_two_div_two_pow_le hn
       (by linarith only [hL, hjL])
   · rw [nsmul_eq_mul]
-    refine (mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right (Nat.cast_le.2
+    apply (mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_right (Nat.cast_le.2
       ((card_filter_le _ _).trans (by simp : #(Icc 1 (2 ^ n)) ≤ 2 ^ n))) (by positivity))
-        (by positivity)).trans_eq ?_
+        (by positivity)).trans_eq
     push_cast
     field_simp
 
-/-- **Theorem 9** of Green, explicit form. If `n ≥ 2 ^ 9000`, then at most
-`2 ^ 2 ^ n / n + 2 ^ 2 ^ n / 2 ^ n` of the `2 ^ 2 ^ n` sets `A ⊆ 𝔽₂ⁿ` have a Cayley graph with
-clique number less than `n * log₂ n / 4` or greater than `308 * n * log₂ n`. -/
+/-- **Theorem 9** of Green. If `n ≥ 2 ^ 9000`, then at most `2 ^ 2 ^ n / n + 2 ^ 2 ^ n / 2 ^ n` of
+the `2 ^ 2 ^ n` sets `A ⊆ 𝔽₂ⁿ` have a Cayley graph with clique number less than `n * log₂ n / 4` or
+greater than `308 * n * log₂ n`. -/
 theorem card_cliqueNum_addCayley_lt_or_gt_le (hn : 2 ^ 9000 ≤ n) :
     #{A : Finset (Fin n → ZMod 2) |
       (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum < n * logb 2 n / 4 ∨
         308 * n * logb 2 n < (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum} ≤
       (2 : ℝ) ^ 2 ^ n / n + 2 ^ 2 ^ n / 2 ^ n := by
   rw [filter_or]
-  refine (Nat.cast_le.2 (card_union_le _ _)).trans ?_
+  apply (Nat.cast_le.2 (card_union_le _ _)).trans
   push_cast
   exact add_le_add (card_cliqueNum_addCayley_lt_le (two_pow_sixteen_le hn))
     (card_cliqueNum_addCayley_gt_le hn)

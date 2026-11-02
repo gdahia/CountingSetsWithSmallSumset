@@ -56,7 +56,7 @@ lemma pow_le_pow_mul_choose {x h : ℕ} (hhx : h ≤ x) : x ^ h ≤ h ^ h * x.ch
   rw [mul_assoc, mul_comm (x.choose h), ← Nat.descFactorial_eq_factorial_mul_choose,
     ← Nat.descFactorial_self, Nat.descFactorial_eq_prod_range, Nat.descFactorial_eq_prod_range,
     hprod, hprod]
-  refine prod_le_prod ?_
+  apply prod_le_prod
   intro i hi
   have hih : i < h := mem_range.1 hi
   zify [hih.le, (hih.trans_le hhx).le]
