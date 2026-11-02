@@ -94,7 +94,7 @@ lemma card_restrictedSumsetCardSets_pi_zmod_two_le {k : ℕ} (hk : 2 ≤ k) (m :
       ((2 : ℝ) ^ n) ^ (4 * m * logb 2 k / k) * k ^ (4 * k) := by
   obtain ⟨representatives, hrep, hcard⟩ :=
     exists_representsFreimanIsoClasses_card_le_pow (ZMod 2) (Fin n → ZMod 2) 2 k
-  refine (card_restrictedSumsetCardSets_le_card_mul hk (hrep.subset fun A ⟨hA, _⟩ ↦ hA)).trans ?_
+  apply (card_restrictedSumsetCardSets_le_card_mul hk (hrep.subset fun A ⟨hA, _⟩ ↦ hA)).trans
   rw [mul_comm]
   gcongr
   exact_mod_cast (hcard : #representatives ≤ k ^ (4 * k))

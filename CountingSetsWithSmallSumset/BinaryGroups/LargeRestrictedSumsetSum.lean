@@ -128,7 +128,7 @@ private lemma thousand_mul_le {j : ℕ} (hn : 2 ^ 9000 ≤ n) (hjn : 38 * n * lo
 /-- If `n ≥ 2 ^ 9000` and `j ≥ 38 * n * log₂ n`, then `n ≤ j`. -/
 private lemma le_of_le_mul_logb {j : ℕ} (hn : 2 ^ 9000 ≤ n) (hjn : 38 * n * logb 2 n ≤ j) :
     n ≤ j := by
-  refine (Nat.cast_le (α := ℝ)).1 ?_
+  apply (Nat.cast_le (α := ℝ)).1
   linarith [thousand_mul_le hn hjn, Nat.cast_nonneg (α := ℝ) n]
 
 /-- If `n ≥ 2 ^ 9000` and `j ≥ 38 * n * log₂ n`, then `40 * n * log j ≤ j`. This follows from
@@ -151,8 +151,8 @@ private lemma forty_mul_mul_log_le {j : ℕ} (hn : 2 ^ 9000 ≤ n) (hjn : 38 * n
 lemma card_restrictedSumsetCardSets_pi_zmod_two_div_two_pow_le {j m : ℕ} (hn : 2 ^ 9000 ≤ n)
     (hjn : 38 * n * logb 2 n ≤ j) (hjm : 7 * j ≤ m) :
     (#(restrictedSumsetCardSets (Fin n → ZMod 2) j m) : ℝ) / 2 ^ m ≤ 1 / (2 ^ n) ^ 3 := by
-  refine (card_restrictedSumsetCardSets_div_two_pow_le_exp (hn.trans (le_of_le_mul_logb hn hjn))
-    (forty_mul_mul_log_le hn hjn) hjm).trans ?_
+  apply (card_restrictedSumsetCardSets_div_two_pow_le_exp (hn.trans (le_of_le_mul_logb hn hjn))
+    (forty_mul_mul_log_le hn hjn) hjm).trans
   rw [one_div, ← exp_log (by positivity : (0 : ℝ) < (2 ^ n) ^ 3), ← exp_neg, exp_le_exp, log_pow,
     log_pow, neg_le_neg_iff]
   push_cast
@@ -173,8 +173,8 @@ lemma sum_card_restrictedSumsetCardSets_pi_zmod_two_div_two_pow_le {j : ℕ} (hn
     exact card_restrictedSumsetCardSets_pi_zmod_two_div_two_pow_le hn hjn hjm
   have hj : 1 ≤ j := (Nat.one_le_two_pow.trans hn).trans (le_of_le_mul_logb hn hjn)
   rw [sum_const, Nat.card_Icc, nsmul_eq_mul]
-  refine (mul_le_mul_of_nonneg_right (Nat.cast_le.2 (by grind : 2 ^ n + 1 - 7 * j ≤ 2 ^ n))
-    (by positivity)).trans_eq ?_
+  apply (mul_le_mul_of_nonneg_right (Nat.cast_le.2 (by grind : 2 ^ n + 1 - 7 * j ≤ 2 ^ n))
+    (by positivity)).trans_eq
   push_cast
   field_simp
 

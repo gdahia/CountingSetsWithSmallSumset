@@ -32,7 +32,7 @@ open Real
 
 private lemma pow_le_two_pow_nineThousand {c : ℝ} {n : ℕ} (hc₀ : 0 ≤ c) (hc : c ≤ 2 ^ 10)
     (hn : 10 * n ≤ 9000) : c ^ n ≤ 2 ^ 9000 := by
-  refine (pow_le_pow_left₀ hc₀ hc n).trans ?_
+  apply (pow_le_pow_left₀ hc₀ hc n).trans
   rw [← pow_mul]
   exact pow_le_pow_right₀ (by norm_num) hn
 
@@ -42,12 +42,12 @@ private lemma le_natCast_rpow_inv {j : ℕ} (hj : 2 ^ 9000 ≤ j) {c z : ℝ} (h
 
 lemma hundred_le_rpow_inv_thirtyTwo {j : ℕ} (hj : 2 ^ 9000 ≤ j) :
     100 ≤ (j : ℝ) ^ (32 : ℝ)⁻¹ := by
-  refine le_natCast_rpow_inv hj (by norm_num) (by norm_num) ?_
+  apply le_natCast_rpow_inv hj (by norm_num) (by norm_num)
   rw [rpow_ofNat]
   exact pow_le_two_pow_nineThousand (by norm_num) (by norm_num) (by norm_num)
 
 lemma thousand_le_rpow_inv_sixty {j : ℕ} (hj : 2 ^ 9000 ≤ j) : 1000 ≤ (j : ℝ) ^ (60 : ℝ)⁻¹ := by
-  refine le_natCast_rpow_inv hj (by norm_num) (by norm_num) ?_
+  apply le_natCast_rpow_inv hj (by norm_num) (by norm_num)
   rw [rpow_ofNat]
   exact pow_le_two_pow_nineThousand (by norm_num) (by norm_num) (by norm_num)
 

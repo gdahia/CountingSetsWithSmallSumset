@@ -61,7 +61,7 @@ lemma two_pow_le_two_pow_mul_card_finrank_eq {n k : ℕ} (hk : k ≤ n) :
     2 ^ (n * k) ≤
       2 ^ (k ^ 2 + k) * #{H : Submodule (ZMod 2) (Fin n → ZMod 2) | finrank (ZMod 2) H = k} := by
   classical
-  refine (two_pow_le_two_pow_mul_card_linearIndependent hk).trans ?_
+  apply (two_pow_le_two_pow_mul_card_linearIndependent hk).trans
   set LI : Finset (Fin k → Fin n → ZMod 2) := {v | LinearIndependent (ZMod 2) v}
   rw [pow_add, mul_comm (2 ^ (k ^ 2)), mul_assoc]
   refine Nat.mul_le_mul_left _ ((card_le_mul_card_image

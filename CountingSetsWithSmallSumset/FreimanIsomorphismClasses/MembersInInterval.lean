@@ -46,7 +46,7 @@ private lemma card_le_pow_of_forall_freimanIsomorphic {n r : ℕ} {s : Finset (F
   · intro Y hY
     obtain ⟨-, hYn, -, hYC⟩ := hs Y hY
     exact ⟨hYn, hXC.trans hYC.symm⟩
-  refine (ncard_freimanIsomorphic_subset_le ⟨x, hx⟩ (Icc 1 n)).trans ?_
+  apply (ncard_freimanIsomorphic_subset_le ⟨x, hx⟩ (Icc 1 n)).trans
   rw [Nat.card_Icc, Nat.add_sub_cancel]
   exact Nat.pow_le_pow_right (by grind [mem_Icc.1 (hXn hx)]) (by grind)
 
@@ -60,15 +60,15 @@ lemma ncard_le_card_mul_pow_of_representsFreimanIsoClasses {n r : ℕ} {family :
     family.ncard ≤ #representatives * n ^ (r + 1) := by
   classical
   have hfin : family.Finite := by
-    refine (Icc 1 n).powerset.finite_toSet.subset ?_
+    apply (Icc 1 n).powerset.finite_toSet.subset
     intro X hX
     obtain ⟨-, hXn, -⟩ := hfamily X hX
     exact mem_powerset.2 hXn
   choose! B hB hXB using hrep
   rw [Set.ncard_eq_toFinset_card _ hfin, mul_comm]
-  refine card_le_mul_card_image_of_maps_to (fun X hX ↦ hB X (hfin.mem_toFinset.1 hX)) _ ?_
+  apply card_le_mul_card_image_of_maps_to (fun X hX ↦ hB X (hfin.mem_toFinset.1 hX)) _
   intro C _
-  refine card_le_pow_of_forall_freimanIsomorphic (C := C) ?_
+  apply card_le_pow_of_forall_freimanIsomorphic (C := C)
   intro X hXC
   obtain ⟨hX, rfl⟩ := mem_filter.1 hXC
   rw [hfin.mem_toFinset] at hX

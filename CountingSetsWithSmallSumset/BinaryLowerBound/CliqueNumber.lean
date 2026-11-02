@@ -53,7 +53,7 @@ lemma two_pow_finrank_le_cliqueNum_addCayley {n : ℕ} {H : Submodule (ZMod 2) (
     2 ^ finrank (ZMod 2) H ≤ (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum := by
   classical
   rw [← card_filter_mem_submodule H]
-  refine IsClique.card_le_cliqueNum ?_
+  apply IsClique.card_le_cliqueNum
   intro x hx y hy hxy
   simp only [coe_filter, mem_univ, true_and, Set.mem_ofPred_eq] at hx hy
   rw [addCayley_adj]
@@ -99,8 +99,8 @@ private lemma card_cliqueNum_lt_le_card_forall_not_subset {n k : ℕ}
   have h' : (2 : ℝ) ^ k ≤ (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum := by exact_mod_cast h
   linarith
 
-/-- **Proposition 27** of Green, explicit form. For `n ≥ 2 ^ 16`, at most `2 ^ 2 ^ n / n` of the
-`2 ^ 2 ^ n` sets `A ⊆ 𝔽₂ⁿ` have a Cayley graph with clique number less than `n * log₂ n / 4`. -/
+/-- **Proposition 27** of Green. For `n ≥ 2 ^ 16`, at most `2 ^ 2 ^ n / n` of the `2 ^ 2 ^ n` sets
+`A ⊆ 𝔽₂ⁿ` have a Cayley graph with clique number less than `n * log₂ n / 4`. -/
 lemma card_cliqueNum_addCayley_lt_le {n : ℕ} (hn : 2 ^ 16 ≤ n) :
     #{A : Finset (Fin n → ZMod 2) |
       (addCayley (A : Set (Fin n → ZMod 2))).cliqueNum < n * Real.logb 2 n / 4} ≤

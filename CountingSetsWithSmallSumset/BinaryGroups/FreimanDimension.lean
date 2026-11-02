@@ -92,7 +92,7 @@ private lemma le_four_mul_logb_div {x k m : ℕ} (hk : 2 ≤ k) (hkm : k ≤ m +
       (by exact_mod_cast (by grind : k ≤ 4 * m) : (k : ℝ) ≤ 4 * m) (Nat.cast_nonneg k)
       (by linarith)]
   · have hh : 0 < Nat.log 2 k := Nat.log_pos one_lt_two hk
-    refine le_of_pow_le_pow_left₀ hh.ne' (div_nonneg (by nlinarith) (by positivity)) ?_
+    apply le_of_pow_le_pow_left₀ hh.ne' (div_nonneg (by nlinarith) (by positivity))
     calc (x : ℝ) ^ Nat.log 2 k
         ≤ Nat.log 2 k ^ Nat.log 2 k * (((m + 1) / k) ^ Nat.log 2 k * k) := hx hxh
       _ ≤ Nat.log 2 k ^ Nat.log 2 k *

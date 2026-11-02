@@ -40,7 +40,7 @@ variable {N : ℕ} [NeZero N]
 private lemma natCast_pow_floor_add_one_le (k m : ℕ) :
     (N : ℝ) ^ (⌊4 * (m : ℝ) / k⌋₊ + 1) ≤ (N : ℝ) ^ (1 + 4 * (m : ℝ) / k) := by
   rw [← rpow_natCast]
-  refine rpow_le_rpow_of_exponent_le (Nat.one_le_cast.2 NeZero.one_le) ?_
+  apply rpow_le_rpow_of_exponent_le (Nat.one_le_cast.2 NeZero.one_le)
   push_cast
   linarith [Nat.floor_le (by positivity : 0 ≤ 4 * (m : ℝ) / k)]
 
@@ -78,7 +78,7 @@ lemma card_restrictedSumsetCardSets_zmod_le {k : ℕ} (hk : 0 < k) (m : ℕ) :
     (isAddFreimanIso_image_of_injective 2 (φ := Nat.castAddMonoidHom ℚ) Nat.cast_injective)
     (hrep.subset hsub)
   rw [mul_comm]
-  refine (card_restrictedSumsetCardSets_zmod_le_card_mul hk hrep').trans ?_
+  apply (card_restrictedSumsetCardSets_zmod_le_card_mul hk hrep').trans
   gcongr
   exact_mod_cast hcard'.trans hcard
 
@@ -98,9 +98,9 @@ lemma card_restrictedSumsetCardSets_zmod_le_of_le_rpow {k m : ℕ} (hk : 2 ^ 900
     rintro _ ⟨A, hA, rfl⟩
     obtain ⟨hAk, hAm⟩ := mem_restrictedSumsetCardSets.1 hA
     exact ⟨by simp [hAk], hAm ▸ card_restrictedSumset_zmodLift_le A⟩
-  refine (card_restrictedSumsetCardSets_zmod_le_card_mul
-    (pos_of_smallSumsetClassCountThreshold_le ht) (hrep.subset hsub)).trans ?_
-  refine (mul_le_mul_of_nonneg_right hcard (by positivity)).trans_eq ?_
+  apply (card_restrictedSumsetCardSets_zmod_le_card_mul
+    (pos_of_smallSumsetClassCountThreshold_le ht) (hrep.subset hsub)).trans
+  apply (mul_le_mul_of_nonneg_right hcard (by positivity)).trans_eq
   push_cast
   ring
 

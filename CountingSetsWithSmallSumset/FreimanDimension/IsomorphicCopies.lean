@@ -54,9 +54,9 @@ lemma ncard_isAddFreimanIso_le (F : Type*) [Field F] [Finite F] (n : ℕ) {X : F
     refine ⟨⟨fun x ↦ f x, mem_freimanHomSpace_of_isAddFreimanHom F hf.isAddFreimanHom⟩, ?_⟩
     ext y
     simp [g, ← mem_coe (s := B), ← hf.bijOn.image_eq]
-  refine (Set.ncard_le_ncard hsub (Set.finite_range g)).trans ?_
+  apply (Set.ncard_le_ncard hsub (Set.finite_range g)).trans
   rw [← Set.image_univ]
-  refine (Set.ncard_image_le Set.finite_univ).trans ?_
+  apply (Set.ncard_image_le Set.finite_univ).trans
   rw [Set.ncard_univ, card_freimanHomSpace F _ hX, Nat.card_fun]
   simp
 

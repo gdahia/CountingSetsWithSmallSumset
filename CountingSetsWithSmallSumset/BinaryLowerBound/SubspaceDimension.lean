@@ -72,8 +72,8 @@ private lemma succ_mul_sq_mul_two_pow_le {n m k : ℕ} (hm : 16 ≤ m) (hkm : k 
   have hkn : (k + 1) * n ≤ 2 ^ (3 * m + 2) := by
     rw [(by ring : 3 * m + 2 = (2 * m + 1) + (m + 1)), pow_add]
     exact Nat.mul_le_mul ((by grind : k + 1 ≤ 2 * m + 1).trans Nat.lt_two_pow_self.le) hnm.le
-  refine (Nat.mul_le_mul (Nat.pow_le_pow_left hkn 2)
-    (Nat.pow_le_pow_right two_pos (by nlinarith : 4 * (k ^ 2 + k) ≤ 16 * m ^ 2 + 8 * m))).trans ?_
+  apply (Nat.mul_le_mul (Nat.pow_le_pow_left hkn 2)
+    (Nat.pow_le_pow_right two_pos (by nlinarith : 4 * (k ^ 2 + k) ≤ 16 * m ^ 2 + 8 * m))).trans
   rw [← pow_mul, ← pow_add]
   exact Nat.pow_le_pow_right two_pos (by linarith [sixteen_mul_sq_add_le_two_pow hm])
 
@@ -105,11 +105,11 @@ lemma exists_dim_of_two_pow_sixteen_le {n : ℕ} (hn : 2 ^ 16 ≤ n) :
 private lemma succ_mul_mul_two_pow_le {n k l : ℕ} (hl : 1 ≤ l) (hln : 2 * 2 ^ l ≤ n * l)
     (hkn : ((k + 1) * n) ^ 2 * 2 ^ (4 * (k ^ 2 + k)) ≤ 2 ^ n) :
     (k + 1) * n * 2 ^ (2 * (k ^ 2 + k)) * 2 ^ 2 ^ l ≤ 2 ^ (n * l) := by
-  refine (Nat.pow_le_pow_iff_left two_ne_zero).1 ?_
+  apply (Nat.pow_le_pow_iff_left two_ne_zero).1
   rw [(by ring : ((k + 1) * n * 2 ^ (2 * (k ^ 2 + k)) * 2 ^ 2 ^ l) ^ 2 =
     ((k + 1) * n) ^ 2 * 2 ^ (4 * (k ^ 2 + k)) * 2 ^ (2 ^ l * 2)), ← pow_mul]
-  refine (Nat.mul_le_mul hkn
-    (Nat.pow_le_pow_right two_pos (by grind : 2 ^ l * 2 ≤ n * l))).trans ?_
+  apply (Nat.mul_le_mul hkn
+    (Nat.pow_le_pow_right two_pos (by grind : 2 ^ l * 2 ≤ n * l))).trans
   rw [← pow_add]
   exact Nat.pow_le_pow_right two_pos (by nlinarith)
 

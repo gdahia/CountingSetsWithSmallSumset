@@ -154,7 +154,7 @@ lemma add_eq_add_of_affineIndependent (ha : IsFreimanBasis F A a) {V : Type*} [A
     (h : φ x + φ y = φ z + φ w) : (x : G) + y = z + w := by
   have hu : ∀ i, ha.relationCoeff x y z w i = 0 := by
     rw [affineIndependent_iff_of_fintype] at hind
-    refine hind _ (ha.sum_relationCoeff x y z w) ?_
+    apply hind _ (ha.sum_relationCoeff x y z w)
     rw [weightedVSub_eq_linear_combination _ (ha.sum_relationCoeff x y z w),
       ← ha.add_sub_sub_eq_sum hφ, h]
     simp

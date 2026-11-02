@@ -70,7 +70,7 @@ private lemma sum_one_div_two_pow_le_sum_sum {s : Finset (Finset Γ)} {J : Finse
       rw [mem_filter, mem_filter] at hC
       obtain ⟨⟨-, hCj⟩, hCm⟩ := hC
       exact mem_restrictedSumsetCardSets.2 ⟨hCj, hCm⟩
-    refine (sum_le_sum_of_subset_of_nonneg hsub fun _ _ _ ↦ by positivity).trans_eq ?_
+    apply (sum_le_sum_of_subset_of_nonneg hsub fun _ _ _ ↦ by positivity).trans_eq
     rw [sum_eq_card_nsmul (b := 1 / 2 ^ m), nsmul_eq_mul, mul_one_div]
     intro C hC
     obtain ⟨-, hCm⟩ := mem_restrictedSumsetCardSets.1 hC
@@ -103,7 +103,7 @@ lemma card_lt_cliqueNum_cayleySumGraph_le {L : ℝ} (hL : 46656 ≤ L) :
     obtain ⟨-, hCL, hCm⟩ := mem_filter.1 hC
     refine ⟨mem_filter.2 ⟨mem_Icc.2 ⟨?_, card_le_univ C⟩, hCL⟩, hCm⟩
     exact_mod_cast (by linarith : (0 : ℝ) < #C)
-  refine (Nat.cast_le.2 hcard).trans ?_
+  apply (Nat.cast_le.2 hcard).trans
   grw [← sum_one_div_two_pow_le_sum_sum hT, mul_sum]
   push_cast
   gcongr with C

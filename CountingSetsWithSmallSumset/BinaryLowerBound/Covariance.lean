@@ -73,7 +73,7 @@ lemma mul_sum_sum_two_pow_sub_one_le {n k : ℕ} (hk : 2 * 2 ^ k ≤ n * k)
     obtain rfl | hl₀ := Nat.eq_zero_or_pos l
     · simp only [pow_zero, tsub_self, sub_self, mul_zero]
       positivity
-    refine mul_card_mul_two_pow_sub_one_le hk hkn hl₀ hl ?_
+    apply mul_card_mul_two_pow_sub_one_le hk hkn hl₀ hl
     norm_cast
     refine (card_le_card ?_).trans (card_finrank_inf_eq_le n hl)
     intro p hp

@@ -86,7 +86,7 @@ private lemma cast_choose_le_pow {t m k : ℕ} (ht : 0 < t) (htm : t ≤ m) (hk 
     m.choose k ≤ (exp 1 * m / t) ^ t := by
   have ht₀ : (0 : ℝ) < t := mod_cast ht
   rw [mul_div_assoc, mul_pow, ← exp_nat_mul, mul_one, mul_comm]
-  refine (Nat.choose_le_pow_div k m).trans ?_
+  apply (Nat.choose_le_pow_div k m).trans
   rw [← div_mul_cancel₀ ((m : ℝ) ^ k) (pow_pos ht₀ k).ne', mul_div_assoc, ← div_pow]
   exact mul_le_mul (pow_le_pow_right₀ ((one_le_div₀ ht₀).2 (mod_cast htm)) hk)
     (pow_div_factorial_le_exp _ ht₀.le k) (by positivity) (by positivity)
@@ -95,7 +95,7 @@ private lemma natCeil_four_mul_rpow_mul_le {t m : ℕ} (ht : smallSumsetClassCou
     (hm : m ≤ (t : ℝ) ^ ((31 : ℝ) / 30)) {a b : ℝ} (hab : a + 31 / 30 = b) :
     ⌈4 * (t : ℝ) ^ a * m⌉₊ ≤ 4 * (t : ℝ) ^ b + 1 := by
   rw [← natCast_rpow_mul_rpow ht hab]
-  refine (Nat.ceil_lt_add_one (by positivity)).le.trans ?_
+  apply (Nat.ceil_lt_add_one (by positivity)).le.trans
   linarith [mul_le_mul_of_nonneg_left hm (rpow_nonneg (Nat.cast_nonneg t) a)]
 
 private lemma coreCardBound_cast_le {t m : ℕ} (ht : smallSumsetClassCountThreshold ≤ t)
@@ -169,8 +169,8 @@ private lemma cast_exceptionCardBound_add_one_mul_coreCardBound_le_exp {t m : �
     ((exceptionCardBound t m + 1) * coreCardBound t m : ℕ) ≤
       exp (1 / 100 * (t : ℝ) ^ ((31 : ℝ) / 32)) := by
   have ht₀ := natCast_pos ht
-  refine (Nat.cast_le.2 (Nat.mul_le_mul (exceptionCardBound_add_one_le ht hm)
-    (coreCardBound_le_self ht hm))).trans ?_
+  apply (Nat.cast_le.2 (Nat.mul_le_mul (exceptionCardBound_add_one_le ht hm)
+    (coreCardBound_le_self ht hm))).trans
   rw [Nat.cast_mul, ← log_le_iff_le_exp (by positivity), log_mul ht₀.ne' ht₀.ne',
     ← natCast_rpow_mul_rpow ht (a := 29 / 30) (b := 1 / 480) (c := 31 / 32) (by norm_num)]
   nlinarith [log_natCast_le ht, le_natCast_rpow ht (a := 29 / 30) (by norm_num),
@@ -194,8 +194,8 @@ private lemma freimanClassCountTerm_le {t m d l : ℕ} (ht : smallSumsetClassCou
     (l ^ (16 * l) * m.choose (t - d) * (1 + (t - d) ^ 4) ^ ((d + 1) ^ 4) : ℕ) ≤
       (exp 1 * m / t) ^ t * exp (98 / 100 * (t : ℝ) ^ ((31 : ℝ) / 32)) := by
   have ht₁ := one_lt_of_smallSumsetClassCountThreshold_le ht
-  refine (Nat.cast_le.2 (classCountTerm_le_pow (m := m) ht₁ hd hl
-    (coreCardBound_le_self ht hm))).trans ?_
+  apply (Nat.cast_le.2 (classCountTerm_le_pow (m := m) ht₁ hd hl
+    (coreCardBound_le_self ht hm))).trans
   rw [Nat.cast_mul, Nat.cast_pow, natCast_pow_eq_exp ht, mul_comm]
   refine mul_le_mul (cast_choose_le_pow (by grind) htm (Nat.sub_le t d)) (exp_le_exp.2 ?_)
     (exp_pos _).le (by positivity)
@@ -219,9 +219,9 @@ lemma freimanClassCountBound_le {t m : ℕ}
     obtain ⟨-, hl⟩ := mem_Icc.1 hl
     exact freimanClassCountTerm_le ht htm hm (Nat.lt_succ_iff.1 (mem_range.1 hd)) hl
   rw [sum_const, card_product, card_range, Nat.card_Icc, Nat.add_sub_cancel, nsmul_eq_mul]
-  refine (mul_le_mul_of_nonneg_right
+  apply (mul_le_mul_of_nonneg_right
     (cast_exceptionCardBound_add_one_mul_coreCardBound_le_exp ht hm)
-    (by positivity)).trans_eq ?_
+    (by positivity)).trans_eq
   rw [mul_left_comm, ← exp_add]
   congr 2
   ring

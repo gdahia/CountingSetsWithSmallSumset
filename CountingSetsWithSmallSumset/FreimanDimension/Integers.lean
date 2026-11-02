@@ -43,7 +43,7 @@ variable {G : Type*} [AddCommMonoid G] [DecidableEq G]
 lemma freimanModelDim_iff {X : Finset G} {d : ℕ} :
     freimanModelDim X d ↔ ∃ f : G → (Fin d → ℚ), IsAddFreimanIso 2 (X : Set G) (f '' X) f ∧
       finrank ℚ (vectorSpan ℚ (f '' X)) = d := by
-  refine exists_congr ?_
+  apply exists_congr
   intro f
   rw [affineDim_image_rationalVectorToReal, Finset.coe_image]
 

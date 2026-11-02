@@ -189,9 +189,9 @@ lemma exists_representsFreimanIsoClasses_card_le_freimanClassCountBound {t m : �
     simp only [mem_biUnion, mem_range, mem_Icc]
     exact ⟨_, Nat.lt_succ_of_le hexception, _, ⟨hA₀_nonempty.card_pos, hcore⟩, hQ⟩
   · unfold freimanClassCountBound
-    refine card_biUnion_le.trans ?_
+    apply card_biUnion_le.trans
     gcongr with d
-    refine card_biUnion_le.trans ?_
+    apply card_biUnion_le.trans
     gcongr with l
     exact hcard d l
 

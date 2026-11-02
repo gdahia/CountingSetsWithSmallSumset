@@ -182,8 +182,8 @@ private lemma one_sub_coreSamplingRate_sq_pow_le {t : ℕ}
     (1 - coreSamplingRate t ^ 2) ^ (popularSumThreshold t / 2) ≤ (t : ℝ) ^ (-(4 : ℝ) / 5) := by
   have ht_pos := pos_of_smallSumsetClassCountThreshold_le ht
   rw [Real.rpow_def_of_pos (mod_cast ht_pos)]
-  refine (pow_le_pow_left₀ (by nlinarith [coreSamplingRate_pos ht, coreSamplingRate_lt_one ht])
-    (Real.one_sub_le_exp_neg _) _).trans ?_
+  apply (pow_le_pow_left₀ (by nlinarith [coreSamplingRate_pos ht, coreSamplingRate_lt_one ht])
+    (Real.one_sub_le_exp_neg _) _).trans
   rw [← Real.exp_nat_mul, Real.exp_le_exp]
   linarith [mul_le_mul_of_nonneg_left (rpow_one_fifth_div_six_le_popularSumThreshold_div_two ht)
       (sq_nonneg (coreSamplingRate t)),

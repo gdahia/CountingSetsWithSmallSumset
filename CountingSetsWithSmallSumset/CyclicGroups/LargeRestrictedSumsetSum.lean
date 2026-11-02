@@ -104,7 +104,7 @@ lemma card_restrictedSumsetCardSets_zmod_div_two_pow_le {j m : ℕ} (hj : 2 ^ 90
     (#(restrictedSumsetCardSets (ZMod N) j m) : ℝ) / 2 ^ m ≤ 1 / N ^ 3 := by
   have hLj : 20 * log N ≤ j * log 2 := by
     rwa [logb, ← mul_div_assoc, div_le_iff₀ (log_pos one_lt_two)] at hjN
-  refine (card_restrictedSumsetCardSets_zmod_div_two_pow_le_exp hj hLj hjm).trans ?_
+  apply (card_restrictedSumsetCardSets_zmod_div_two_pow_le_exp hj hLj hjm).trans
   rw [one_div, ← exp_log (pow_pos (Nat.cast_pos.2 (NeZero.pos N)) 3), ← exp_neg, exp_le_exp,
     log_pow, neg_le_neg_iff]
   push_cast
@@ -122,8 +122,8 @@ lemma sum_card_restrictedSumsetCardSets_zmod_div_two_pow_le {j : ℕ} (hj : 2 ^ 
     exact card_restrictedSumsetCardSets_zmod_div_two_pow_le hj hjN hjm
   have hN : (0 : ℝ) < N := Nat.cast_pos.2 (NeZero.pos N)
   rw [sum_const, Nat.card_Icc, nsmul_eq_mul]
-  refine (mul_le_mul_of_nonneg_right (Nat.cast_le.2 (by grind [Nat.one_le_two_pow.trans hj] :
-    N + 1 - 7 * j ≤ N)) (by positivity)).trans_eq ?_
+  apply (mul_le_mul_of_nonneg_right (Nat.cast_le.2 (by grind [Nat.one_le_two_pow.trans hj] :
+    N + 1 - 7 * j ≤ N)) (by positivity)).trans_eq
   field_simp
 
 end CountingSetsWithSmallSumset

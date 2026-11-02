@@ -331,8 +331,8 @@ private lemma sum_one_sub_sq_pow_card_increasingRestrictedRepresentationPairs_le
     {a : G} (ha : a ∈ A) (Q : ℕ) {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q ≤ 1) :
     ∑ b ∈ A, (1 - q ^ 2) ^ #(increasingRestrictedRepresentationPairs A (a + b)) ≤
       1 + #(unpopularNeighbors A Q a) + #A * (1 - q ^ 2) ^ (Q / 2) := by
-  refine (sum_le_sum fun b hb ↦
-    one_sub_sq_pow_card_increasingRestrictedRepresentationPairs_le hb Q hq0 hq1).trans_eq ?_
+  apply (sum_le_sum fun b hb ↦
+    one_sub_sq_pow_card_increasingRestrictedRepresentationPairs_le hb Q hq0 hq1).trans_eq
   simp [sum_add_distrib, ha, inter_eq_right.mpr (unpopularNeighbors_subset A Q a)]
 
 private lemma assignmentWeight_pos {ι : Type*} [Fintype ι]

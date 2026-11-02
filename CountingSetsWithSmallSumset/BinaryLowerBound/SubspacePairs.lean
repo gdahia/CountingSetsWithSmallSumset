@@ -72,7 +72,7 @@ lemma card_finrank_inf_eq_le (n : ℕ) {k l : ℕ} (hl : l ≤ k) :
       inf_le_right (d := k - l) (by grind)
     rw [bot_sup_eq] at hw
     exact mem_image.mpr ⟨(w, u, v), mem_univ _, by simp [f, hw, hu, hv]⟩
-  refine card_image_le.trans ?_
+  apply card_image_le.trans
   simp only [card_univ, Fintype.card_prod, Fintype.card_fun, Fintype.card_fin, ZMod.card,
     ← pow_mul, ← pow_add]
   rw [(by grind : 2 * k - l = l + 2 * (k - l))]

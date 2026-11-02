@@ -39,7 +39,7 @@ lemma card_restrictedSumset_image_le {G H : Type*} [AddCommMonoid G] [AddCommMon
     (hf : IsAddFreimanHom 2 (A : Set G) B f) :
     #(restrictedSumset (A.image f)) ≤ #(restrictedSumset A) := by
   choose! a ha b hb _ hab using fun s (hs : s ∈ restrictedSumset A) ↦ mem_restrictedSumset.1 hs
-  refine card_le_card_of_surjOn (fun s ↦ f (a s) + f (b s)) ?_
+  apply card_le_card_of_surjOn (fun s ↦ f (a s) + f (b s))
   intro y hy
   obtain ⟨_, hc', _, hd', hne, rfl⟩ := mem_restrictedSumset.1 hy
   obtain ⟨c, hc, rfl⟩ := mem_image.1 hc'
