@@ -76,6 +76,7 @@ library and the solution contain no `sorry`, and the theorems depend on no axiom
 | `FreimanDimension/AffineModel.lean` | Corollary 14 |
 | `FreimanDimension/RationalVectors.lean` | Rational vectors as real vectors |
 | `FreimanDimension/Integers.lean` | Corollary 14 for sets of integers and of natural numbers |
+| `Probability/Independence/InfinitePi.lean` | Independence of disjoint blocks of independent random variables, for Mathlib |
 | `SmallSumsetIsomorphismClasses/CoreDecomposition.lean` | The random choice of the core in Proposition 15 |
 | `SmallSumsetIsomorphismClasses/CoreParameters.lean` | Proposition 15 |
 | `SmallSumsetIsomorphismClasses/ExtensionAndRemainderClasses.lean` | Lemmas 16 and 17 |
