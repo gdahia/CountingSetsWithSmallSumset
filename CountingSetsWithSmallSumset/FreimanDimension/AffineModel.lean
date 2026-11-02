@@ -73,15 +73,14 @@ lemma finrank_vectorSpan_le_freimanDimOver (A : Finset W) :
 /-- The vertices `0, e₁, …, e_r` of the standard simplex of `F^r` are affinely independent. -/
 private lemma affineIndependent_cons_zero_single (r : ℕ) :
     AffineIndependent F (Fin.cons 0 fun j ↦ Pi.single j 1 : Fin (r + 1) → Fin r → F) := by
-  rw [affineIndependent_iff_of_fintype]
-  intro u hu hw
-  rw [Finset.weightedVSub_eq_linear_combination _ hu, Fin.sum_univ_succ] at hw
-  have hs (j : Fin r) : u j.succ = 0 := by
-    simpa [Finset.sum_apply, Pi.single_apply] using congrFun hw j
-  intro i
-  cases i using Fin.cases with
-  | zero => simpa [Fin.sum_univ_succ, hs] using hu
-  | succ j => exact hs j
+  rw [affineIndependent_iff_linearIndependent_vsub F _ 0]
+  convert (Pi.linearIndependent_single_one (Fin r) F).comp
+    (fun i : {x : Fin (r + 1) // x ≠ 0} ↦ i.1.pred i.2)
+    fun i j h ↦ by simpa [Subtype.ext_iff] using h
+  rename_i i
+  obtain ⟨_, hi⟩ := i
+  obtain ⟨j, rfl⟩ := Fin.exists_succ_eq.2 hi
+  simp
 
 /-- If the additive relations of `A` are those of a subset of an `F`-vector space, then `A` is
 Freiman isomorphic to a subset of `F^r` of affine dimension `r = r_F(A)`. -/
