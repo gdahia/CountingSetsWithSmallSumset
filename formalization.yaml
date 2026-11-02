@@ -13,11 +13,7 @@ project:
     Z/NZ almost surely has clique number at most 160 log_2 N, and that the Cayley graph of a
     random subset of F_2^n almost surely has clique number between C_1 n log_2 n and
     C_2 n log_2 n. The formalization proves these results with C_1 = 1/4 and C_2 = 308, both
-    as limits and as explicit bounds on the number of exceptional sets, and proves
-    Corollary 14: Green's Freiman dimension
-    dim Hom_2(A, F) - 1 is the largest dimension of a Freiman isomorphic copy of A in F^d
-    that is not contained in a proper affine subspace, and for sets of integers it equals
-    Freiman's definition.
+    as limits and as explicit bounds on the number of exceptional sets.
   authors:
     - "Gabriel Dahia"
   license: "Apache-2.0"
@@ -39,21 +35,11 @@ sources:
     note: >-
       Combinatorica 25 (2005), 307–326. The version used is version 2 of the arXiv preprint,
       of 11 August 2003, read from its LaTeX source. The statements are numbered as in that
-      version, where theorems, propositions, lemmas and corollaries share one counter; the
+      version, where theorems, propositions, lemmas and corollaries share one counter. The
       numbers were not compared with those of the published version. Theorems 4, 5 and 6,
       which the paper cites, and Proposition 29, which it states without proof, are not
-      formalized. The proofs follow those of the paper. They differ in the following places.
-      In Proposition 15, a sum with at least Q representations has at least ⌊Q/2⌋ disjoint
-      ones, where the paper uses Q/3. In Proposition 19, the paper picks the elements of B
-      independently at random and uses a Chernoff bound. Here B has exactly ⌈2√k / ε⌉
-      elements, and averaging over all subsets of this size bounds the number of
-      nondegenerate summing quadruples of some B. Lemma 21 is proved from Freiman's lemma for
-      the full sumset, applied to a model of S in Q^r ⊆ R^r, and |S + S| ≤ |S ∔ S| + |S|. In
-      Lemma 25, the paper takes X ⊆ A maximal such that the sums of h distinct elements of X
-      are distinct, and argues that each a ∈ A \ X lies in hX - (h - 1)X. This step needs one
-      of two colliding sums of X ∪ {a} to avoid a, which the paper does not justify. Here
-      h = ⌊log_2 k⌋, and X is an affinely independent subset of a Freiman isomorphic copy of
-      A with the same affine span, so that its sums of h distinct elements are distinct.
+      formalized. The proofs follow those of the paper. They differ in the places registered
+      in the divergences section below.
     license: "unknown"
     author_endorsement: "not-contacted"
 
@@ -83,7 +69,7 @@ status:
     Section 7, with explicit thresholds. Theorem 24 is the Plünnecke–Ruzsa inequality of
     Mathlib. Theorems 4, 5 and 6 and Proposition 29 are not formalized. Challenge.lean
     states Theorems 7, 8 and 9. The sorry counts refer to the library
-    and Solution.lean; Challenge.lean has one placeholder for each of its five statements.
+    and Solution.lean. Challenge.lean has one placeholder for each of its five statements.
   sorry_count: 0
   sorry_in_definitions: 0
   axioms: ["propext", "Classical.choice", "Quot.sound"]
@@ -121,27 +107,23 @@ automation:
         of files. Later, one instruction to adjust the repository to the Palomar submission
         rules of the maintainer and to remove unnecessary casts in the statements. Later, one
         instruction to make the repository follow these rules again, with Challenge.lean
-        stating only Theorems 7, 8 and 9. Later, one instruction to remove the casts on the
-        left of the inequalities in the other statements of the library. Later, one
-        instruction to move the two counts of sets of natural numbers that the paper does not
-        state to DenseSetsWithoutLargeSumsets, which uses them.
+        stating only Theorems 7, 8 and 9; and another instruction to remove the casts on the
+        left of the inequalities in the other statements of the library.
   spend_usd: "not tracked"
   notes: >-
     The first proofs of Sections 3 and 4 were written by Codex agents in
-    DenseSetsWithoutLargeSumsets. Claude Code, directed by Gabriel Dahia, rewrote them for
+    another repository. Claude Code, directed by Gabriel Dahia, rewrote them for
     vector spaces over a field and wrote the rest of the library, Challenge.lean,
     Solution.lean, the README and this file. Later, Claude Code moved Challenge.lean and
     Solution.lean to CountingSetsWithSmallSumsetPalomar/, replaced the import of all of
     Mathlib in Challenge.lean by the modules its statements need, defined freimanHomSpace as
     an intersection of kernels of linear maps so that the definitions of Challenge.lean
-    contain no proofs, and removed the casts that Lean inserts in the statements. Later, the
-    agent reduced Challenge.lean and Solution.lean to Theorems 7, 8 and 9, removed the casts
-    of the counts in Theorems 7 and 9, left Challenge out of the default build targets, and
-    marked the other results of the paper as lemmas. Later, the agent moved the casts to the
-    real side of the inequalities in the other statements of the library, or removed them
-    where Lean inserts them. Later, the agent moved the counts card_boundedFreimanDimSets and
-    smallSumsetFreimanDimSets_ncard_le to DenseSetsWithoutLargeSumsets and proved
-    Proposition 23 (ii) from Lemma 11, as the paper does. Every proof is checked by Lean.
+    contain no proofs, and removed the casts that Lean inserts in the statements. In another
+    session, the agent reduced Challenge.lean and Solution.lean to Theorems 7, 8 and 9, removed
+    the casts of the counts in Theorems 7 and 9, left Challenge out of the default build targets,
+    and marked the other results of the paper as lemmas. Finally, the agent moved the casts to
+    the real side of the inequalities in the other statements of the library, or removed them
+    where Lean inserts them. Every proof is checked by Lean.
 
 fidelity:
   divergences: >-
@@ -171,9 +153,6 @@ fidelity:
     For a finite set X of integers, the library states r_Q(X) = freimanDim X, where
     freimanDim is Freiman's dimension of SumOfSetsInSeveralDimensions, defined with the
     affine dimension over R of the image in R^d of a model in Q^d.
-
-    Lemma 13. The paper gives dim Hom_2(A, W') as (r_F(A) + 1)^(dim W'). The correct value,
-    proved here as finrank_freimanHomSpace, is (r_F(A) + 1) dim W'.
 
     Proposition 15 holds for every m ≥ t with |A ∔ A| ≤ m, in a commutative monoid with
     cancellation.
