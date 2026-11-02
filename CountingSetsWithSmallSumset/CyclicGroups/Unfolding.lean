@@ -87,7 +87,7 @@ most `4 * |A ∔ A| / |A|`. -/
 lemma freimanDim_zmodLift_le {A : Finset (ZMod N)} (hA : A.Nonempty) :
     freimanDim (zmodLift A) ≤ (4 : ℝ) * #(restrictedSumset A) / #A := by
   have hr : (freimanDim (zmodLift A) : ℝ) + 1 ≤ #A := by
-    exact_mod_cast card_zmodLift A ▸ freimanDim_add_one_le_card (S := zmodLift A) (hA.image _)
+    exact_mod_cast card_zmodLift A ▸ freimanDim_add_one_le_card (X := zmodLift A) (hA.image _)
   have h21 := freimanDim_mul_le_card_restrictedSumset (zmodLift A)
   rw [card_zmodLift] at h21
   rw [le_div_iff₀ (mod_cast hA.card_pos)]
