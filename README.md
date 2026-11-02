@@ -3,10 +3,10 @@
 Lean 4 proof of the results of Ben Green,
 [*Counting sets with small sumset, and the clique number of random Cayley graphs*](https://arxiv.org/abs/math/0304183),
 Combinatorica 25 (2005), 307–326. The paper bounds the number of sets of given size and given
-size of restricted sumset in $\mathbb{Z}/N\mathbb{Z}$ and in $\mathbb{F}_2^n$. With these bounds
+size of restricted sumset in $\mathbb{Z}/N\mathbb{Z}$ and in $\mathbb{F}_2^n$. With these bounds,
 it shows that a random Cayley sum graph on $\mathbb{Z}/N\mathbb{Z}$ almost surely has clique
-number $O(\log N)$, and that a random Cayley graph on $\mathbb{F}_2^n$, where $N = 2^n$, almost
-surely has clique number of order $\log N \log \log N$.
+number $O(\log N)$, and that a random Cayley graph on $\mathbb{F}_2^n$ almost
+surely has clique number of order $\log N \log \log N$, where $N = 2^n$.
 
 ## Results
 
@@ -45,16 +45,15 @@ $A$ since $x + y = y - x$ in $\mathbb{F}_2^n$.
 
 **Theorem 5** (`tendsto_card_le_cliqueNum_addCayley_le'`). As $n \to \infty$, we have
 
-$$\frac{\left|\lbrace A \subseteq \mathbb{F}_2^n : \tfrac{1}{4} n \log_2 n \le \omega(G_A) \le 308\, n \log_2 n \rbrace\right|}{2^N} \to 1.$$
+$$\frac{\left|\lbrace A \subseteq \mathbb{F}_2^n : C_1 n \log_2 n \le \omega(G_A) \le C_2 n \log_2 n \rbrace\right|}{2^N} \to 1,$$
 
-Since $\log_2 N = n$, these are the constants $C_1 = 1/4$ and $C_2 = 308$ of the paper.
+for constants $C_1 = 1/4$ and $C_2 = 308$.
 
 [Challenge.lean](CountingSetsWithSmallSumsetPalomar/Challenge.lean) contains these five
-statements, under the library names with a prime and with `sorry` placeholders, together with the
-definition of `cayleySumGraph`. [Solution.lean](CountingSetsWithSmallSumsetPalomar/Solution.lean)
-proves each statement by the library theorem without the prime. The library and the solution
-contain no `sorry`, and the theorems depend on no axioms other than `propext`, `Classical.choice`
-and `Quot.sound`.
+statements and with `sorry` placeholders, together with the definition of `cayleySumGraph`.
+[Solution.lean](CountingSetsWithSmallSumsetPalomar/Solution.lean) proves each statement. The
+library and the solution contain no `sorry`, and the theorems depend on no axioms other than
+`propext`, `Classical.choice` and `Quot.sound`.
 
 ## Files
 
@@ -130,9 +129,7 @@ defines `cayleySumGraph` as the library does and states the five theorems above 
 [comparator.json](comparator.json) names these five theorems,
 `CountingSetsWithSmallSumsetPalomar.Challenge` and `CountingSetsWithSmallSumsetPalomar.Solution`
 as the modules to compare, and `propext`, `Classical.choice` and `Quot.sound` as the permitted
-axioms. The two modules sit in `CountingSetsWithSmallSumsetPalomar/` rather than at the root, so
-that they do not clash with the `Challenge` and `Solution` modules of the projects this one
-requires or is required by.
+axioms.
 
 CI also runs `scripts/check-lean-sources.py`, `scripts/validate-formalization.rb` and
 `scripts/verify-comparator.sh`. The last one needs Linux with `bwrap`.
