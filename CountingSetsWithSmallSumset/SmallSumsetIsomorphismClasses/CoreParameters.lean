@@ -10,7 +10,7 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import CountingSetsWithSmallSumset.SmallSumsetIsomorphismClasses.CoreDecomposition
 
 /-!
-# Proposition 15 with explicit parameters
+# Proposition 15
 
 This file fixes the parameters of the core decomposition of Proposition 15 of Green, *Counting
 sets with small sumset, and the clique number of random Cayley graphs*. Let `A` be a set of
