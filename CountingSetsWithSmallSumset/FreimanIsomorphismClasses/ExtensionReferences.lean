@@ -16,8 +16,8 @@ import Mathlib.Tactic.Ring.RingNF
 /-!
 # Extension references
 
-This file contains the coding argument of Lemma 16 of Green, *Counting sets with small sumset,
-and the clique number of random Cayley graphs*. Let `a` be a tuple of length `l + d` in a
+This file contains the main step in the proof of Lemma 16 of Green, *Counting sets with small
+sumset, and the clique number of random Cayley graphs*. Let `a` be a tuple of length `l + d` in a
 cancellative commutative monoid. The shape of a relation `a i₁ + a i₂ = a j₁ + a j₂` records which
 of its four indices are among the first `l` indices, and which of the last `d` indices the others
 are. If two relations of the same shape hold, the difference of their parts on the first `l`

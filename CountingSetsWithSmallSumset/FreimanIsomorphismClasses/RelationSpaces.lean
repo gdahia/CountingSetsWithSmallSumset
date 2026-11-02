@@ -48,7 +48,7 @@ open Finset
 noncomputable section
 
 /-- There are `t ^ (2 * s * t)` tuples of `t` relations of order `s`. In Lemma 11 of Green, the
-class of a set is encoded by such a tuple whose relations span its relation space. -/
+class of a set is determined by such a tuple whose relations span its relation space. -/
 lemma card_freimanRelationTuples (s t : ℕ) :
     Fintype.card (Fin t → FreimanRelationIndex s t) = t ^ (2 * s * t) := by
   simp only [Fintype.card_fun, Fintype.card_prod, Fintype.card_fin]
