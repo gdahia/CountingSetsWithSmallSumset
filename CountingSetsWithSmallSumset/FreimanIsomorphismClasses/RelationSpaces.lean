@@ -166,7 +166,8 @@ lemma exists_representsFreimanIsoClasses_card_le_pow (s k : ℕ) :
       RepresentsFreimanIsoClasses s {A : Finset W | #A = k} representatives ∧
         #representatives ≤ k ^ (2 * s * k) := by
   obtain ⟨representatives, -, hrep, hcard⟩ :=
-    exists_subset_representsFreimanIsoClasses_card_le_pow F s fun (_ : Finset W) hA ↦ hA
+    exists_subset_representsFreimanIsoClasses_card_le_pow F s (family := {A : Finset W | #A = k})
+      fun _ hA ↦ hA
   exact ⟨representatives, hrep, hcard⟩
 
 end
