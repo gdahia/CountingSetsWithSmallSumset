@@ -44,7 +44,7 @@ lemma card_filter_superset (B : Finset α) :
   · simp
   · simp
   · simp_all
-  · simp_all [Set.subset_compl_iff_disjoint_right, union_sdiff_cancel_right]
+  · simp_all [Set.subset_compl_iff_disjoint_right]
 
 /-- The sum over all `A ⊆ α` of the product of the normalized indicators of `B ⊆ A` and
 `C ⊆ A`, both centered, is `2 ^ |α| * (2 ^ |B ∩ C| - 1)`. -/
